@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -40,16 +39,16 @@ public class ResponseResult implements Serializable {
         return new ResponseResult(resultEnum.getCode(), resultEnum.getMsg(), new HashMap<>());
     }
 
-    public static @Nullable ResponseResult failure(@NotNull ResultEnum resultEnum) {
+    public static @NotNull ResponseResult failure(@NotNull ResultEnum resultEnum) {
         return new ResponseResult(resultEnum.getCode(), resultEnum.getMsg(), null);
     }
 
-    public static @Nullable ResponseResult failure(@NotNull ResultEnum resultEnum, String msg) {
+    public static @NotNull ResponseResult failure(@NotNull ResultEnum resultEnum, String msg) {
         resultEnum.setMsg(msg);
         return new ResponseResult(resultEnum.getCode(), resultEnum.getMsg(), null);
     }
 
-    public static @Nullable ResponseResult failure(String msg) {
+    public static @NotNull ResponseResult failure(String msg) {
         ResultEnum resultEnum = ResultEnum.ERROR;
         resultEnum.setMsg(msg);
         return new ResponseResult(resultEnum.getCode(), resultEnum.getMsg(), null);
