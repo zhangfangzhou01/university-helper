@@ -3,6 +3,7 @@ package com.yhm.universityhelper.service;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.User;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -16,5 +17,5 @@ import java.util.Map;
  */
 public interface UserService extends IService<User> {
     boolean update(JSONObject json);
-    Map<String, Object> select(JSONObject json);
+    @NotNull Map<String, Object> select(JSONObject json);
 }

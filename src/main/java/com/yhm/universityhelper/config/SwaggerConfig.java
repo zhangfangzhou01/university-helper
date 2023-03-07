@@ -2,8 +2,11 @@ package com.yhm.universityhelper.config;
 
 import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import io.swagger.annotations.ApiOperation;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -22,6 +25,7 @@ import java.util.List;
 @Configuration
 @EnableSwagger2
 @EnableKnife4j
+@Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
@@ -42,13 +46,13 @@ public class SwaggerConfig {
                 .securityContexts(securityContexts());
     }
 
-    private List<ApiKey> securitySchemes() {
+    private @NotNull List<ApiKey> securitySchemes() {
         List<ApiKey> apiKeyList = new ArrayList<>();
         apiKeyList.add(new ApiKey("Authorization", "Authorization", "header"));
         return apiKeyList;
     }
 
-    private List<SecurityContext> securityContexts() {
+    private @NotNull List<SecurityContext> securityContexts() {
         List<SecurityContext> securityContexts = new ArrayList<>();
         securityContexts.add(
                 SecurityContext.builder()
@@ -58,7 +62,7 @@ public class SwaggerConfig {
         return securityContexts;
     }
 
-    List<SecurityReference> defaultAuth() {
+    @NotNull List<SecurityReference> defaultAuth() {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;

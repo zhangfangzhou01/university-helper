@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -37,7 +39,7 @@ public class JwtUtils {
     }
 
     // 解析JWT
-    public Claims getClaimsByToken(String jwt) {
+    public @Nullable Claims getClaimsByToken(String jwt) {
         try {
             return Jwts.parser()
                     .setSigningKey(secret)
@@ -49,7 +51,7 @@ public class JwtUtils {
     }
 
     // 判断JWT是否过期
-    public boolean isTokenExpired(Claims claims) {
+    public boolean isTokenExpired(@NotNull Claims claims) {
         return claims.getExpiration().before(new Date());
     }
 }

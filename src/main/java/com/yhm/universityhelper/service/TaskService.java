@@ -3,6 +3,8 @@ package com.yhm.universityhelper.service;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.Task;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -17,6 +19,6 @@ import java.util.Map;
 public interface TaskService extends IService<Task> {
     boolean update(JSONObject json);
     boolean insert(JSONObject json);
-    Map<String, Object> select(JSONObject json);
-    Map<String, Object> sort(JSONObject json);
+    @NotNull Map<String, Object> select(JSONObject json);
+    @Nullable Map<String, Object> sort(JSONObject json);
 }

@@ -7,6 +7,8 @@ import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,7 +84,7 @@ public class UserController {
             }
     )
     @PostMapping("/update")
-    public ResponseResult update(@RequestBody JSONObject json) {
+    public @Nullable ResponseResult update(@RequestBody JSONObject json) {
         return userService.update(json)
                 ? ResponseResult.success("个人信息修改成功")
                 : ResponseResult.failure("个人信息修改失败");
@@ -102,7 +104,7 @@ public class UserController {
             }
     )
     @PostMapping("/select")
-    public ResponseResult select(@RequestBody JSONObject json) {
+    public @NotNull ResponseResult select(@RequestBody JSONObject json) {
         return ResponseResult.success(userService.select(json));
     }
 }

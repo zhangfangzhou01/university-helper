@@ -2,6 +2,7 @@ package com.yhm.universityhelper.config;
 
 import com.yhm.universityhelper.authentication.*;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,18 +69,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // 用户信息
     @Bean
-    public UserDetailsService userDetailsService() {
+    public @NotNull UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl();
     }
 
     // 加密方式
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public @NotNull BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public PersistentTokenRepository persistentTokenRepository() {
+    public @NotNull PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
         repository.setDataSource(dataSource);
 //        repository.setCreateTableOnStartup(true);
@@ -87,19 +88,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    @NotNull
     JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         return new JwtAuthenticationFilter(authenticationManager());
     }
 
     // 认证
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(@NotNull AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider);
     }
 
     // 授权
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(@NotNull HttpSecurity http) throws Exception {
         http
                 .cors()
                 .and()
@@ -146,7 +148,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(@NotNull WebSecurity web) throws Exception {
         web.ignoring().antMatchers(WEB_WHITELIST);
     }
 }

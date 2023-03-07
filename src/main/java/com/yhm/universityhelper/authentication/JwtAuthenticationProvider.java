@@ -1,6 +1,7 @@
 package com.yhm.universityhelper.authentication;
 
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +21,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public @NotNull Authentication authenticate(@NotNull Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String rawPassword = authentication.getCredentials().toString();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);

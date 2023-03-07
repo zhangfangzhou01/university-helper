@@ -3,6 +3,7 @@ package com.yhm.universityhelper.authentication;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.entity.vo.ResultEnum;
 import com.yhm.universityhelper.util.JsonUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -16,7 +17,7 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFailure implements AuthenticationFailureHandler {
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, @NotNull HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         ResponseResult responseResult;
         if (exception instanceof UsernameNotFoundException) {
             responseResult = ResponseResult.failure(ResultEnum.USER_ACCOUNT_NOT_EXIST);

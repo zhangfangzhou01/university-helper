@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +21,7 @@ public class LoginController {
     // 注册
     @ApiOperation(value = "注册")
     @PostMapping("/register")
-    public ResponseResult register(@RequestParam String username, @RequestParam String password) {
+    public @Nullable ResponseResult register(@RequestParam String username, @RequestParam String password) {
         return loginService.register(username, password)
                 ? ResponseResult.success("注册成功")
                 : ResponseResult.failure("注册失败");
@@ -56,7 +57,7 @@ public class LoginController {
     // 修改密码
     @ApiOperation(value = "修改密码")
     @PostMapping("/changePassword")
-    public ResponseResult changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    public @Nullable ResponseResult changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         return loginService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.success("修改成功")
                 : ResponseResult.failure("修改失败");

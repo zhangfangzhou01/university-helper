@@ -3,6 +3,7 @@ package com.yhm.universityhelper.authentication;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.JwtUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,7 +21,7 @@ public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
     JwtUtils jwtUtils;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Authentication authentication) throws IOException, ServletException {
         String token = jwtUtils.generateToken(authentication.getName());
         response.setHeader(jwtUtils.getHeader(), token);
 

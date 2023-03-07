@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Component
 public class JsonUtils {
 
-    public static void writeJson(HttpServletResponse response, Object object) throws IOException {
+    public static void writeJson(@NotNull HttpServletResponse response, Object object) throws IOException {
         response.setContentType("application/json;charset=utf-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(object));
     }

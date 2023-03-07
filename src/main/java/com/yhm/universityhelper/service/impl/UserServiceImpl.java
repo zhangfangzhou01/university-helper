@@ -8,6 +8,7 @@ import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     UserMapper userMapper;
 
     @Override
-    public boolean update(JSONObject json) {
+    public boolean update(@NotNull JSONObject json) {
         String username = json.get("username", String.class);
         if (ObjectUtils.isEmpty(username)) {
             return false;
@@ -51,7 +52,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Map<String, Object> select(JSONObject json) {
+    public @NotNull Map<String, Object> select(@NotNull JSONObject json) {
 //        List<String> usernames = JsonUtils.jsonToList(json, String.class);
         List<String> usernames = json.get("usernames", List.class);
         Map<String, Object> users = new HashMap<>();
