@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -111,10 +110,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jwtAuthenticationFilter(), JwtAuthenticationFilter.class)
 
                 .authorizeRequests()
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/user/**").hasRole("ADMIN")
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers(WEB_WHITELIST).permitAll()
                 .anyRequest().authenticated()
 
                 .and()
@@ -145,10 +144,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    }
-
-    @Override
-    public void configure(@NotNull WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(WEB_WHITELIST);
     }
 }
