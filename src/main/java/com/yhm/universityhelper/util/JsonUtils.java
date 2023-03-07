@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.util;
 
+import cn.hutool.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,5 +68,13 @@ public class JsonUtils {
     @SneakyThrows(JsonProcessingException.class)
     public static <T> String listToJson(List<T> list, Class<T> clazz) {
         return new ObjectMapper().writeValueAsString(list);
+    }
+
+    public static JSONObject jsonToJsonObject(String json) {
+        return new JSONObject(json);
+    }
+
+    public static String jsonObjectToJson(JSONObject jsonObject) {
+        return objectToJson(jsonObject);
     }
 }
