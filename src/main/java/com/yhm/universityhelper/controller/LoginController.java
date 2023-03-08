@@ -21,10 +21,10 @@ public class LoginController {
     // 注册
     @ApiOperation(value = "注册")
     @PostMapping("/register")
-    public @Nullable ResponseResult register(@RequestParam String username, @RequestParam String password) {
+    public @Nullable ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
         return loginService.register(username, password)
-                ? ResponseResult.success("注册成功")
-                : ResponseResult.failure("注册失败");
+                ? ResponseResult.ok("注册成功")
+                : ResponseResult.fail("注册失败");
     }
 
     // 登录
@@ -57,10 +57,10 @@ public class LoginController {
     // 修改密码
     @ApiOperation(value = "修改密码")
     @PostMapping("/changePassword")
-    public @Nullable ResponseResult changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    public @Nullable ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         return loginService.changePassword(username, oldPassword, newPassword)
-                ? ResponseResult.success("修改成功")
-                : ResponseResult.failure("修改失败");
+                ? ResponseResult.ok("修改成功")
+                : ResponseResult.fail("修改失败");
     }
 
     // 登出

@@ -18,6 +18,6 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, @NotNull HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        JsonUtils.writeJson(response, ResponseResult.failure(ResultEnum.USER_NO_PERMISSIONS));
+        JsonUtils.writeJson(response, ResponseResult.fail(ResultEnum.USER_NO_PERMISSIONS));
     }
 }

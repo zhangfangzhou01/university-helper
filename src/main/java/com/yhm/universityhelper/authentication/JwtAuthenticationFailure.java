@@ -18,11 +18,11 @@ import java.io.IOException;
 public class JwtAuthenticationFailure implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, @NotNull HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        ResponseResult responseResult;
+        ResponseResult<Object> responseResult;
         if (exception instanceof UsernameNotFoundException) {
-            responseResult = ResponseResult.failure(ResultEnum.USER_ACCOUNT_NOT_EXIST);
+            responseResult = ResponseResult.fail(ResultEnum.USER_ACCOUNT_NOT_EXIST);
         } else {
-            responseResult = ResponseResult.failure(ResultEnum.PASSWORD_ERROR);
+            responseResult = ResponseResult.fail(ResultEnum.PASSWORD_ERROR);
         }
         JsonUtils.writeJson(response, responseResult);
     }

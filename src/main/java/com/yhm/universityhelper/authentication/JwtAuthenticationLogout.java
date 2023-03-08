@@ -28,6 +28,6 @@ public class JwtAuthenticationLogout implements LogoutSuccessHandler {
         }
 
         response.setHeader(jwtUtils.getHeader(), "");
-        JsonUtils.writeJson(response, ResponseResult.success("退出成功"));
+        JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
     }
 }

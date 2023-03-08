@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = "用户管理")
 @RestController
@@ -84,10 +85,10 @@ public class UserController {
             }
     )
     @PostMapping("/update")
-    public @Nullable ResponseResult update(@RequestBody JSONObject json) {
+    public @Nullable ResponseResult<Object> update(@RequestBody JSONObject json) {
         return userService.update(json)
-                ? ResponseResult.success("个人信息修改成功")
-                : ResponseResult.failure("个人信息修改失败");
+                ? ResponseResult.ok("个人信息修改成功")
+                : ResponseResult.fail("个人信息修改失败");
     }
 
     // 获得个人信息
@@ -104,7 +105,7 @@ public class UserController {
             }
     )
     @PostMapping("/select")
-    public @NotNull ResponseResult select(@RequestBody JSONObject json) {
-        return ResponseResult.success(userService.select(json));
+    public @NotNull ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
+        return ResponseResult.ok(userService.select(json));
     }
 }

@@ -18,6 +18,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, @NotNull HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        JsonUtils.writeJson(response, ResponseResult.failure(ResultEnum.USER_NOT_LOGIN));
+        JsonUtils.writeJson(response, ResponseResult.fail(ResultEnum.USER_NOT_LOGIN));
     }
 }

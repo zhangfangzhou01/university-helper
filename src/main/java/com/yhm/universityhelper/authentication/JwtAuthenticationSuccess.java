@@ -25,7 +25,7 @@ public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
         String token = jwtUtils.generateToken(authentication.getName());
         response.setHeader(jwtUtils.getHeader(), token);
 
-        ResponseResult responseResult = ResponseResult.success(new HashMap<String, Object>() {{
+        ResponseResult<HashMap<String, Object>> responseResult = ResponseResult.ok(new HashMap<String, Object>() {{
             put("token", token);
         }}, "登录成功");
 

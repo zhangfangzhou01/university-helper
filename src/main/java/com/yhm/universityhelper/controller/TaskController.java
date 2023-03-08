@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = "任务管理")
 @RestController
@@ -132,10 +133,10 @@ public class TaskController {
                             example = "1")
             }
     )
-    public @Nullable ResponseResult update(@RequestBody JSONObject json) {
+    public @Nullable ResponseResult<Object> update(@RequestBody JSONObject json) {
         return taskService.update(json)
-                ? ResponseResult.success("任务信息修改成功")
-                : ResponseResult.failure("任务信息修改失败");
+                ? ResponseResult.ok("任务信息修改成功")
+                : ResponseResult.fail("任务信息修改失败");
     }
 
     @ApiOperation(value = "创建任务信息", notes = "创建任务信息")
@@ -230,10 +231,10 @@ public class TaskController {
             }
     )
     @PostMapping("/insert")
-    public @Nullable ResponseResult insert(@RequestBody JSONObject json) {
+    public @Nullable ResponseResult<Object> insert(@RequestBody JSONObject json) {
         return taskService.insert(json)
-                ? ResponseResult.success("任务信息创建成功")
-                : ResponseResult.failure("任务信息创建失败");
+                ? ResponseResult.ok("任务信息创建成功")
+                : ResponseResult.fail("任务信息创建失败");
     }
 
     /**
@@ -311,8 +312,8 @@ public class TaskController {
             }
     )
     @PostMapping("/select")
-    public @NotNull ResponseResult select(@RequestBody JSONObject json) {
-        return ResponseResult.success(taskService.select(json), "获取任务信息成功");
+    public @NotNull ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
+        return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 
 }
