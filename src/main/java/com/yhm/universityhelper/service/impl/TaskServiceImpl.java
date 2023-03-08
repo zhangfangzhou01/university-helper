@@ -26,7 +26,7 @@ import java.util.*;
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
-    TaskMapper taskMapper;
+    private TaskMapper taskMapper;
 
     public boolean update(@NotNull JSONObject json) {
 

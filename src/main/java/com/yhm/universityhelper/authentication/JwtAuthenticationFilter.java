@@ -24,13 +24,13 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     public JwtAuthenticationFilter(@NotNull AuthenticationManager authenticationManager) {
         super(authenticationManager);

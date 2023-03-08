@@ -19,7 +19,7 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationLogout implements LogoutSuccessHandler {
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, @NotNull HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

@@ -22,9 +22,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     // 修改个人信息
     @ApiOperation(value = "修改个人信息", notes = "修改个人信息")

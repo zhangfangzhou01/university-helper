@@ -23,13 +23,13 @@ import java.util.List;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     @Autowired
-    RoleMapper roleMapper;
+    private RoleMapper roleMapper;
 
     @Autowired
-    UserRoleMapper userRoleMapper;
+    private UserRoleMapper userRoleMapper;
 
     @Override
     public @NotNull UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

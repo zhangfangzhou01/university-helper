@@ -18,7 +18,7 @@ import java.util.HashMap;
 @Component
 public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Authentication authentication) throws IOException, ServletException {

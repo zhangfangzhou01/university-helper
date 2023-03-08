@@ -51,20 +51,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     };
 
     @Autowired
-    JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
-    JwtAuthenticationSuccess authenticationSuccess;
+    private JwtAuthenticationSuccess authenticationSuccess;
     @Autowired
-    JwtAuthenticationFailure authenticationFailure;
+    private JwtAuthenticationFailure authenticationFailure;
     @Autowired
-    JwtAuthenticationLogout authenticationLogout;
+    private JwtAuthenticationLogout authenticationLogout;
     @Lazy
     @Autowired
-    JwtAuthenticationProvider authenticationProvider;
+    private JwtAuthenticationProvider authenticationProvider;
     @Autowired
-    JwtAccessDeniedHandler accessDeniedHandler;
+    private JwtAccessDeniedHandler accessDeniedHandler;
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
     // 用户信息
     @Bean

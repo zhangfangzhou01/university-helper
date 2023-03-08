@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LoginController {
     @Autowired
-    LoginServiceImpl loginService;
+    private LoginServiceImpl loginService;
 
     // 注册
     @ApiOperation(value = "注册")
