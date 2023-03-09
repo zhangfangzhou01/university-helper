@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -34,7 +33,6 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "userId", type = IdType.AUTO)
-    @NotNull(message = "用户id不能为空")
     private Integer userId;
     @TableField("username")
     private String username;
