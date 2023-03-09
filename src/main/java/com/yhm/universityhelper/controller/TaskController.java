@@ -7,8 +7,6 @@ import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.TaskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -130,7 +128,7 @@ public class TaskController {
                             example = "1")
             }
     )
-    public @Nullable ResponseResult<Object> update(@RequestBody JSONObject json) {
+    public ResponseResult<Object> update(@RequestBody JSONObject json) {
         return taskService.update(json)
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -228,7 +226,7 @@ public class TaskController {
             }
     )
     @PostMapping("/insert")
-    public @Nullable ResponseResult<Object> insert(@RequestBody JSONObject json) {
+    public ResponseResult<Object> insert(@RequestBody JSONObject json) {
         return taskService.insert(json)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -309,7 +307,7 @@ public class TaskController {
             }
     )
     @PostMapping("/select")
-    public @NotNull ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
+    public ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 

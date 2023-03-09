@@ -9,7 +9,6 @@ import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
 import com.yhm.universityhelper.util.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,12 +31,12 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
     private UserService userService;
 
-    public JwtAuthenticationFilter(@NotNull AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwt = request.getHeader(jwtUtils.getHeader());
         if (StrUtil.isBlankOrUndefined(jwt)) {
             chain.doFilter(request, response);

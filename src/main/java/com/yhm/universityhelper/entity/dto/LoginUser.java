@@ -2,7 +2,6 @@ package com.yhm.universityhelper.entity.dto;
 
 import cn.hutool.core.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,8 +15,8 @@ public class LoginUser implements UserDetails {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(LoginUser.class);
     private final Integer userId;
-    private final @Nullable String password;
-    private final @Nullable String username;
+    private final String password;
+    private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean accountNonExpired;
     private final boolean accountNonLocked;
@@ -28,7 +27,7 @@ public class LoginUser implements UserDetails {
         this(userId, username, password, true, true, true, true, authorities);
     }
 
-    public LoginUser(Integer userId, @Nullable String username, @Nullable String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+    public LoginUser(Integer userId, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
         Assert.isTrue(username != null && !"".equals(username) && password != null, "Cannot pass null or empty values to constructor");
         this.userId = userId;
         this.username = username;
@@ -46,12 +45,12 @@ public class LoginUser implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return this.password;
     }
 
     @Override
-    public @Nullable String getUsername() {
+    public String getUsername() {
         return this.username;
     }
 

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.JwtUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -22,7 +21,7 @@ public class JwtAuthenticationLogout implements LogoutSuccessHandler {
     private JwtUtils jwtUtils;
 
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, @NotNull HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (ObjectUtils.isEmpty(authentication)) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }

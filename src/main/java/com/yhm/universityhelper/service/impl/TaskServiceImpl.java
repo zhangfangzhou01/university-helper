@@ -7,8 +7,6 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.ReflectUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Autowired
     private TaskMapper taskMapper;
 
-    public boolean update(@NotNull JSONObject json) {
+    public boolean update(JSONObject json) {
 
         Integer taskId = (Integer)json.get("taskId");
         Integer userId = (Integer)json.get("userId");
@@ -42,7 +40,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return taskMapper.updateById(task) > 0;
     }
 
-    public boolean insert(@NotNull JSONObject json) {
+    public boolean insert(JSONObject json) {
         Integer userId = (Integer)json.get("userId");
         String type = (String)json.get("type");
 
@@ -58,7 +56,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public @NotNull Map<String, Object> select(@NotNull JSONObject json) {
+    public Map<String, Object> select(JSONObject json) {
         final Integer userId = (Integer)json.get("userId");
         final Set<String> keys = json.keySet();
 
@@ -121,7 +119,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public @Nullable Map<String, Object> sort(@NotNull JSONObject json) {
+    public Map<String, Object> sort(JSONObject json) {
         final List<Map<String, String>> sortBy = (List<Map<String, String>>)json.get("sortBy");
         final Map<String, Object> tasks = (Map<String, Object>)json.get("tasks");
 
