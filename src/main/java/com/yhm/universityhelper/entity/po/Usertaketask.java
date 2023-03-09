@@ -35,6 +35,4 @@ public class Usertaketask implements Serializable {
 
     @TableField("userId")
     private Integer userId;
-
-
 }
