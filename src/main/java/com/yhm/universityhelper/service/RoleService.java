@@ -1,11 +1,11 @@
 package com.yhm.universityhelper.service;
 
-import com.yhm.universityhelper.entity.po.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yhm.universityhelper.entity.po.Role;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author yhm

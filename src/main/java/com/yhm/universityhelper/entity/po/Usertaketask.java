@@ -22,7 +22,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_usertaketask")
-@ApiModel(value="Usertaketask", description="任务与其接受者的表")
+@ApiModel(value = "Usertaketask", description = "任务与其接受者的表")
 public class Usertaketask implements Serializable {
 
     private static final long serialVersionUID = 1L;

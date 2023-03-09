@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author yhm
@@ -16,5 +16,6 @@ import java.util.Map;
  */
 public interface UserService extends IService<User> {
     boolean update(JSONObject json);
+
     Map<String, Object> select(JSONObject json);
 }

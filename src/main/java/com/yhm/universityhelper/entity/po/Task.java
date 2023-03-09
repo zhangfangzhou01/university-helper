@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author yhm
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_task")
-@ApiModel(value="Task", description="")
+@ApiModel(value = "Task", description = "")
 public class Task implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -82,7 +82,6 @@ public class Task implements Serializable {
 
     @TableField("expectedPeriod")
     private Integer expectedPeriod;
-
 
 
 }

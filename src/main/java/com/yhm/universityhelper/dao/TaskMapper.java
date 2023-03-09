@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  * <p>
- *  Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author yhm
@@ -20,25 +20,23 @@ public interface TaskMapper extends BaseMapper<Task> {
 //  \connect --mysql wsj@localhost/
 
     /**
-     * @param userId
-     * 选择给定用户所发布的所有任务
+     * @param userId 选择给定用户所发布的所有任务
      * @return
      */
-    @Select( "Select * from uh_task where userId = ${userId} " )
+    @Select("Select * from uh_task where userId = ${userId} ")
     ArrayList<Task> selectByUserRelease(Integer userId);
 
     /**
-     * @param userId
-     * 选择给定用户所接取的所有任务
+     * @param userId 选择给定用户所接取的所有任务
      * @return
      */
-    @Select( "Select * from uh_task where taskId in ( Select taskId from uh_usertaketask where userId = ${userId} ) " )
+    @Select("Select * from uh_task where taskId in ( Select taskId from uh_usertaketask where userId = ${userId} ) ")
     ArrayList<Task> selectByUserTake(Integer userId);
 
-    @Select( "Select * from uh_task" )
+    @Select("Select * from uh_task")
     ArrayList<Task> selectAllType();
 
-    @Select( "Select * from uh_task where ( select substr((tags), 1, 2) == #{type} ) " )
+    @Select("Select * from uh_task where ( select substr((tags), 1, 2) == #{type} ) ")
     ArrayList<Task> selectByType(String type);
 
     @Select("Select * from uh_task where DateDiff( date(releaseTime), date(${releaseTimeMax}) )<0 )")
@@ -50,6 +48,7 @@ public interface TaskMapper extends BaseMapper<Task> {
 
     /**
      * 选择今天发布的任务，（外卖类型经常调用）
+     *
      * @return
      */
     @Select("Select * from uh_task where DateDiff( date(releaseTime), date(now()) ) = 0 ")
@@ -64,19 +63,19 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("Select * from uh_task where maxNumOfPeople = ${maxNumOfPeople}")
     ArrayList<Task> selectByMaxNumOfPeople(Integer maxNumOfPeople);
 
-    @Select( "Select * from uh_task where completeFlag = ${completeFlag} )" )
+    @Select("Select * from uh_task where completeFlag = ${completeFlag} )")
     ArrayList<Task> selectByCompleteFlag(Integer completeFlag);
 
     // 外卖
 
-    @Select( "Select * from uh_task order by arrivalTime" )
+    @Select("Select * from uh_task order by arrivalTime")
     ArrayList<Task> selectOrderByArrivalTime();
 
     // arrivalTime
-    @Select( "Select * from uh_task where DateDiff(time(arrivalTime), time(${arrivalTimeMax}) )<0" )
+    @Select("Select * from uh_task where DateDiff(time(arrivalTime), time(${arrivalTimeMax}) )<0")
     ArrayList<Task> selectArrivalTimeMax(LocalDateTime arrivalTimeMax);
 
-    @Select( "Select * from uh_task where DateDiff(time(arrivalTime), time(${arrivalTimeMin}) )>0" )
+    @Select("Select * from uh_task where DateDiff(time(arrivalTime), time(${arrivalTimeMin}) )>0")
     ArrayList<Task> selectArrivalTimeMin(LocalDateTime arrivalTimeMin);
 
     // arrivalLocation
@@ -90,10 +89,10 @@ public interface TaskMapper extends BaseMapper<Task> {
     // 交易
 
     // transactionAmount
-    @Select( "Select * from uh_task where transactionAmount < ${transactionAmountMax} ) " )
+    @Select("Select * from uh_task where transactionAmount < ${transactionAmountMax} ) ")
     ArrayList<Task> selectTransactionAmountMax(Integer transactionAmountMax);
 
-    @Select( "Select * from uh_task where transactionAmount > ${transactionAmountMin} ) " )
+    @Select("Select * from uh_task where transactionAmount > ${transactionAmountMin} ) ")
     ArrayList<Task> selectTransactionAmountMin(Integer transactionAmountMin);
 
 
