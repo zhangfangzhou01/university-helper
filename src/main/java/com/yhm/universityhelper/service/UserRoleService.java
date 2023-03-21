@@ -11,5 +11,7 @@ import com.yhm.universityhelper.entity.po.UserRole;
  * @author yhm
  * @since 2023-02-26
  */
+
+@Transactional
 public interface UserRoleService extends IService<UserRole> {
 }

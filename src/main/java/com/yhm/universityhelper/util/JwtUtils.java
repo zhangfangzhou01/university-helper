@@ -28,7 +28,7 @@ public class JwtUtils {
         Date expireDate = new Date(nowDate.getTime() + 1000 * expire);
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("token", "JWT")
                 .setSubject(username)
                 .setIssuedAt(nowDate)
                 .setExpiration(expireDate)    // 7天过期
