@@ -3,6 +3,7 @@ package com.yhm.universityhelper.service;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 

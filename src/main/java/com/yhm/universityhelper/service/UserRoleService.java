@@ -2,6 +2,7 @@ package com.yhm.universityhelper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.UserRole;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
