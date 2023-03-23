@@ -50,6 +50,7 @@
   </label>
   <button onclick="connect()">登陆客户端</button>
   <button onclick="send()">发送消息</button>
+  <button onclick="disconnected()">断开连接</button>
 </div>
 <script>
     var stompClient = null;
@@ -80,6 +81,14 @@
                 'content': inp.val()
             }));
         inp.val('');
+    }
+
+    function disconnected() {
+        if (stompClient != null) {
+            stompClient.disconnect();
+            stompClient = null;
+            print('系统提示：', '已断开连接');
+        }
     }
 
     $('#first input').focus();
