@@ -63,7 +63,7 @@
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/broadcast', function (greeting) {
                 console.log("返回内容：" + greeting.body);
-                print('服务器：', '这里是服务器返回的内容');
+                print('服务器：', JSON.parse(greeting.body).content);
             });
         });
     }

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -28,10 +29,31 @@ public class Chat implements Serializable {
     private String toUsername;
     @TableField("content")
     private String content;
+    @TableField("time")
+    private LocalDateTime time;
 
     public Chat(ChatUser from, String content) {
         this.from = from;
         this.content = content;
+        this.time = LocalDateTime.now();
+    }
+
+    public Chat(String fromUsername, String content) {
+        this.fromUsername = fromUsername;
+        this.content = content;
+        this.time = LocalDateTime.now();
+    }
+
+    public Chat(ChatUser from, String content, LocalDateTime time) {
+        this.from = from;
+        this.content = content;
+        this.time = time;
+    }
+
+    public Chat(String fromUsername, String content, LocalDateTime time) {
+        this.fromUsername = fromUsername;
+        this.content = content;
+        this.time = time;
     }
 
     public Chat(ChatUser from, ChatUser to, String content) {
@@ -40,11 +62,29 @@ public class Chat implements Serializable {
         this.content = content;
         this.fromUsername = from.getUsername();
         this.toUsername = to.getUsername();
+        this.time = LocalDateTime.now();
     }
 
     public Chat(String fromUsername, String toUsername, String content) {
         this.fromUsername = fromUsername;
         this.toUsername = toUsername;
         this.content = content;
+        this.time = LocalDateTime.now();
+    }
+
+    public Chat(ChatUser from, ChatUser to, String content, LocalDateTime time) {
+        this.from = from;
+        this.to = to;
+        this.content = content;
+        this.fromUsername = from.getUsername();
+        this.toUsername = to.getUsername();
+        this.time = time;
+    }
+
+    public Chat(String fromUsername, String toUsername, String content, LocalDateTime time) {
+        this.fromUsername = fromUsername;
+        this.toUsername = toUsername;
+        this.content = content;
+        this.time = time;
     }
 }

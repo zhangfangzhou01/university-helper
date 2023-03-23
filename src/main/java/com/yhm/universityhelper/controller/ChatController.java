@@ -50,6 +50,7 @@ public class ChatController {
         ChatUser srcChatUser = new ChatUser(srcUser);
 
         String message = msg.getStr("content");
+        userService.update(srcUser);
 
         Chat chat = new Chat(srcUsername, "", message);
         chatService.save(chat);
