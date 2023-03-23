@@ -63,8 +63,8 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("Select * from uh_task where maxNumOfPeople = ${maxNumOfPeople}")
     ArrayList<Task> selectByMaxNumOfPeople(Integer maxNumOfPeople);
 
-    @Select("Select * from uh_task where completeFlag = ${completeFlag} )")
-    ArrayList<Task> selectByCompleteFlag(Integer completeFlag);
+    @Select("Select * from uh_task where completeFlag = ${taskState} )")
+    ArrayList<Task> selectByTaskState(Integer taskState);
 
     // 外卖
 

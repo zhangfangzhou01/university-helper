@@ -4,17 +4,21 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yhm.universityhelper.util.JsonUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
- *
+ * 
  * </p>
  *
  * @author yhm
@@ -24,8 +28,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_task")
-@ApiModel(value = "Task", description = "")
-public class Task implements Serializable {
+@ApiModel(value="UhTask对象", description="")
+public class Task implements Serializable, Comparable{
 
     private static final long serialVersionUID = 1L;
 
@@ -53,8 +57,11 @@ public class Task implements Serializable {
     @TableField("maxNumOfPeopleTake")
     private Integer maxNumOfPeopleTake;
 
-    @TableField("completeFlag")
-    private Boolean completeFlag;
+    @TableField("score")
+    private Integer score;
+
+    @TableField("taskState")
+    private Integer taskState;
 
     @TableField("takeoutId")
     private Integer takeoutId;
@@ -83,5 +90,19 @@ public class Task implements Serializable {
     @TableField("expectedPeriod")
     private Integer expectedPeriod;
 
+    @TableField("isHunter")
+    private Integer isHunter;
 
+    @Override
+    public int compareTo(Object o) {
+        return ((Task)o).getPriority() - this.getPriority();
+    }
+
+    public void autoSetPriority(String priorityTags) {
+        Map<String, Object> data = JsonUtils.jsonToMap(priorityTags);
+        final Set<String> keys = data.keySet();
+        for (String key : keys) {
+
+        }
+    }
 }

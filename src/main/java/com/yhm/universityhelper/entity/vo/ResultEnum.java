@@ -55,4 +55,5 @@ public enum ResultEnum {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
 }
