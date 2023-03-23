@@ -56,5 +56,6 @@ public class User implements Serializable {
     private String phone;
     @TableField("location")
     private String location;
-
+    @TableField("score")
+    private Integer score;
 }
