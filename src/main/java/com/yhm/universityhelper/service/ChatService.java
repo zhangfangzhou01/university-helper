@@ -15,5 +15,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface ChatService extends IService<Chat> {
-
+    int insert(Chat chat);
 }

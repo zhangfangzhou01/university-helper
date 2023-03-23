@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class LoginServiceImpl implements LoginService {
     @Autowired
@@ -25,6 +27,7 @@ public class LoginServiceImpl implements LoginService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(encodePassword);
+        user.setCreateTime(LocalDateTime.now());
         return userMapper.insert(user) > 0;
     }
 

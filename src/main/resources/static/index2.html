@@ -61,7 +61,7 @@
         stompClient = Stomp.over(sockjs);
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/user/queue/chat', function (greeting) {
+            stompClient.subscribe('/queue/broadcast', function (greeting) {
                 console.log("返回内容：" + greeting.body);
                 print('服务器：', JSON.parse(greeting.body).content);
             });
@@ -74,9 +74,8 @@
             return false;
         }
         print('客户端：', inp.val());
-        stompClient.send("/app/chat", {},
+        stompClient.send("/app/broadcast", {},
             JSON.stringify({
-                'to': '2027405037',
                 'content': inp.val()
             }));
         inp.val('');

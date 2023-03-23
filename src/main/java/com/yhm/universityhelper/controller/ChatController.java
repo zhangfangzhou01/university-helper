@@ -38,7 +38,7 @@ public class ChatController {
         String message = msg.getStr("content");
 
         Chat chat = new Chat(srcChatUser, destChatUser, message);
-        chatService.save(chat);
+        chatService.insert(chat);
 
         simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", chat);
     }
@@ -53,7 +53,7 @@ public class ChatController {
         userService.update(srcUser);
 
         Chat chat = new Chat(srcChatUser, message);
-        chatService.save(chat);
+        chatService.insert(chat);
 
         simpMessagingTemplate.convertAndSend("/topic/broadcast", chat);
     }
