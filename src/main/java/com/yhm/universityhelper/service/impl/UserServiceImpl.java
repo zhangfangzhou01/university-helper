@@ -63,4 +63,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         return users;
     }
+
+    @Override
+    public boolean update(User user) {
+        return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUsername, user.getUsername())) > 0;
+    }
+
+    @Override
+    public User selectByUsername(String username) {
+        return userMapper.selectByUsername(username);
+    }
 }
