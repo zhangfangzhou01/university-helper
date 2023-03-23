@@ -35,28 +35,28 @@ public class User implements Serializable {
 
     @TableId(value = "userId", type = IdType.AUTO)
     private Integer userId;
-    @TableField("username")
-    private String username;
-    @TableField("nickname")
-    private String nickname;
-    @TableField("password")
-    private String password;
-    @TableField("sex")
-    private String sex;
+    @TableField("studentId")
+    private Integer studentId;
     @TableField("avatar")
     private String avatar;
     @TableField("description")
     private String description;
-    @TableField("school")
-    private String school;
-    @TableField("studentId")
-    private Integer studentId;
-    @TableField("email")
-    private String email;
-    @TableField("phone")
-    private String phone;
     @TableField("location")
     private String location;
+    @TableField("phone")
+    private String phone;
+    @TableField("email")
+    private String email;
+    @TableField("sex")
+    private String sex;
+    @TableField("password")
+    private String password;
+    @TableField("nickname")
+    private String nickname;
+    @TableField("username")
+    private String username;
+    @TableField("school")
+    private String school;
     @TableField("score")
     private Integer score;
     @TableField("createTime")
