@@ -30,7 +30,6 @@ public class ChatController {
         String srcUsername = authentication.getName();
         User srcUser = userService.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-        System.out.println(srcUsername);
 
         String destUsername = msg.getStr("to");
         User destUser = userService.selectByUsername(destUsername);
@@ -49,7 +48,6 @@ public class ChatController {
         String srcUsername = authentication.getName();
         User srcUser = userService.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-        System.out.println(srcUsername);
 
         String message = msg.getStr("content");
         userService.update(srcUser);
