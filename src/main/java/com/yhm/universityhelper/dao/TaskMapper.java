@@ -2,7 +2,9 @@ package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Task;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +17,9 @@ import java.util.ArrayList;
  * @author yhm
  * @since 2023-03-04
  */
+
+@Transactional
+@Mapper
 public interface TaskMapper extends BaseMapper<Task> {
 
 //  \connect --mysql wsj@localhost/

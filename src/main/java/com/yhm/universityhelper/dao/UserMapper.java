@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Select;
  * @author yhm
  * @since 2023-02-26
  */
+@Transactional
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from uh_user where username = #{username}")
