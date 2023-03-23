@@ -59,10 +59,6 @@ public class User implements Serializable {
     private String location;
     @TableField("score")
     private Integer score;
-    @TableField("lastMessage")
-    private String lastMessage;
-    @TableField("lastTime")
-    private LocalDateTime lastTime;
     @TableField("createTime")
     private LocalDateTime createTime;
 }

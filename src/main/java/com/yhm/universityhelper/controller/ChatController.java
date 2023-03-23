@@ -14,8 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Api(tags = "聊天管理")
 @Controller
 @Transactional
@@ -38,9 +36,6 @@ public class ChatController {
         ChatUser destChatUser = new ChatUser(destUser);
 
         String message = msg.getStr("content");
-        srcUser.setLastMessage(message);
-        srcUser.setLastTime(LocalDateTime.now());
-        userService.update(srcUser);
 
         Chat chat = new Chat(srcUsername, destUsername, message);
         chatService.save(chat);
@@ -55,9 +50,6 @@ public class ChatController {
         ChatUser srcChatUser = new ChatUser(srcUser);
 
         String message = msg.getStr("content");
-        srcUser.setLastMessage(message);
-        srcUser.setLastTime(LocalDateTime.now());
-        userService.update(srcUser);
 
         Chat chat = new Chat(srcUsername, "", message);
         chatService.save(chat);
