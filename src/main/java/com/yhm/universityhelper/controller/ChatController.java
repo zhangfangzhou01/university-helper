@@ -1,38 +1,72 @@
 package com.yhm.universityhelper.controller;
 
-import com.yhm.universityhelper.entity.dto.Chat;
+import cn.hutool.json.JSONObject;
+import com.yhm.universityhelper.entity.dto.ChatUser;
+import com.yhm.universityhelper.entity.po.Chat;
+import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.service.ChatService;
+import com.yhm.universityhelper.service.UserService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
+import java.time.LocalDateTime;
 
+@Api(tags = "聊天管理")
+@Controller
+@Transactional
 public class ChatController {
     @Autowired
-    SimpMessagingTemplate simpMessagingTemplate;
-
-    @MessageMapping("/greeting")
-    public void greeting(String message) {
-        simpMessagingTemplate.convertAndSend("/topic/greeting", message);
-    }
+    private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ChatService chatService;
 
     @MessageMapping("/chat")
-    public void chat(Principal principal, Chat chat){
-        chat.setFrom(principal.getName());
-        simpMessagingTemplate.convertAndSendToUser(chat.getTo(),"/queue/chat",chat);
+    public void chat(Authentication authentication, JSONObject msg) {
+        String srcUsername = authentication.getName();
+        User srcUser = userService.selectByUsername(srcUsername);
+        ChatUser srcChatUser = new ChatUser(srcUser);
+
+        String destUsername = msg.getStr("to");
+        User destUser = userService.selectByUsername(destUsername);
+        ChatUser destChatUser = new ChatUser(destUser);
+
+        String message = msg.getStr("content");
+        srcUser.setLastMessage(message);
+        srcUser.setLastTime(LocalDateTime.now());
+        userService.update(srcUser);
+
+        Chat chat = new Chat(srcUsername, destUsername, message);
+        chatService.save(chat);
+
+        simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", new Chat(srcChatUser, destChatUser, message));
     }
 
-    @MessageMapping("/ws/chat")
-    public void handleChat(Principal principal, String msg) {
-        String destUser = msg.substring(msg.lastIndexOf(";") + 1, msg.length());
-        String message = msg.substring(0, msg.lastIndexOf(";"));
-        simpMessagingTemplate.convertAndSendToUser(destUser, "/queue/chat", new Chat(message, principal.getName()));
+    @MessageMapping("/broadcast")
+    public void broadcast(Authentication authentication, JSONObject msg) {
+        String srcUsername = authentication.getName();
+        User srcUser = userService.selectByUsername(srcUsername);
+        ChatUser srcChatUser = new ChatUser(srcUser);
+
+        String message = msg.getStr("content");
+        srcUser.setLastMessage(message);
+        srcUser.setLastTime(LocalDateTime.now());
+        userService.update(srcUser);
+
+        Chat chat = new Chat(srcUsername, "", message);
+        chatService.save(chat);
+
+        simpMessagingTemplate.convertAndSend("/topic/broadcast", new Chat(srcChatUser, message));
     }
 
-    @MessageMapping("/ws/notification")
-    @SendTo("/topic/notification")
-    public String handleNotification() {
-        return "System Notification";
+    @MessageMapping("/notification")
+    public void notification(String msg) {
+        simpMessagingTemplate.convertAndSend("/topic/notification", msg);
     }
 }

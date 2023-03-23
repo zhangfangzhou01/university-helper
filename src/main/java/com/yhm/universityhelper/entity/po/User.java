@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -42,8 +43,8 @@ public class User implements Serializable {
     private String password;
     @TableField("sex")
     private String sex;
-    @TableField("pictureId")
-    private Integer pictureId;
+    @TableField("avatar")
+    private String avatar;
     @TableField("description")
     private String description;
     @TableField("school")
@@ -58,4 +59,10 @@ public class User implements Serializable {
     private String location;
     @TableField("score")
     private Integer score;
+    @TableField("lastMessage")
+    private String lastMessage;
+    @TableField("lastTime")
+    private LocalDateTime lastTime;
+    @TableField("createTime")
+    private LocalDateTime createTime;
 }

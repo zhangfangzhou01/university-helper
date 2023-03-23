@@ -21,4 +21,8 @@ public interface UserService extends IService<User> {
     boolean update(JSONObject json);
 
     Map<String, Object> select(JSONObject json);
+
+    User selectByUsername(String username);
+
+    boolean update(User user);
 }

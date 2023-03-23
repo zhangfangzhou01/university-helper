@@ -37,7 +37,7 @@ create table if not exists universityhelper.uh_user
 );
 
 create index uh_user_uh_login_picture_pictureid_fk
-    on universityhelper.uh_user (pictureId);
+    on universityhelper.uh_user (avatar);
 
 create table if not exists universityhelper.uh_user_role
 (

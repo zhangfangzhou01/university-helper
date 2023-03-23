@@ -19,4 +19,10 @@ public class WebviewController {
     public String admin() {
         return "admin";
     }
+
+    @ApiOperation(value = "hello页面", notes = "hello页面")
+    @GetMapping("/index")
+    public String hello() {
+        return "index.html";
+    }
 }
