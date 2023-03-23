@@ -49,7 +49,7 @@ public class ChatController {
     }
 
     @MessageMapping("/broadcast")
-    public void groupChat(Authentication authentication, JSONObject msg) {
+    public void broadcast(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userService.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
@@ -59,7 +59,7 @@ public class ChatController {
         srcUser.setLastTime(LocalDateTime.now());
         userService.update(srcUser);
 
-        Chat chat = new Chat(srcUsername, "all", message);
+        Chat chat = new Chat(srcUsername, "", message);
         chatService.save(chat);
 
         simpMessagingTemplate.convertAndSend("/topic/broadcast", new Chat(srcChatUser, message));
