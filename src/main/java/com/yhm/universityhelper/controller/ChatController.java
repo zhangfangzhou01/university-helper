@@ -37,10 +37,10 @@ public class ChatController {
 
         String message = msg.getStr("content");
 
-        Chat chat = new Chat(srcUsername, destUsername, message);
+        Chat chat = new Chat(srcChatUser, destChatUser, message);
         chatService.save(chat);
 
-        simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", new Chat(srcChatUser, destChatUser, message));
+        simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", chat);
     }
 
     @MessageMapping("/broadcast")
@@ -52,10 +52,10 @@ public class ChatController {
         String message = msg.getStr("content");
         userService.update(srcUser);
 
-        Chat chat = new Chat(srcUsername, "", message);
+        Chat chat = new Chat(srcChatUser, message);
         chatService.save(chat);
 
-        simpMessagingTemplate.convertAndSend("/topic/broadcast", new Chat(srcChatUser, message));
+        simpMessagingTemplate.convertAndSend("/topic/broadcast", chat);
     }
 
     @MessageMapping("/notification")

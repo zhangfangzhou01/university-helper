@@ -36,10 +36,13 @@ public class Chat implements Serializable {
         this.from = from;
         this.content = content;
         this.time = LocalDateTime.now();
+        this.fromUsername = from.getUsername();
+        this.toUsername = "all";
     }
 
     public Chat(String fromUsername, String content) {
         this.fromUsername = fromUsername;
+        this.toUsername = "all";
         this.content = content;
         this.time = LocalDateTime.now();
     }
@@ -48,12 +51,15 @@ public class Chat implements Serializable {
         this.from = from;
         this.content = content;
         this.time = time;
+        this.fromUsername = from.getUsername();
+        this.toUsername = "all";
     }
 
     public Chat(String fromUsername, String content, LocalDateTime time) {
         this.fromUsername = fromUsername;
         this.content = content;
         this.time = time;
+        this.toUsername = "all";
     }
 
     public Chat(ChatUser from, ChatUser to, String content) {
