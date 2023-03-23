@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.Set;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author yhm
@@ -28,8 +27,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_task")
-@ApiModel(value="UhTask对象", description="")
-public class Task implements Serializable, Comparable{
+@ApiModel(value = "UhTask对象", description = "")
+public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 

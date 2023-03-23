@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author yhm
  * @since 2023-02-26
  */
+
 @Transactional
 @Mapper
 public interface UserMapper extends BaseMapper<User> {

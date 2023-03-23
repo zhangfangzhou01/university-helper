@@ -49,84 +49,84 @@ public class TaskController {
     @DynamicParameters(
             name = "json",
             properties = {
-                @DynamicParameter(name = "userId",
-                        value = "用户Id",
-                        required = true,
-                        dataTypeClass = Integer.class,
-                        example = "2345346364"
-                ),
-                @DynamicParameter(name = "sex",
-                        value = "性别",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "男"
-                ),
-                @DynamicParameter(name = "type",
-                        value = "任务核心类别",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "外卖"
-                ),
-                @DynamicParameter(name = "title",
-                        value = "任务标题",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "这个是外卖任务"
-                ),
-                @DynamicParameter(name = "requireDescription",
-                        value = "任务描述",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "帮我拿外卖"
-                ),
-                @DynamicParameter(name = "releaseTime",
-                        value = "任务发布时间",
-                        required = true,
-                        dataTypeClass = LocalDateTime.class,
-                        example = "2020-12-12 12:12:12"
-                ),
-                @DynamicParameter(name = "taskState",
-                        value = "任务状态",
-                        required = true,
-                        dataTypeClass = Integer.class,
-                        example = "0:发布但未领取 1:发布已领取 2:发布已完成"
-                ),
-                @DynamicParameter(name = "orderTime",
-                        value = "外卖订单时间",
-                        required = true,
-                        dataTypeClass = LocalDateTime.class,
-                        example = "2020-12-12 12:12:12"
-                ),
-                @DynamicParameter(name = "arrivalTime",
-                        value = "外卖送达时间",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "2020-12-12 12:12:12"
-                ),
-                @DynamicParameter(name = "arrivalLocation",
-                        value = "外卖到校地点",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "东校区西门"
-                ),
-                @DynamicParameter(name = "targetLocation",
-                        value = "外卖校内送达地点",
-                        required = true,
-                        dataTypeClass = String.class,
-                        example = "东八426"
-                ),
-                @DynamicParameter(name = "transactionAmount",
-                        value = "交易金额",
-                        required = true,
-                        dataTypeClass = Double.class,
-                        example = "100.00"
-                ),
-                @DynamicParameter(name = "isHunter",
-                        value = "任务双向类型",
-                        required = true,
-                        dataTypeClass = Integer.class,
-                        example = "0: 雇主 1: 猎人"
-                ),
+                    @DynamicParameter(name = "userId",
+                            value = "用户Id",
+                            required = true,
+                            dataTypeClass = Integer.class,
+                            example = "2345346364"
+                    ),
+                    @DynamicParameter(name = "sex",
+                            value = "性别",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "男"
+                    ),
+                    @DynamicParameter(name = "type",
+                            value = "任务核心类别",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "外卖"
+                    ),
+                    @DynamicParameter(name = "title",
+                            value = "任务标题",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "这个是外卖任务"
+                    ),
+                    @DynamicParameter(name = "requireDescription",
+                            value = "任务描述",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "帮我拿外卖"
+                    ),
+                    @DynamicParameter(name = "releaseTime",
+                            value = "任务发布时间",
+                            required = true,
+                            dataTypeClass = LocalDateTime.class,
+                            example = "2020-12-12 12:12:12"
+                    ),
+                    @DynamicParameter(name = "taskState",
+                            value = "任务状态",
+                            required = true,
+                            dataTypeClass = Integer.class,
+                            example = "0:发布但未领取 1:发布已领取 2:发布已完成"
+                    ),
+                    @DynamicParameter(name = "orderTime",
+                            value = "外卖订单时间",
+                            required = true,
+                            dataTypeClass = LocalDateTime.class,
+                            example = "2020-12-12 12:12:12"
+                    ),
+                    @DynamicParameter(name = "arrivalTime",
+                            value = "外卖送达时间",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "2020-12-12 12:12:12"
+                    ),
+                    @DynamicParameter(name = "arrivalLocation",
+                            value = "外卖到校地点",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "东校区西门"
+                    ),
+                    @DynamicParameter(name = "targetLocation",
+                            value = "外卖校内送达地点",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "东八426"
+                    ),
+                    @DynamicParameter(name = "transactionAmount",
+                            value = "交易金额",
+                            required = true,
+                            dataTypeClass = Double.class,
+                            example = "100.00"
+                    ),
+                    @DynamicParameter(name = "isHunter",
+                            value = "任务双向类型",
+                            required = true,
+                            dataTypeClass = Integer.class,
+                            example = "0: 雇主 1: 猎人"
+                    ),
             })
     @PostMapping("/update")
     public ResponseResult update(@RequestBody String json) {
@@ -134,6 +134,7 @@ public class TaskController {
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
     }
+
     @ApiOperation(value = "创建任务信息", notes = "创建任务信息")
     @DynamicParameters(
             name = "json",

@@ -16,6 +16,7 @@ import java.util.List;
  * @author yhm
  * @since 2023-02-26
  */
+
 @Transactional
 @Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {

@@ -76,36 +76,36 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         List<ArrayList<Task>> taskss = new ArrayList<>();
         List<Task> tasksResult;
 
-        if(keys.contains("userRelease")) {
+        if (keys.contains("userRelease")) {
             taskss.add(taskMapper.selectByUserRelease(userId));
-        }else if(keys.contains("userTake")){
+        } else if (keys.contains("userTake")) {
             taskss.add(taskMapper.selectByUserTake(userId));
-        }else if(keys.contains("type")){
+        } else if (keys.contains("type")) {
             if ("全部".equals(data.get("type"))) {
                 taskss.add(taskMapper.selectAllType());
             } else {
                 taskss.add(taskMapper.selectByType((String)data.get("type")));
             }
-        }else if(keys.contains("releaseTimeMax")){
+        } else if (keys.contains("releaseTimeMax")) {
             taskss.add(taskMapper.selectReleaseTimeMax((LocalDateTime)data.get("releaseTimeMax")));
-        }else if(keys.contains("releaseTimeMin")){
+        } else if (keys.contains("releaseTimeMin")) {
             taskss.add(taskMapper.selectReleaseTimeMin((LocalDateTime)data.get("releaseTimeMin")));
-        }else if(keys.contains("maxNumOfPeople")){
+        } else if (keys.contains("maxNumOfPeople")) {
             taskss.add(taskMapper.selectByMaxNumOfPeople((Integer)data.get("maxNumOfPeople")));
-        }else if(keys.contains("taskState")){
-            taskss.add(taskMapper.selectByTaskState((Integer) data.get("taskState")));
-        }else if(keys.contains("arrivalTimeMax")){
+        } else if (keys.contains("taskState")) {
+            taskss.add(taskMapper.selectByTaskState((Integer)data.get("taskState")));
+        } else if (keys.contains("arrivalTimeMax")) {
             taskss.add(taskMapper.selectArrivalTimeMax((LocalDateTime)data.get("arrivalTimeMax")));
-        }else if(keys.contains("arrivalTimeMin")){
+        } else if (keys.contains("arrivalTimeMin")) {
             taskss.add(taskMapper.selectArrivalTimeMin((LocalDateTime)data.get("arrivalTimeMin")));
-        }else if(keys.contains("arrivalLocation")){
+        } else if (keys.contains("arrivalLocation")) {
             taskss.add(taskMapper.selectByArrivalLocation((String)data.get("arrivalLocation")));
-        }else if(keys.contains("targetLocation")){
+        } else if (keys.contains("targetLocation")) {
             taskss.add(taskMapper.selectByTargetLocation((String)data.get("targetLocation")));
-        }else if(keys.contains("transactionTimeMax")){
+        } else if (keys.contains("transactionTimeMax")) {
             taskss.add(taskMapper.selectTransactionAmountMax((Integer)data.get("transactionAmountMax")));
-        }else if(keys.contains("transactionTimeMin")) {
-            taskss.add(taskMapper.selectTransactionAmountMin((Integer) data.get("transactionAmountMin")));
+        } else if (keys.contains("transactionTimeMin")) {
+            taskss.add(taskMapper.selectTransactionAmountMin((Integer)data.get("transactionAmountMin")));
         }
 
         // 做交集

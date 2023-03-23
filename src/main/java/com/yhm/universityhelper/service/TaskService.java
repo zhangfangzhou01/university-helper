@@ -15,7 +15,10 @@ import java.util.Map;
  */
 public interface TaskService extends IService<Task> {
     boolean update(String json);
+
     boolean insert(String json);
+
     Map<String, Object> select(String json);
+
     Map<String, Object> sort(String json);
 }
