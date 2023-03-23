@@ -75,7 +75,7 @@
         }
         print('客户端：', inp.val());
         stompClient.send("/app/broadcast", {},
-            JSON.stringify({'content': '你好，这里是客户端发送的消息'}));
+            JSON.stringify({'content': inp.val()}));
         inp.val('');
     }
 
