@@ -114,7 +114,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     tasks1.retainAll(tasks2);
                     return tasks1;
                 }).orElse(new ArrayList<>());
-
         // todo 计算 priority
 
         // todo 排序
