@@ -22,11 +22,12 @@ public class JwtAuthenticationLogout implements LogoutSuccessHandler {
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        if (ObjectUtils.isEmpty(authentication)) {
+        if (ObjectUtils.isNotEmpty(authentication)) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
+            response.setHeader(jwtUtils.getHeader(), "");
+            JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
+        } else {
+            JsonUtils.writeJson(response, ResponseResult.fail("退出失败"));
         }
-
-        response.setHeader(jwtUtils.getHeader(), "");
-        JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
     }
 }

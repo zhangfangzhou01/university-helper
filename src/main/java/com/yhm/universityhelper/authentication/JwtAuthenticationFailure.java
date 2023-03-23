@@ -21,6 +21,7 @@ public class JwtAuthenticationFailure implements AuthenticationFailureHandler {
         if (exception instanceof UsernameNotFoundException) {
             responseResult = ResponseResult.fail(ResultEnum.USER_ACCOUNT_NOT_EXIST);
         } else {
+            System.out.println(exception.getMessage());
             responseResult = ResponseResult.fail(ResultEnum.PASSWORD_ERROR);
         }
         JsonUtils.writeJson(response, responseResult);
