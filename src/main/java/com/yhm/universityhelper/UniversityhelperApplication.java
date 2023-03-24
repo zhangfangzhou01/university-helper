@@ -9,9 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @MapperScan("com.yhm.universityhelper.dao")
 public class UniversityhelperApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(UniversityhelperApplication.class, args);
     }
-
 }
