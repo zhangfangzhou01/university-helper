@@ -22,7 +22,7 @@ public class Chat implements Serializable {
     private ChatUser from;
     private ChatUser to;
     @TableId(value = "chatId", type = IdType.AUTO)
-    private Integer chatId;
+    private Long chatId;
     @TableField("fromUsername")
     private String fromUsername;
     @TableField("toUsername")

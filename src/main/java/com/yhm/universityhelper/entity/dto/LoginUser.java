@@ -1,6 +1,9 @@
 package com.yhm.universityhelper.entity.dto;
 
 import cn.hutool.core.lang.Assert;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,24 +13,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Slf4j
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginUser implements UserDetails {
 
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(LoginUser.class);
-    private final Integer userId;
-    private final String password;
-    private final String username;
-    private final Collection<? extends GrantedAuthority> authorities;
-    private final boolean accountNonExpired;
-    private final boolean accountNonLocked;
-    private final boolean credentialsNonExpired;
-    private final boolean enabled;
+    private Long userId;
+    private String password;
+    private String username;
+    private Collection<? extends GrantedAuthority> authorities;
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean credentialsNonExpired;
+    private boolean enabled;
 
-    public LoginUser(Integer userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public LoginUser(Long userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(userId, username, password, true, true, true, true, authorities);
     }
 
-    public LoginUser(Integer userId, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+    public LoginUser(Long userId, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
         Assert.isTrue(username != null && !"".equals(username) && password != null, "Cannot pass null or empty values to constructor");
         this.userId = userId;
         this.username = username;

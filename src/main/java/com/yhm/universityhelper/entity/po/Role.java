@@ -29,7 +29,7 @@ public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "roleId", type = IdType.AUTO)
-    private Integer roleId;
+    private Long roleId;
     @TableField("rolename")
     private String rolename;
 

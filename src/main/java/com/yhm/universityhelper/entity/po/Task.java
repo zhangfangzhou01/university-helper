@@ -33,10 +33,10 @@ public class Task implements Serializable, Comparable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "taskId", type = IdType.AUTO)
-    private Integer taskId;
+    private Long taskId;
 
     @TableField("userId")
-    private Integer userId;
+    private Long userId;
 
     @TableField("tags")
     private String tags;

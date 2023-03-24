@@ -29,14 +29,14 @@ public interface TaskMapper extends BaseMapper<Task> {
      * @return
      */
     @Select("Select * from uh_task where userId = ${userId} ")
-    ArrayList<Task> selectByUserRelease(Integer userId);
+    ArrayList<Task> selectByUserRelease(Long userId);
 
     /**
      * @param userId 选择给定用户所接取的所有任务
      * @return
      */
     @Select("Select * from uh_task where taskId in ( Select taskId from uh_usertaketask where userId = ${userId} ) ")
-    ArrayList<Task> selectByUserTake(Integer userId);
+    ArrayList<Task> selectByUserTake(Long userId);
 
     @Select("Select * from uh_task")
     ArrayList<Task> selectAllType();

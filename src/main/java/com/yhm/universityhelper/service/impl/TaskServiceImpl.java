@@ -29,8 +29,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public boolean update(String json) {
         Map<String, Object> data = JsonUtils.jsonToMap(json);
 
-        Integer taskId = (Integer)data.get("taskId");
-        Integer userId = (Integer)data.get("userId");
+        Long taskId = Long.valueOf(data.get("taskId").toString());
+        Long userId = Long.valueOf(data.get("userId").toString());
         String type = (String)data.get("type");
 
         if (ObjectUtil.isEmpty(taskId) || ObjectUtil.isEmpty(type) || ObjectUtil.isEmpty(userId)) {
@@ -49,7 +49,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public boolean insert(String json) {
         Map<String, Object> data = JsonUtils.jsonToMap(json);
 
-        Integer userId = (Integer)data.get("userId");
+        Long userId = Long.valueOf(data.get("userId").toString());
         String type = (String)data.get("type");
 
         if (ObjectUtil.isEmpty(userId) || ObjectUtil.isEmpty(type)) {
@@ -70,7 +70,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     public Map<String, Object> select(String json) {
         Map<String, Object> data = JsonUtils.jsonToMap(json);
-        final Integer userId = (Integer)data.get("userId");
+        final Long userId = Long.valueOf(data.get("userId").toString());
         final Set<String> keys = data.keySet();
 
         List<ArrayList<Task>> taskss = new ArrayList<>();

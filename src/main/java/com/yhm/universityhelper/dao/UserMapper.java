@@ -20,7 +20,4 @@ import org.springframework.transaction.annotation.Transactional;
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from uh_user where username = #{username}")
     User selectByUsername(String username);
-
-    @Select("select user_id from uh_user where username = #{username}")
-    Integer selectUserIdByUsername(String username);
 }

@@ -103,6 +103,6 @@ public class UserController {
     )
     @PostMapping("/select")
     public ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
-        return ResponseResult.ok(userService.select(json));
+        return ResponseResult.ok(userService.select(json), "获取个人信息成功");
     }
 }

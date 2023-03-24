@@ -27,17 +27,17 @@ import java.io.Serializable;
 public class UserRole implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    public static final Integer ROLE_ADMIN = 1;
-    public static final Integer ROLE_USER = 2;
+    public static final Long ROLE_ADMIN = 1L;
+    public static final Long ROLE_USER = 2L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
     @TableField("userId")
-    private Integer userId;
+    private Long userId;
     @TableField("roleId")
-    private Integer roleId;
+    private Long roleId;
 
-    public UserRole(Integer userId, Integer roleId) {
+    public UserRole(Long userId, Long roleId) {
         this.userId = userId;
         this.roleId = roleId;
     }

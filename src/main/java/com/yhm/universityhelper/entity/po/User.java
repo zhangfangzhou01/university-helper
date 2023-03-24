@@ -34,7 +34,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "userId", type = IdType.AUTO)
-    private Integer userId;
+    private Long userId;
     @TableField("studentId")
     private Integer studentId;
     @TableField("avatar")

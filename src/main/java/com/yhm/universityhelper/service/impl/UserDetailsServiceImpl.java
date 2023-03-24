@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), authorities);
     }
 
-    public List<GrantedAuthority> getUserAuthorities(Integer userId) {
+    public List<GrantedAuthority> getUserAuthorities(Long userId) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         List<UserRole> userRoles = userRoleMapper.listByUserId(userId);
         for (UserRole userRole : userRoles) {
