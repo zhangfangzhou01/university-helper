@@ -2,7 +2,9 @@ package com.yhm.universityhelper.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 public class LoginServiceImpl implements LoginService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private UserRoleMapper userRoleMapper;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -28,6 +32,9 @@ public class LoginServiceImpl implements LoginService {
         user.setUsername(username);
         user.setPassword(encodePassword);
         user.setCreateTime(LocalDateTime.now());
+        UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
+        userRoleMapper.insert(userRole);
+
         return userMapper.insert(user) > 0;
     }
 
