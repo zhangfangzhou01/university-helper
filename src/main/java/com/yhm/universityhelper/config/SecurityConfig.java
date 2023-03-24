@@ -140,6 +140,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .sessionManagement()
-                .maximumSessions(10);
+                .maximumSessions(3);
     }
 }
