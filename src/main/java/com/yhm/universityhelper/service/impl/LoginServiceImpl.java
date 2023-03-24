@@ -32,10 +32,17 @@ public class LoginServiceImpl implements LoginService {
         user.setUsername(username);
         user.setPassword(encodePassword);
         user.setCreateTime(LocalDateTime.now());
+        boolean result = userMapper.insert(user) > 0;
+
+        if (!result) {
+            return false;
+        }
+
+        Integer userId = userMapper.selectUserIdByUsername(username);
         UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
         userRoleMapper.insert(userRole);
 
-        return userMapper.insert(user) > 0;
+        return true;
     }
 
     public boolean changePassword(String username, String oldPassword, String newPassword) {
