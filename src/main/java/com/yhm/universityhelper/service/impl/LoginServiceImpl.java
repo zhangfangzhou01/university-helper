@@ -38,7 +38,6 @@ public class LoginServiceImpl implements LoginService {
             return false;
         }
 
-        Integer userId = userMapper.selectUserIdByUsername(username);
         UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
         userRoleMapper.insert(userRole);
 
