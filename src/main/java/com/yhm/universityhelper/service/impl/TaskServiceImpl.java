@@ -11,7 +11,7 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.ReflectUtils;
-import com.yhm.universityhelper.wrapper.TaskQueryWrapper;
+import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

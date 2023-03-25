@@ -1,4 +1,4 @@
-package com.yhm.universityhelper.wrapper;
+package com.yhm.universityhelper.dao.wrapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
