@@ -3,12 +3,14 @@ package com.yhm.universityhelper.dao.wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import lombok.Data;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Data
 @Component
+@Scope("prototype")
 public class TaskQueryWrapper {
     private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
 
@@ -42,10 +44,6 @@ public class TaskQueryWrapper {
     }
 
     public LambdaQueryWrapper<Task> selectOrderByPriority() {
-        return null;
-    }
-
-    public LambdaQueryWrapper<Task> selectOrderByPriorityDesc() {
         return null;
     }
 

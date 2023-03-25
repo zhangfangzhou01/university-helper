@@ -11,6 +11,7 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.service.TaskService;
+import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,9 @@ import java.util.Set;
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
     private TaskMapper taskMapper;
+
     @Autowired
-    private TaskQueryWrapper taskQueryWrapper;
+    private BeanUtils beanUtils;
 
     public boolean update(JSONObject json) {
         Long taskId = Long.valueOf(json.get("taskId").toString());
@@ -92,9 +94,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
+        TaskQueryWrapper taskQueryWrapper = beanUtils.getBean(TaskQueryWrapper.class);
+
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
             return taskQueryWrapper.getWrapper();
         }
+
+        System.out.println(taskQueryWrapper);
 
         final Long userId = Long.valueOf(json.get("userId").toString());
         final Set<String> keys = json.keySet();
