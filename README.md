@@ -86,7 +86,6 @@ university-helper
 - Lombok
 - Jackson
 
-
 ## 项目部署
 
 ### 1.环境准备
@@ -101,6 +100,7 @@ university-helper
 - 执行sql文件夹下的sql文件
 
 ### 3.项目部署
+
 - 修改application.yml中的数据库配置
 - 启动项目
 - 访问http://localhost:8080/swagger-ui.html

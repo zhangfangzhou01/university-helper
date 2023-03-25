@@ -3,7 +3,6 @@ package com.yhm.universityhelper.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Role;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
