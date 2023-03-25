@@ -1,18 +1,26 @@
 package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.service.TaskService;
-import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.wrapper.TaskQueryWrapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -27,43 +35,54 @@ import java.util.*;
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
-    TaskMapper taskMapper;
+    private TaskMapper taskMapper;
+    @Autowired
+    private TaskQueryWrapper taskQueryWrapper;
 
-    public boolean update(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-
-        Long taskId = Long.valueOf(data.get("taskId").toString());
-        Long userId = Long.valueOf(data.get("userId").toString());
-        String type = (String)data.get("type");
+    public boolean update(JSONObject json) {
+        Long taskId = Long.valueOf(json.get("taskId").toString());
+        Long userId = Long.valueOf(json.get("userId").toString());
+        String type = (String)json.get("type");
 
         if (ObjectUtil.isEmpty(taskId) || ObjectUtil.isEmpty(type) || ObjectUtil.isEmpty(userId)) {
             return false;
         }
         Task task = taskMapper.selectById(taskId);
-        for (String key : data.keySet()) {
+        for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
                 continue;
             }
-            ReflectUtils.set(task, key, data.get(key));
+            if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = json.get(key).toString().replace(" ", "T");
+                ReflectUtils.set(task, key, LocalDateTime.parse(time));
+                continue;
+            }
+            ReflectUtils.set(task, key, json.get(key));
         }
         return taskMapper.updateById(task) > 0;
     }
 
-    public boolean insert(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-
-        Long userId = Long.valueOf(data.get("userId").toString());
-        String type = (String)data.get("type");
+    public boolean insert(JSONObject json) {
+        Long userId = Long.valueOf(json.get("userId").toString());
+        String type = (String)json.get("type");
 
         if (ObjectUtil.isEmpty(userId) || ObjectUtil.isEmpty(type)) {
             return false;
         }
         Task task = new Task();
-        for (String key : data.keySet()) {
-            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
+        for (String key : json.keySet()) {
+            if (key.equals("taskId") || key.equals("type")) {
                 continue;
             }
-            ReflectUtils.set(task, key, data.get(key));
+            if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = json.get(key).toString().replace(" ", "T");
+                ReflectUtils.set(task, key, LocalDateTime.parse(time));
+                continue;
+            } else if (key.equals("userId")) {
+                ReflectUtils.set(task, "userId", userId);
+                continue;
+            }
+            ReflectUtils.set(task, key, json.get(key));
         }
 
         // 插入的时候 不需要计算 priority
@@ -71,91 +90,106 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return taskMapper.insert(task) > 0;
     }
 
-    public Map<String, Object> select(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-        final Long userId = Long.valueOf(data.get("userId").toString());
-        final Set<String> keys = data.keySet();
+    @Override
+    public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
+        final Long userId = Long.valueOf(json.get("userId").toString());
+        final Set<String> keys = json.keySet();
 
-        List<ArrayList<Task>> taskss = new ArrayList<>();
-        List<Task> tasksResult;
-
-        if (keys.contains("userRelease")) {
-            taskss.add(taskMapper.selectByUserRelease(userId));
+        if (keys.contains("userId")) {
+            taskQueryWrapper.selectByUserRelease(userId);
+            System.out.println(taskQueryWrapper.getWrapper().getSqlSegment());
         } else if (keys.contains("userTake")) {
-            taskss.add(taskMapper.selectByUserTake(userId));
+            taskQueryWrapper.selectByUserTake(userId);
         } else if (keys.contains("type")) {
-            if ("全部".equals(data.get("type"))) {
-                taskss.add(taskMapper.selectAllType());
+            if ("全部".equals(json.get("type"))) {
+                taskQueryWrapper.selectAllType();
             } else {
-                taskss.add(taskMapper.selectByType((String)data.get("type")));
+                taskQueryWrapper.selectByType((String)json.get("type"));
             }
         } else if (keys.contains("releaseTimeMax")) {
-            taskss.add(taskMapper.selectReleaseTimeMax((LocalDateTime)data.get("releaseTimeMax")));
+            taskQueryWrapper.selectReleaseTimeMax((LocalDateTime)json.get("releaseTimeMax"));
         } else if (keys.contains("releaseTimeMin")) {
-            taskss.add(taskMapper.selectReleaseTimeMin((LocalDateTime)data.get("releaseTimeMin")));
+            taskQueryWrapper.selectReleaseTimeMin((LocalDateTime)json.get("releaseTimeMin"));
         } else if (keys.contains("maxNumOfPeople")) {
-            taskss.add(taskMapper.selectByMaxNumOfPeople((Integer)data.get("maxNumOfPeople")));
+            taskQueryWrapper.selectByMaxNumOfPeople((Integer)json.get("maxNumOfPeople"));
         } else if (keys.contains("taskState")) {
-            taskss.add(taskMapper.selectByTaskState((Integer)data.get("taskState")));
+            taskQueryWrapper.selectByTaskState((Integer)json.get("taskState"));
         } else if (keys.contains("arrivalTimeMax")) {
-            taskss.add(taskMapper.selectArrivalTimeMax((LocalDateTime)data.get("arrivalTimeMax")));
+            taskQueryWrapper.selectArrivalTimeMax((LocalDateTime)json.get("arrivalTimeMax"));
         } else if (keys.contains("arrivalTimeMin")) {
-            taskss.add(taskMapper.selectArrivalTimeMin((LocalDateTime)data.get("arrivalTimeMin")));
+            taskQueryWrapper.selectArrivalTimeMin((LocalDateTime)json.get("arrivalTimeMin"));
         } else if (keys.contains("arrivalLocation")) {
-            taskss.add(taskMapper.selectByArrivalLocation((String)data.get("arrivalLocation")));
+            taskQueryWrapper.selectByArrivalLocation((String)json.get("arrivalLocation"));
         } else if (keys.contains("targetLocation")) {
-            taskss.add(taskMapper.selectByTargetLocation((String)data.get("targetLocation")));
+            taskQueryWrapper.selectByTargetLocation((String)json.get("targetLocation"));
         } else if (keys.contains("transactionTimeMax")) {
-            taskss.add(taskMapper.selectTransactionAmountMax((Integer)data.get("transactionAmountMax")));
+            taskQueryWrapper.selectTransactionAmountMax((Integer)json.get("transactionAmountMax"));
         } else if (keys.contains("transactionTimeMin")) {
-            taskss.add(taskMapper.selectTransactionAmountMin((Integer)data.get("transactionAmountMin")));
+            taskQueryWrapper.selectTransactionAmountMin((Integer)json.get("transactionAmountMin"));
         }
-
-        // 做交集
-        tasksResult = taskss.stream()
-                .reduce((tasks1, tasks2) -> {
-                    tasks1.retainAll(tasks2);
-                    return tasks1;
-                }).orElse(new ArrayList<>());
-        // todo 计算 priority
-
-        // todo 排序
-
-        Map<String, Object> result = new HashMap<>();
-        for (Task task : tasksResult) {
-            result.put(task.getTaskId().toString(), task);
-        }
-
-        return result;
+        return taskQueryWrapper.getWrapper();
     }
 
     @Override
-    public Map<String, Object> sort(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-        final List<Map<String, String>> sortBy = (List<Map<String, String>>)data.get("sortBy");
-        final Map<String, Object> tasks = (Map<String, Object>)data.get("tasks");
+    public List<OrderItem> sortWrapper(JSONArray sortJson) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (JSONObject sort : sortJson.toList(JSONObject.class)) {
+            String column = sort.get("column", String.class);
+            boolean asc = sort.get("asc", Boolean.class);
+            OrderItem orderItem = new OrderItem();
+            orderItem.setColumn(column);
+            orderItem.setAsc(asc);
+            orderItems.add(orderItem);
+        }
+        return orderItems;
+    }
 
-        List<Task> tasksResult = new ArrayList<>();
-        for (String key : tasks.keySet()) {
-            tasksResult.add((Task)tasks.get(key));
+    @Override
+    public Page<Task> pageWrapper(JSONObject json) {
+        Long current, size;
+
+        if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
+            current = 1L;
+            size = -1L;
+        } else {
+            current = json.get("current", Long.class);
+            size = json.get("size", Long.class);
         }
 
-        // sortBy是类似于 [{"userId": "asc"}, {"releaseTime": "desc"}] 的结构
-        // 也就是说，先按照userId升序排列，再按照releaseTime降序排列
-        // 这里的asc和desc是字符串，不是boolean
-        // 这里的userId和releaseTime是Task类的属性名
-        // 写一个方法，根据sortBy的结构，对tasksResult进行排序
+        return new Page<>(current, size);
+    }
 
-        tasksResult.sort((task1, task2) -> {
-            for (Map<String, String> map : sortBy) {
-                for (String key : map.keySet()) {
-//                    if (map.get(key).equals("asc")) {
-//                    } else {
-//                    }
-                }
-            }
-            return 0;
-        });
-        return null;
+//    @Override
+//    public List<Task> searchList(JSONObject json) {
+//        return taskMapper.selectList(searchWrapper(json));
+//    }
+//
+//    public List<Task> selectList(JSONObject json) {
+//        final JSONObject searchJson = json.get("search", JSONObject.class);
+//        final JSONArray sortJson = json.get("sort", JSONArray.class);
+//
+//        final List<Task> tasksResult = searchList(searchJson);
+//
+//        // todo 计算 priority
+//
+//        // todo 排序
+//
+//        return tasksResult;
+//    }
+
+    @Override
+    public Page<Task> select(JSONObject json) {
+        final JSONObject searchJson = json.get("search", JSONObject.class);
+        final JSONObject pageJson = json.get("page", JSONObject.class);
+        final JSONArray sortJson = json.get("sort", JSONArray.class);
+
+        LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
+        List<OrderItem> orderItems = sortWrapper(sortJson);
+        Page<Task> page = pageWrapper(pageJson);
+        page.addOrder(orderItems);
+
+        taskMapper.selectPage(page, wrapper);
+
+        return page;
     }
 }

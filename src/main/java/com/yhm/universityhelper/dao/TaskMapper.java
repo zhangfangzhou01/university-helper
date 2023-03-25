@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("Select * from uh_task where DateDiff( date(releaseTime), date(now()) ) = 0 ")
     ArrayList<Task> selectReleaseTimeToday();
 
-    @Select("Select * from uh_task order by priority)")
+    @Select("Select * from uh_task order by priority")
     ArrayList<Task> selectOrderByPriority();
 
     @Select("Select * from uh_task order by priority desc")
