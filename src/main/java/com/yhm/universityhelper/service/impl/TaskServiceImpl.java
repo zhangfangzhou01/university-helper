@@ -92,6 +92,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
+        if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
+            return taskQueryWrapper.getWrapper();
+        }
+
         final Long userId = Long.valueOf(json.get("userId").toString());
         final Set<String> keys = json.keySet();
 
@@ -133,6 +137,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public List<OrderItem> sortWrapper(JSONArray sortJson) {
         List<OrderItem> orderItems = new ArrayList<>();
+
+        if (ObjectUtil.isEmpty(sortJson) || sortJson.isEmpty()) {
+            return orderItems;
+        }
+
         for (JSONObject sort : sortJson.toList(JSONObject.class)) {
             String column = sort.get("column", String.class);
             boolean asc = sort.get("asc", Boolean.class);
@@ -146,12 +155,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public Page<Task> pageWrapper(JSONObject json) {
-        Long current, size;
+        Long current = 0L;
+        Long size = -1L;
 
-        if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            current = 1L;
-            size = -1L;
-        } else {
+        if (ObjectUtil.isNotEmpty(json) && (!json.isEmpty())) {
             current = json.get("current", Long.class);
             size = json.get("size", Long.class);
         }
