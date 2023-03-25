@@ -139,10 +139,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         for (JSONObject sort : sortJson.toList(JSONObject.class)) {
             String column = sort.get("column", String.class);
-            boolean asc = sort.get("asc", Boolean.class);
-            OrderItem orderItem = new OrderItem();
-            orderItem.setColumn(column);
-            orderItem.setAsc(asc);
+            Boolean asc = sort.get("asc", Boolean.class);
+
+            if (ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+                continue;
+            }
+
+            OrderItem orderItem = new OrderItem(column, asc);
             orderItems.add(orderItem);
         }
         return orderItems;
