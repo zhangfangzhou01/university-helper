@@ -101,7 +101,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         if (keys.contains("userId")) {
             taskQueryWrapper.selectByUserRelease(userId);
-            System.out.println(taskQueryWrapper.getWrapper().getSqlSegment());
         } else if (keys.contains("userTake")) {
             taskQueryWrapper.selectByUserTake(userId);
         } else if (keys.contains("type")) {
