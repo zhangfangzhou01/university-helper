@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -92,7 +93,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
                 for (Object tag : tags) {
-                    taskTagsMapper.insert(new TaskTags((String)tag));
+                    final TaskTags taskTags = new TaskTags((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
+                        taskTagsMapper.insert(taskTags);
+                    }
                 }
             } else {
                 ReflectUtils.set(task, key, json.get(key));
