@@ -21,6 +21,7 @@ university-helper
 │   │   │   ├── JwtAuthenticationSuccess.java
 │   │   │   ├── JwtAuthenticationProvider.java
 │   │   ├── config
+│   │   │   ├── MybatisPlusConfig.java
 │   │   │   ├── SecurityConfig.java
 │   │   │   ├── SwaggerConfig.java
 │   │   │   ├── WebSocketConfig.java
@@ -30,6 +31,16 @@ university-helper
 │   │   │   ├── TaskController.java
 │   │   │   ├── UserController.java
 │   │   │   ├── WebviewController.java
+│   │   ├── dao
+│   │   │   ├── wrapper
+│   │   │   │   ├── TaskQueryWrapper.java
+│   │   │   ├── ChatMapper.java
+│   │   │   ├── LoginMapper.java
+│   │   │   ├── TaskMapper.java
+│   │   │   ├── UserMapper.java
+│   │   │   ├── RoleMapper.java
+│   │   │   ├── UserRoleMapper.java
+│   │   │   ├── UsertaketaskMapper.java
 │   │   ├── entity
 │   │   │   ├── dto
 │   │   │   │   ├── ChatUserDto.java
@@ -63,6 +74,7 @@ university-helper
 │   │   │   │   ├── UsertaketaskServiceImpl.java
 │   │   │   │   ├── UserDetailServiceImpl.java
 │   │   ├── util
+│   │   │   ├── BeanUtils.java
 │   │   │   ├── JwtUtils.java
 │   │   │   ├── JsonUtils.java
 │   │   │   ├── ReflectUtils.java
