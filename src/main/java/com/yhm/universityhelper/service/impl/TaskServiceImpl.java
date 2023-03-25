@@ -100,8 +100,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             return taskQueryWrapper.getWrapper();
         }
 
-        System.out.println(taskQueryWrapper);
-
         final Long userId = Long.valueOf(json.get("userId").toString());
         final Set<String> keys = json.keySet();
 
