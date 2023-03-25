@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
 @Component
 @Scope("prototype")
 public class TaskQueryWrapper {
+    private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
-
-    private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
 
     public void taskId(Long taskId) {
         wrapper.eq(Task::getTaskId, taskId);
@@ -31,13 +31,19 @@ public class TaskQueryWrapper {
     }
 
     public void userTake(Long userId) {
-        wrapper.in(Task::getTaskId, usertaketaskMapper.selectList(
+        final List<Long> taskIds = usertaketaskMapper.selectList(
                         new LambdaQueryWrapper<Usertaketask>()
                                 .eq(Usertaketask::getUserId, userId)
                 )
                 .stream()
                 .map(Usertaketask::getTaskId)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        if (taskIds.isEmpty()) {
+            wrapper.eq(Task::getTaskId, -1);
+        } else {
+            wrapper.in(Task::getTaskId, taskIds);
+        }
     }
 
     public void type(String type) {
