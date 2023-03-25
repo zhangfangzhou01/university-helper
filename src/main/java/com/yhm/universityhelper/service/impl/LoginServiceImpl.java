@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UserRoleMapper;
@@ -56,6 +57,6 @@ public class LoginServiceImpl implements LoginService {
         }
         String encodePassword = bCryptPasswordEncoder.encode(newPassword);
         user.setPassword(encodePassword);
-        return userMapper.update(user, null) > 0;
+        return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId())) > 0;
     }
 }
