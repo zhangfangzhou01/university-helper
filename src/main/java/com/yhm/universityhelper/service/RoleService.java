@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-02-26
  */
 
-@Transactional
 public interface RoleService extends IService<Role> {
 
 }

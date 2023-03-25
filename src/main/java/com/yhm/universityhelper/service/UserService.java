@@ -16,7 +16,6 @@ import java.util.Map;
  * @since 2023-02-26
  */
 
-@Transactional
 public interface UserService extends IService<User> {
     boolean update(JSONObject json);
 

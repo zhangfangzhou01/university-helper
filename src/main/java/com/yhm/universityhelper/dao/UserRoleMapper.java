@@ -17,7 +17,6 @@ import java.util.List;
  * @since 2023-02-26
  */
 
-@Transactional
 @Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
     @Select("select * from uh_user_role where userId = #{userId}")

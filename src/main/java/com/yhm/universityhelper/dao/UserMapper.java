@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-02-26
  */
 
-@Transactional
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from uh_user where username = #{username}")

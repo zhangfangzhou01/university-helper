@@ -2,7 +2,6 @@ package com.yhm.universityhelper.service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 public interface LoginService {
     boolean register(String username, String password);
 

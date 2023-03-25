@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-02-26
  */
 
-@Transactional
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
 }

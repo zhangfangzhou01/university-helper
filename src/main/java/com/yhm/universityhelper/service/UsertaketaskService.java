@@ -13,6 +13,5 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-03-04
  */
 
-@Transactional
 public interface UsertaketaskService extends IService<Usertaketask> {
 }

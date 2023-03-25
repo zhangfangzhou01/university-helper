@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-03-23
  */
 
-@Transactional
 @Mapper
 public interface ChatMapper extends BaseMapper<Chat> {
     @Insert("insert into uh_chat (fromUsername, toUsername, content, time) values (#{fromUsername}, #{toUsername}, #{content}, #{time})")

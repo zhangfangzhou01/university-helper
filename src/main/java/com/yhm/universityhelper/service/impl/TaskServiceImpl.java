@@ -9,6 +9,7 @@ import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -21,6 +22,8 @@ import java.util.*;
  * @author yhm
  * @since 2023-03-04
  */
+
+@Transactional
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired

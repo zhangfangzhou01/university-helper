@@ -10,6 +10,7 @@ import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,8 @@ import java.util.Map;
  * @author yhm
  * @since 2023-02-26
  */
+
+@Transactional
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Autowired

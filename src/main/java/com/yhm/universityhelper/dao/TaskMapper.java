@@ -18,7 +18,6 @@ import java.util.ArrayList;
  * @since 2023-03-04
  */
 
-@Transactional
 @Mapper
 public interface TaskMapper extends BaseMapper<Task> {
 
