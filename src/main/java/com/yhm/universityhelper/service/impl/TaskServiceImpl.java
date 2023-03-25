@@ -8,8 +8,10 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.TaskMapper;
+import com.yhm.universityhelper.dao.TaskTagsMapper;
 import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
+import com.yhm.universityhelper.entity.po.TaskTags;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.JsonUtils;
@@ -39,6 +41,9 @@ import java.util.Set;
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
     private TaskMapper taskMapper;
+
+    @Autowired
+    private TaskTagsMapper taskTagsMapper;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -84,7 +89,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             } else if (key.equals("userId")) {
                 ReflectUtils.set(task, "userId", userId);
             } else if (key.equals("tags")) {
-                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson((JSONArray)json.get(key)));
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                for (Object tag : tags) {
+                    taskTagsMapper.insert(new TaskTags((String)tag));
+                }
             } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
@@ -104,8 +113,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
         TaskQueryWrapper taskQueryWrapper = beanUtils.getBean(TaskQueryWrapper.class);
 
-        System.out.println(taskQueryWrapper);
-
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
             return taskQueryWrapper.getWrapper();
         }
@@ -121,6 +128,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             } else if (StringUtils.containsIgnoreCase(key, "date")) {
                 String date = json.get(key).toString();
                 ReflectUtils.call(taskQueryWrapper, key, Void.class, LocalDate.parse(date));
+            } else if (StringUtils.equals(key, "tags")) {
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.call(taskQueryWrapper, key, Void.class, tags);
             } else {
                 ReflectUtils.call(taskQueryWrapper, key, Void.class, json.get(key));
             }

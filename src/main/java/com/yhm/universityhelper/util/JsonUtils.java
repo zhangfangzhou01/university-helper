@@ -83,6 +83,6 @@ public class JsonUtils {
     }
 
     public static String jsonArrayToJson(JSONArray jsonArray) {
-        return objectToJson(jsonArray);
+        return jsonArray.toString();
     }
 }
