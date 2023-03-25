@@ -17,9 +17,10 @@ import java.util.stream.Collectors;
 @Component
 @Scope("prototype")
 public class TaskQueryWrapper {
-    private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
+
+    private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
 
     public void taskId(Long taskId) {
         wrapper.eq(Task::getTaskId, taskId);
