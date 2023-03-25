@@ -12,12 +12,14 @@ import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
+import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,12 +81,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
-                continue;
             } else if (key.equals("userId")) {
                 ReflectUtils.set(task, "userId", userId);
-                continue;
+            } else if (key.equals("tags")) {
+                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson((JSONArray)json.get(key)));
+            } else {
+                ReflectUtils.set(task, key, json.get(key));
             }
-            ReflectUtils.set(task, key, json.get(key));
         }
 
         // 插入的时候 不需要计算 priority
@@ -93,47 +96,36 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
+    public boolean delete(Long taskId) {
+        return taskMapper.deleteById(taskId) > 0;
+    }
+
+    @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
         TaskQueryWrapper taskQueryWrapper = beanUtils.getBean(TaskQueryWrapper.class);
+
+        System.out.println(taskQueryWrapper);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
             return taskQueryWrapper.getWrapper();
         }
 
-        final Long userId = Long.valueOf(json.get("userId").toString());
         final Set<String> keys = json.keySet();
 
-        if (keys.contains("userId")) {
-            taskQueryWrapper.selectByUserRelease(userId);
-        } else if (keys.contains("userTake")) {
-            taskQueryWrapper.selectByUserTake(userId);
-        } else if (keys.contains("type")) {
-            if ("全部".equals(json.get("type"))) {
-                taskQueryWrapper.selectAllType();
+        for (String key : keys) {
+            if (StringUtils.equals(key, "userRelease") || StringUtils.equals(key, "userTake")) {
+                ReflectUtils.call(taskQueryWrapper, key, Void.class, Long.valueOf(json.get(key).toString()));
+            } else if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = json.get(key).toString().replace(" ", "T");
+                ReflectUtils.call(taskQueryWrapper, key, Void.class, LocalDateTime.parse(time));
+            } else if (StringUtils.containsIgnoreCase(key, "date")) {
+                String date = json.get(key).toString();
+                ReflectUtils.call(taskQueryWrapper, key, Void.class, LocalDate.parse(date));
             } else {
-                taskQueryWrapper.selectByType((String)json.get("type"));
+                ReflectUtils.call(taskQueryWrapper, key, Void.class, json.get(key));
             }
-        } else if (keys.contains("releaseTimeMax")) {
-            taskQueryWrapper.selectReleaseTimeMax((LocalDateTime)json.get("releaseTimeMax"));
-        } else if (keys.contains("releaseTimeMin")) {
-            taskQueryWrapper.selectReleaseTimeMin((LocalDateTime)json.get("releaseTimeMin"));
-        } else if (keys.contains("maxNumOfPeople")) {
-            taskQueryWrapper.selectByMaxNumOfPeople((Integer)json.get("maxNumOfPeople"));
-        } else if (keys.contains("taskState")) {
-            taskQueryWrapper.selectByTaskState((Integer)json.get("taskState"));
-        } else if (keys.contains("arrivalTimeMax")) {
-            taskQueryWrapper.selectArrivalTimeMax((LocalDateTime)json.get("arrivalTimeMax"));
-        } else if (keys.contains("arrivalTimeMin")) {
-            taskQueryWrapper.selectArrivalTimeMin((LocalDateTime)json.get("arrivalTimeMin"));
-        } else if (keys.contains("arrivalLocation")) {
-            taskQueryWrapper.selectByArrivalLocation((String)json.get("arrivalLocation"));
-        } else if (keys.contains("targetLocation")) {
-            taskQueryWrapper.selectByTargetLocation((String)json.get("targetLocation"));
-        } else if (keys.contains("transactionTimeMax")) {
-            taskQueryWrapper.selectTransactionAmountMax((Integer)json.get("transactionAmountMax"));
-        } else if (keys.contains("transactionTimeMin")) {
-            taskQueryWrapper.selectTransactionAmountMin((Integer)json.get("transactionAmountMin"));
         }
+
         return taskQueryWrapper.getWrapper();
     }
 
@@ -169,6 +161,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return new Page<>(current, size);
     }
 
+    @Override
+    public Page<Task> select(JSONObject json) {
+        final JSONObject searchJson = json.get("search", JSONObject.class);
+        final JSONObject pageJson = json.get("page", JSONObject.class);
+        final JSONArray sortJson = json.get("sort", JSONArray.class);
+
+        LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
+        List<OrderItem> orderItems = sortWrapper(sortJson);
+        Page<Task> page = pageWrapper(pageJson);
+        page.addOrder(orderItems);
+
+        taskMapper.selectPage(page, wrapper);
+
+        return page;
+    }
+
 //    @Override
 //    public List<Task> searchList(JSONObject json) {
 //        return taskMapper.selectList(searchWrapper(json));
@@ -186,20 +194,4 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 //
 //        return tasksResult;
 //    }
-
-    @Override
-    public Page<Task> select(JSONObject json) {
-        final JSONObject searchJson = json.get("search", JSONObject.class);
-        final JSONObject pageJson = json.get("page", JSONObject.class);
-        final JSONArray sortJson = json.get("sort", JSONArray.class);
-
-        LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
-        List<OrderItem> orderItems = sortWrapper(sortJson);
-        Page<Task> page = pageWrapper(pageJson);
-        page.addOrder(orderItems);
-
-        taskMapper.selectPage(page, wrapper);
-
-        return page;
-    }
 }

@@ -102,4 +102,18 @@ public class ReflectUtils {
             return null;
         }
     }
+
+    // call
+    public static <T> T call(Object obj, String methodName, Class<T> returnType, Object... args) {
+        try {
+            Class<?>[] argTypes = new Class<?>[args.length];
+            for (int i = 0; i < args.length; i++) {
+                argTypes[i] = args[i].getClass();
+            }
+            return returnType.cast(obj.getClass().getDeclaredMethod(methodName, argTypes).invoke(obj, args));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 }

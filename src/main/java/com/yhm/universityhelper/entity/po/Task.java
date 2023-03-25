@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
+import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -95,6 +96,14 @@ public class Task implements Serializable, Comparable {
     @Override
     public int compareTo(Object o) {
         return ((Task)o).getPriority() - this.getPriority();
+    }
+
+    public JSONArray getTagArray() {
+        return new JSONArray(tags);
+    }
+
+    public String getType() {
+        return new JSONArray(tags).get(0).toString();
     }
 
     public void autoSetPriority(String priorityTags) {

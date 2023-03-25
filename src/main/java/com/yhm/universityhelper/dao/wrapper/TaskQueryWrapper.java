@@ -1,85 +1,94 @@
 package com.yhm.universityhelper.dao.wrapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
+import com.yhm.universityhelper.entity.po.Usertaketask;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Data
 @Component
 @Scope("prototype")
 public class TaskQueryWrapper {
     private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
+    @Autowired
+    private UsertaketaskMapper usertaketaskMapper;
 
-    public LambdaQueryWrapper<Task> selectByUserRelease(Long userId) {
+    public void taskId(Long taskId) {
+        wrapper.eq(Task::getTaskId, taskId);
+    }
+
+    public void userRelease(Long userId) {
         wrapper.eq(Task::getUserId, userId);
-        return wrapper;
     }
 
-    public LambdaQueryWrapper<Task> selectByUserTake(Long userId) {
-        return null;
+    public void userTake(Long userId) {
+        wrapper.in(Task::getTaskId, usertaketaskMapper.selectList(
+                        new LambdaQueryWrapper<Usertaketask>()
+                                .eq(Usertaketask::getUserId, userId)
+                )
+                .stream()
+                .map(Usertaketask::getTaskId)
+                .collect(Collectors.toList()));
     }
 
-    public LambdaQueryWrapper<Task> selectAllType() {
-        return null;
+    public void type(String type) {
+        wrapper.eq(Task::getType, type);
     }
 
-    public LambdaQueryWrapper<Task> selectByType(String type) {
-        return null;
+    public void releaseTimeMax(LocalDateTime releaseTimeMax) {
+        wrapper.le(Task::getReleaseTime, releaseTimeMax);
     }
 
-    public LambdaQueryWrapper<Task> selectReleaseTimeMax(LocalDateTime releaseTimeMax) {
-        return null;
+    public void releaseTimeMin(LocalDateTime releaseTimeMin) {
+        wrapper.ge(Task::getReleaseTime, releaseTimeMin);
     }
 
-    public LambdaQueryWrapper<Task> selectReleaseTimeMin(LocalDateTime releaseTimeMin) {
-        return null;
+    public void releaseTime(LocalDateTime releaseTime) {
+        wrapper.eq(Task::getReleaseTime, releaseTime);
     }
 
-    public LambdaQueryWrapper<Task> selectReleaseTimeToday() {
-        return null;
+    public void releaseDate(LocalDate releaseTime) {
+        wrapper.ge(Task::getReleaseTime, releaseTime.atStartOfDay())
+                .le(Task::getReleaseTime, releaseTime.plusDays(1).atStartOfDay());
     }
 
-    public LambdaQueryWrapper<Task> selectOrderByPriority() {
-        return null;
+    public void maxNumOfPeopleTake(Integer maxNumOfPeopleTake) {
+        wrapper.le(Task::getMaxNumOfPeopleTake, maxNumOfPeopleTake);
     }
 
-    public LambdaQueryWrapper<Task> selectByMaxNumOfPeople(Integer maxNumOfPeople) {
-        return null;
+    public void taskState(Integer taskState) {
+        wrapper.eq(Task::getTaskState, taskState);
     }
 
-    public LambdaQueryWrapper<Task> selectByTaskState(Integer taskState) {
-        return null;
+    public void arrivalTimeMax(LocalDateTime arrivalTimeMax) {
+        wrapper.le(Task::getArrivalTime, arrivalTimeMax);
     }
 
-    public LambdaQueryWrapper<Task> selectOrderByArrivalTime() {
-        return null;
+    public void arrivalTimeMin(LocalDateTime arrivalTimeMin) {
+        wrapper.ge(Task::getArrivalTime, arrivalTimeMin);
     }
 
-    public LambdaQueryWrapper<Task> selectArrivalTimeMax(LocalDateTime arrivalTimeMax) {
-        return null;
+    public void arrivalLocation(String arrivalLocation) {
+        wrapper.like(Task::getArrivalLocation, arrivalLocation);
     }
 
-    public LambdaQueryWrapper<Task> selectArrivalTimeMin(LocalDateTime arrivalTimeMin) {
-        return null;
+    public void targetLocation(String targetLocation) {
+        wrapper.like(Task::getTargetLocation, targetLocation);
     }
 
-    public LambdaQueryWrapper<Task> selectByArrivalLocation(String arrivalLocation) {
-        return null;
+    public void transactionAmountMax(Integer transactionAmountMax) {
+        wrapper.le(Task::getTransactionAmount, transactionAmountMax);
     }
 
-    public LambdaQueryWrapper<Task> selectByTargetLocation(String targetLocation) {
-        return null;
-    }
-
-    public LambdaQueryWrapper<Task> selectTransactionAmountMax(Integer transactionAmountMax) {
-        return null;
-    }
-
-    public LambdaQueryWrapper<Task> selectTransactionAmountMin(Integer transactionAmountMin) {
-        return null;
+    public void transactionAmountMin(Integer transactionAmountMin) {
+        wrapper.ge(Task::getTransactionAmount, transactionAmountMin);
     }
 }

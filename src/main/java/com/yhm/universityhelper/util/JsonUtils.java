@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.util;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -75,5 +76,13 @@ public class JsonUtils {
 
     public static String jsonObjectToJson(JSONObject jsonObject) {
         return objectToJson(jsonObject);
+    }
+
+    public static JSONArray jsonToJsonArray(String json) {
+        return new JSONArray(json);
+    }
+
+    public static String jsonArrayToJson(JSONArray jsonArray) {
+        return objectToJson(jsonArray);
     }
 }

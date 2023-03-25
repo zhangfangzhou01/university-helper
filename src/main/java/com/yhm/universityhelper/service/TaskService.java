@@ -24,6 +24,8 @@ public interface TaskService extends IService<Task> {
 
     boolean insert(JSONObject json);
 
+    boolean delete(Long taskId);
+
     LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
 
     List<OrderItem> sortWrapper(JSONArray json);
@@ -31,8 +33,4 @@ public interface TaskService extends IService<Task> {
     Page<Task> pageWrapper(JSONObject json);
 
     Page<Task> select(JSONObject json);
-
-//    List<Task> searchList(JSONObject json);
-
-//    List<Task> selectList(JSONObject json);
 }

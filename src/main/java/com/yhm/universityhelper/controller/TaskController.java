@@ -8,12 +8,10 @@ import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.TaskService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -401,4 +399,12 @@ public class TaskController {
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 
+    @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
+    @ApiImplicitParam(name = "taskId", value = "任务Id", required = true, dataType = "Long", example = "1234321432")
+    @PostMapping("/delete")
+    public ResponseResult<Boolean> delete(@RequestParam Long taskId) {
+        return taskService.delete(taskId)
+                ? ResponseResult.ok("删除任务信息成功")
+                : ResponseResult.fail("删除任务信息失败");
+    }
 }
