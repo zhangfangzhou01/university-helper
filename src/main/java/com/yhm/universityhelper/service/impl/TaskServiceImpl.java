@@ -52,13 +52,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public boolean update(JSONObject json) {
         final Object taskIdObj = json.get("taskId");
         final Object userIdObj = json.get("taskId");
-
         if (ObjectUtil.isEmpty(taskIdObj) || ObjectUtil.isEmpty(userIdObj)) {
             return false;
         }
 
-        Long taskId = Long.valueOf(json.get("taskId").toString());
-        Long userId = Long.valueOf(json.get("userId").toString());
+        Long taskId = Long.valueOf(taskIdObj.toString());
+        Long userId = Long.valueOf(userIdObj.toString());
         String type = (String)json.get("type");
 
         Task task = taskMapper.selectById(taskId);
@@ -86,12 +85,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     public boolean insert(JSONObject json) {
-        Long userId = Long.valueOf(json.get("userId").toString());
-        String type = (String)json.get("type");
-
-        if (ObjectUtil.isEmpty(userId) || ObjectUtil.isEmpty(type)) {
+        final Object userIdObj = json.get("userId");
+        final Object typeObj = json.get("type");
+        if (ObjectUtil.isEmpty(userIdObj) || ObjectUtil.isEmpty(typeObj)) {
             return false;
         }
+
+        Long userId = Long.valueOf(userIdObj.toString());
+        String type = (String)typeObj;
+
         Task task = new Task();
         for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("type")) {
