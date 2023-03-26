@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.yhm.universityhelper.entity.po.Task.*;
+
 /**
  * <p>
  * 服务实现类
@@ -62,18 +64,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
             ReflectUtils.set(task, key, data.get(key));
         }
-
         // 插入的时候 不需要计算 priority
 
         return taskMapper.insert(task) > 0;
     }
+public Map<String, Object> select(String json) {
 
-    public Map<String, Object> select(String json) {
         Map<String, Object> data = JsonUtils.jsonToMap(json);
+        // json 内有一个 sortJson
+        Map<String, Object> sortData = JsonUtils.jsonToMap( (String)data.get("sortData") );
         final Integer userId = (Integer)data.get("userId");
         final Set<String> keys = data.keySet();
 
+        // 存放 每一个 （满足一个基限制的 tasks）
         List<ArrayList<Task>> taskss = new ArrayList<>();
+        // 存放最终满足所有限制的 tasks
         List<Task> tasksResult;
 
         if(keys.contains("userRelease")) {
@@ -114,9 +119,90 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     tasks1.retainAll(tasks2);
                     return tasks1;
                 }).orElse(new ArrayList<>());
-        // todo 计算 priority
 
-        // todo 排序
+        // 三种排序方式
+        if(data.get("sortMethod") == "优先级综合排序") {
+            // 计算 priority
+            for (Task value : tasksResult) {
+                // 这个函数还是要传入当前taskResult 的 所有属性的 max 和 min 方便进行 每个属性加权的归一化
+                value.autoSetPriority(sortData);
+            }
+            // 排序
+            Collections.sort(tasksResult);
+        }else{
+            // Map的keySet 无序， 只有 LinkedHashMap有序
+            Set<String> sortKeys = sortData.keySet();
+            if(data.get("sortMethod") == "覆盖式排序"){
+                String key = (String)sortData.get("key");
+                if(key.equals("releaseTime")){
+                    if(sortData.get(key) == "asc"){
+                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
+                    }else{
+                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
+                    }
+                }else if(key.equals("maxNumOfPeople")){
+                    if(sortData.get(key) == "asc"){
+                        tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_ASC);
+                    }else{
+                        tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_DESC);
+                    }
+                }else if(key.equals("expectedPeriod")){
+                    if(sortData.get(key) == "asc"){
+                        tasksResult.sort(COMPARATOR_EXPERIODTIME_ASC);
+                    }else{
+                        tasksResult.sort(COMPARATOR_EXPERIODTIME_DESC);
+                    }
+                }else if(key.equals("arrivalTime")){
+                    if(sortData.get(key) == "asc"){
+                        tasksResult.sort(COMPARATOR_ARRIVALTIME_ASC);
+                    }else{
+                        tasksResult.sort(COMPARATOR_ARRIVALTIME_DESC);
+                    }
+                }else if(key.equals("transactionAmount")){
+                    if(sortData.get(key) == "asc"){
+                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
+                    }else{
+                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
+                    }
+                }
+            } else if(data.get("sortMethod") == "按照关键词次序排序"){
+                for(String key : sortKeys){
+                    if(key.equals("releaseTime")){
+                        if(sortData.get(key) == "asc"){
+                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
+                        }else{
+                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
+                        }
+                    }else if(key.equals("maxNumOfPeople")){
+                        if(sortData.get(key) == "asc"){
+                            tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_ASC);
+                        }else{
+                            tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_DESC);
+                        }
+                    }else if(key.equals("expectedPeriod")){
+                        if(sortData.get(key) == "asc"){
+                            tasksResult.sort(COMPARATOR_EXPERIODTIME_ASC);
+                        }else{
+                            tasksResult.sort(COMPARATOR_EXPERIODTIME_DESC);
+                        }
+                    }else if(key.equals("arrivalTime")){
+                        if(sortData.get(key) == "asc"){
+                            tasksResult.sort(COMPARATOR_ARRIVALTIME_ASC);
+                        }else{
+                            tasksResult.sort(COMPARATOR_ARRIVALTIME_DESC);
+                        }
+                    }else if(key.equals("transactionAmount")){
+                        if(sortData.get(key) == "asc"){
+                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
+                        }else{
+                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
+                        }
+                    }
+                }
+            }
+        }
+
+
 
         Map<String, Object> result = new HashMap<>();
         for (Task task : tasksResult) {
@@ -134,21 +220,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         List<Task> tasksResult = new ArrayList<>();
         for (String key : tasks.keySet()) {
-            tasksResult.add((Task)tasks.get(key));
+            tasksResult.add( (Task)tasks.get(key) );
         }
 
         // sortBy是类似于 [{"userId": "asc"}, {"releaseTime": "desc"}] 的结构
         // 也就是说，先按照userId升序排列，再按照releaseTime降序排列
-        // 这里的asc和desc是字符串，不是boolean
+        // 这里的asc 和 desc是字符串，不是boolean
         // 这里的userId和releaseTime是Task类的属性名
         // 写一个方法，根据sortBy的结构，对tasksResult进行排序
 
         tasksResult.sort((task1, task2) -> {
             for (Map<String, String> map : sortBy) {
                 for (String key : map.keySet()) {
-//                    if (map.get(key).equals("asc")) {
-//                    } else {
-//                    }
+
                 }
             }
             return 0;
