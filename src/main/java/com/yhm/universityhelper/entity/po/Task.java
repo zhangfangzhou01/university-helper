@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.yhm.universityhelper.util.JsonUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,8 +12,6 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
@@ -32,6 +29,14 @@ import java.util.Set;
 public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
+
+    public final String[] priorityColumn = {
+            "releaseTime",
+            "maxNumOfPeopleTake",
+            "expectedPeriod",
+            "arrivalTime",
+            "transactionAmount"
+    };
 
     @TableId(value = "taskId", type = IdType.AUTO)
     private Long taskId;
@@ -104,13 +109,5 @@ public class Task implements Serializable, Comparable {
 
     public String getType() {
         return new JSONArray(tags).get(0).toString();
-    }
-
-    public void autoSetPriority(String priorityTags) {
-        Map<String, Object> data = JsonUtils.jsonToMap(priorityTags);
-        final Set<String> keys = data.keySet();
-        for (String key : keys) {
-
-        }
     }
 }

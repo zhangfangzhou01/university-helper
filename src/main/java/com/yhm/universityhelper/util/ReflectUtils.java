@@ -1,106 +1,65 @@
 package com.yhm.universityhelper.util;
 
+import cn.hutool.core.util.ReflectUtil;
+
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectUtils {
-    public static boolean set(Object obj, String fieldName, Object value) {
-        try {
-            Field field = obj.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(obj, value);
-            return true;
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+    public static void set(Object obj, String fieldName, Object value) {
+        ReflectUtil.setFieldValue(obj, fieldName, value);
     }
 
     public static Object get(Object obj, String fieldName) {
-        try {
-            Field field = obj.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.get(obj);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
+        return ReflectUtil.getFieldValue(obj, fieldName);
     }
 
-    public static boolean setBatch(Object obj, Map<String, Object> data) {
-        try {
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                Field field = obj.getClass().getDeclaredField(entry.getKey());
-                field.setAccessible(true);
-                field.set(obj, entry.getValue());
-            }
-            return true;
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return false;
+    public static void setBatch(Object obj, Map<String, Object> data) {
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            ReflectUtil.setFieldValue(obj, entry.getKey(), entry.getValue());
         }
     }
 
     public static Map<String, Object> getBatch(Object obj, String... fieldNames) {
-        try {
-            Map<String, Object> data = new HashMap<>();
-            for (String fieldName : fieldNames) {
-                Field field = obj.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                data.put(fieldName, field.get(obj));
-            }
-            return data;
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return null;
+        Map<String, Object> data = new HashMap<>();
+        for (String fieldName : fieldNames) {
+            data.put(fieldName, ReflectUtil.getFieldValue(obj, fieldName));
         }
+        return data;
     }
 
-    public static boolean setBatchWithout(Object obj, Map<String, Object> data, String... fieldNames) {
-        try {
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                boolean flag = true;
-                for (String fieldName : fieldNames) {
-                    if (entry.getKey().equals(fieldName)) {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag) {
-                    Field field = obj.getClass().getDeclaredField(entry.getKey());
-                    field.setAccessible(true);
-                    field.set(obj, entry.getValue());
+    public static void setBatchWithout(Object obj, Map<String, Object> data, String... fieldNames) {
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            boolean flag = true;
+            for (String fieldName : fieldNames) {
+                if (entry.getKey().equals(fieldName)) {
+                    flag = false;
+                    break;
                 }
             }
-            return true;
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return false;
+            if (flag) {
+                ReflectUtil.setFieldValue(obj, entry.getKey(), entry.getValue());
+            }
         }
     }
 
     public static Map<String, Object> getBatchWithout(Object obj, String... fieldNames) {
-        try {
-            Map<String, Object> data = new HashMap<>();
-            for (Field field : obj.getClass().getDeclaredFields()) {
-                boolean flag = true;
-                for (String fieldName : fieldNames) {
-                    if (field.getName().equals(fieldName)) {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag) {
-                    field.setAccessible(true);
-                    data.put(field.getName(), field.get(obj));
+        Map<String, Object> data = new HashMap<>();
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            boolean flag = true;
+            for (String fieldName : fieldNames) {
+                if (field.getName().equals(fieldName)) {
+                    flag = false;
+                    break;
                 }
             }
-            return data;
-        } catch (IllegalAccessException e) {
-            System.out.println(e.getMessage());
-            return null;
+            if (flag) {
+                data.put(field.getName(), ReflectUtil.getFieldValue(obj, field.getName()));
+            }
         }
+        return data;
     }
 
     // call
@@ -115,5 +74,14 @@ public class ReflectUtils {
             System.out.println(e.getMessage());
             return null;
         }
+    }
+
+    public static <T> T call(Object obj, String methodName, Object... args) {
+        return ReflectUtil.invoke(obj, methodName, args);
+    }
+
+    public static <T> T callStatic(Class<?> clazz, String methodName, Object... args) {
+        Method method = ReflectUtil.getMethodByNameIgnoreCase(clazz, methodName);
+        return ReflectUtil.invokeStatic(method, args);
     }
 }

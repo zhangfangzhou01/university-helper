@@ -118,8 +118,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
         }
 
-        // 插入的时候 不需要计算 priority
-
         return taskMapper.insert(task) > 0;
     }
 
@@ -157,6 +155,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         return taskQueryWrapper.getWrapper();
     }
+
 
     @Override
     public List<OrderItem> sortWrapper(JSONArray sortJson) {
@@ -202,26 +201,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
         List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
-        page.addOrder(orderItems);
+        page.setOrders(orderItems);
 
         return taskMapper.selectPage(page, wrapper);
     }
-
-//    @Override
-//    public List<Task> searchList(JSONObject json) {
-//        return taskMapper.selectList(searchWrapper(json));
-//    }
-//
-//    public List<Task> selectList(JSONObject json) {
-//        final JSONObject searchJson = json.get("search", JSONObject.class);
-//        final JSONArray sortJson = json.get("sort", JSONArray.class);
-//
-//        final List<Task> tasksResult = searchList(searchJson);
-//
-//        // todo 计算 priority
-//
-//        // todo 排序
-//
-//        return tasksResult;
-//    }
 }
