@@ -21,10 +21,6 @@ public interface UserService extends IService<User> {
 
     Map<String, Object> select(JSONArray json);
 
-    User selectByUsername(String username);
-
-    boolean update(User user);
-
     boolean delete(String username);
 
     boolean register(String username, String password);

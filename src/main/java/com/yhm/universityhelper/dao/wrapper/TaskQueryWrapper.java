@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.dao.TaskTagsMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
-import com.yhm.universityhelper.entity.po.TaskTags;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,11 +126,6 @@ public class TaskQueryWrapper {
     }
 
     public TaskQueryWrapper tags(JSONArray tags) {
-        final List<String> allTags = taskTagsMapper.selectList(null)
-                .stream()
-                .map(TaskTags::getTag)
-                .collect(Collectors.toList());
-
         for (Object tag : tags) {
             wrapper.like(Task::getTags, tag);
         }

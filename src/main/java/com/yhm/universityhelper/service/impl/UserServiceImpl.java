@@ -116,14 +116,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean delete(String username) {
         return userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
     }
-
-    @Override
-    public boolean update(User user) {
-        return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUsername, user.getUsername())) > 0;
-    }
-
-    @Override
-    public User selectByUsername(String username) {
-        return userMapper.selectByUsername(username);
-    }
 }

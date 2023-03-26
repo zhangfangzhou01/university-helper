@@ -1,9 +1,16 @@
 package com.yhm.universityhelper.service.impl;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.ChatMapper;
+import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.entity.dto.ChatUser;
 import com.yhm.universityhelper.entity.po.Chat;
+import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.ChatService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +26,49 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Service
 public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements ChatService {
+    @Autowired
+    private ChatMapper chatMapper;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @Override
     public int insert(Chat chat) {
         return baseMapper.insert(chat);
+    }
+
+    public void chat(Authentication authentication, JSONObject msg) {
+        String srcUsername = authentication.getName();
+        User srcUser = userMapper.selectByUsername(srcUsername);
+        ChatUser srcChatUser = new ChatUser(srcUser);
+
+        String destUsername = msg.getStr("to");
+        User destUser = userMapper.selectByUsername(destUsername);
+        ChatUser destChatUser = new ChatUser(destUser);
+
+        String message = msg.getStr("content");
+
+        Chat chat = new Chat(srcChatUser, destChatUser, message);
+        chatMapper.insert(chat);
+
+        simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", chat);
+    }
+
+    public void broadcast(Authentication authentication, JSONObject msg) {
+        String srcUsername = authentication.getName();
+        User srcUser = userMapper.selectByUsername(srcUsername);
+        ChatUser srcChatUser = new ChatUser(srcUser);
+
+        String message = msg.getStr("content");
+
+        Chat chat = new Chat(srcChatUser, message);
+        chatMapper.insert(chat);
+
+        simpMessagingTemplate.convertAndSend("/topic/broadcast", chat);
+    }
+
+    public void notification(String msg) {
+        simpMessagingTemplate.convertAndSend("/topic/notification", msg);
     }
 }

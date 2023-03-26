@@ -20,7 +20,7 @@ public class WebviewController {
         return "admin";
     }
 
-    @ApiOperation(value = "hello页面", notes = "hello页面")
+    @ApiOperation(value = "主页面", notes = "主页面")
     @GetMapping("/index")
     public String hello() {
         return "index.html";

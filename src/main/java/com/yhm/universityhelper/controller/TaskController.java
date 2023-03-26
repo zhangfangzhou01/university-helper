@@ -49,7 +49,7 @@ public class TaskController {
      */
     @ApiOperation(value = "修改任务信息", notes = "修改任务信息")
     @DynamicParameters(
-            name = "json",
+            name = "TaskUpdateDto",
             properties = {
                     @DynamicParameter(name = "userId",
                             value = "用户Id",
@@ -139,7 +139,7 @@ public class TaskController {
 
     @ApiOperation(value = "创建任务信息", notes = "创建任务信息")
     @DynamicParameters(
-            name = "json",
+            name = "TaskInsertDto",
             properties = {
                     @DynamicParameter(name = "userId",
                             value = "用户Id",
@@ -252,7 +252,7 @@ public class TaskController {
      */
     @ApiOperation(value = "获取任务信息", notes = "获取任务信息")
     @DynamicParameters(
-            name = "json",
+            name = "TaskSelectDto",
             properties = {
 //                    @DynamicParameter(name = "taskId",
 //                            value = "任务 Id",
