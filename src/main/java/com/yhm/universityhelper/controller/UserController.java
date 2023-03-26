@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.controller;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
@@ -8,10 +9,7 @@ import com.yhm.universityhelper.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -102,7 +100,34 @@ public class UserController {
             }
     )
     @PostMapping("/select")
-    public ResponseResult<Map<String, Object>> select(@RequestBody JSONObject json) {
+    public ResponseResult<Map<String, Object>> select(@RequestBody JSONArray json) {
         return ResponseResult.ok(userService.select(json), "获取个人信息成功");
+    }
+
+    // 修改密码
+    @ApiOperation(value = "修改密码")
+    @PostMapping("/changePassword")
+    public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
+        return userService.changePassword(username, oldPassword, newPassword)
+                ? ResponseResult.ok("修改成功")
+                : ResponseResult.fail("修改失败");
+    }
+
+    // 注册
+    @ApiOperation(value = "注册")
+    @PostMapping("/insert")
+    public ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
+        return userService.register(username, password)
+                ? ResponseResult.ok("注册成功")
+                : ResponseResult.fail("注册失败");
+    }
+
+    // 删除用户
+    @ApiOperation(value = "删除用户")
+    @PostMapping("/delete")
+    public ResponseResult<Object> delete(@RequestParam String username) {
+        return userService.delete(username)
+                ? ResponseResult.ok("删除成功")
+                : ResponseResult.fail("删除失败");
     }
 }

@@ -1,4 +1,3 @@
-drop table if exists universityhelper.uh_task;
 create table uh_task
 (
     taskId             bigint auto_increment,
@@ -26,17 +25,93 @@ create table uh_task
         unique (taskId)
 );
 
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (3, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (4, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (5, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (6, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (7, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (8, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (9, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (12, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 1, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (13, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (14, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (15, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (16, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (17, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","黄色"]', 0, 0, 0, 0);
-INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance, targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag, maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score, taskState, isHunter) VALUES (18, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖', '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","紫色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (3, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (4, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (5, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (6, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖", "红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (7, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (8, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (9, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (12, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["交易","市场","Java","你好"]', 0, 0, 1, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (13, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (14, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (15, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (16, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","红色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (17, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","黄色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (18, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["外卖","紫色"]', 0, 0, 0, 0);
+INSERT INTO universityhelper.uh_task (taskId, userId, expectedPeriod, transactionAmount, phoneNumForNow, distance,
+                                      targetLocation, arrivalLocation, arrivalTime, orderTime, takeoutId, completeFlag,
+                                      maxNumOfPeopleTake, requireDescription, title, releaseTime, tags, priority, score,
+                                      taskState, isHunter)
+VALUES (19, 11, 1, 100, 0, 0, '东八426', '东校区西门', '2020-12-12 12:12:12', '2020-12-12 12:12:12', 0, 0, 1, '帮我拿外卖',
+        '这个是外卖任务', '2020-12-12 12:12:12', '["交易","紫色"]', 0, 0, 0, 0);

@@ -50,13 +50,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private BeanUtils beanUtils;
 
     public boolean update(JSONObject json) {
+        final Object taskIdObj = json.get("taskId");
+        final Object userIdObj = json.get("taskId");
+
+        if (ObjectUtil.isEmpty(taskIdObj) || ObjectUtil.isEmpty(userIdObj)) {
+            return false;
+        }
+
         Long taskId = Long.valueOf(json.get("taskId").toString());
         Long userId = Long.valueOf(json.get("userId").toString());
         String type = (String)json.get("type");
 
-        if (ObjectUtil.isEmpty(taskId) || ObjectUtil.isEmpty(type) || ObjectUtil.isEmpty(userId)) {
-            return false;
-        }
         Task task = taskMapper.selectById(taskId);
         for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
@@ -65,9 +69,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
-                continue;
+            } else if (key.equals("tags")) {
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                for (Object tag : tags) {
+                    final TaskTags taskTags = new TaskTags((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
+                        taskTagsMapper.insert(taskTags);
+                    }
+                }
+            } else {
+                ReflectUtils.set(task, key, json.get(key));
             }
-            ReflectUtils.set(task, key, json.get(key));
         }
         return taskMapper.updateById(task) > 0;
     }
@@ -125,18 +138,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         for (String key : keys) {
             if (StringUtils.equals(key, "userRelease") || StringUtils.equals(key, "userTake")) {
-                ReflectUtils.call(taskQueryWrapper, key, Void.class, Long.valueOf(json.get(key).toString()));
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(json.get(key).toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
-                ReflectUtils.call(taskQueryWrapper, key, Void.class, LocalDateTime.parse(time));
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDateTime.parse(time));
             } else if (StringUtils.containsIgnoreCase(key, "date")) {
                 String date = json.get(key).toString();
-                ReflectUtils.call(taskQueryWrapper, key, Void.class, LocalDate.parse(date));
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDate.parse(date));
             } else if (StringUtils.equals(key, "tags")) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.call(taskQueryWrapper, key, Void.class, tags);
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, tags);
             } else {
-                ReflectUtils.call(taskQueryWrapper, key, Void.class, json.get(key));
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, json.get(key));
             }
         }
 
@@ -167,7 +180,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public Page<Task> pageWrapper(JSONObject json) {
-        Long current = 0L;
+        Long current = 1L;
         Long size = -1L;
 
         if (ObjectUtil.isNotEmpty(json) && (!json.isEmpty())) {
@@ -189,9 +202,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Page<Task> page = pageWrapper(pageJson);
         page.addOrder(orderItems);
 
-        taskMapper.selectPage(page, wrapper);
-
-        return page;
+        return taskMapper.selectPage(page, wrapper);
     }
 
 //    @Override

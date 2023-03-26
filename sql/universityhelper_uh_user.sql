@@ -1,4 +1,3 @@
-drop table if exists universityhelper.uh_user;
 create table uh_user
 (
     userId      bigint auto_increment
@@ -23,5 +22,11 @@ create table uh_user
 create index uh_user_uh_login_picture_pictureid_fk
     on uh_user (avatar);
 
-INSERT INTO universityhelper.uh_user (userId, sex, createTime, username, password, nickname, school, phone, location, description, email, studentId, score, avatar) VALUES (10, '男', '2023-03-23 20:43:26', '2027405036', '$2a$10$QlL1zEC7.vFZ0RyI7LjEGOPT6Tc6jO09Qou/T8/sEa2wm35.Sktru', 'nickname', '学校', '电话', '地址', '个人简介', '邮箱', 2, 0, '');
-INSERT INTO universityhelper.uh_user (userId, sex, createTime, username, password, nickname, school, phone, location, description, email, studentId, score, avatar) VALUES (11, '男', '2023-03-24 11:53:38', '2027405037', '$2a$10$fIVJd9Q/wzQFMLFtqJ8r/uga5QXJRlvqC/8r5gtA.WiQLQkbcOsJ2', 'nickname', '学校', '电话', '地址', '我是zfz', '邮箱', 2, 0, '');
+INSERT INTO universityhelper.uh_user (userId, sex, createTime, username, password, nickname, school, phone, location,
+                                      description, email, studentId, score, avatar)
+VALUES (10, '男', '2023-03-23 20:43:26', '2027405036', '$2a$10$QlL1zEC7.vFZ0RyI7LjEGOPT6Tc6jO09Qou/T8/sEa2wm35.Sktru',
+        'nickname', '学校', '电话', '地址', '个人简介', '邮箱', 2, 0, '');
+INSERT INTO universityhelper.uh_user (userId, sex, createTime, username, password, nickname, school, phone, location,
+                                      description, email, studentId, score, avatar)
+VALUES (11, '男', '2023-03-24 11:53:38', '2027405037', '$2a$10$Mb8MNVAjmzoV06FRJMCN8urD7lJ./CDEuKTgNHfk6BD/BowfuR6Ue',
+        'nickname', '学校', '电话', '地址', '我是zfz', '邮箱', 2, 0, '');
