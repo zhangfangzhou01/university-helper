@@ -105,10 +105,6 @@ public class Task implements Serializable, Comparable {
         return new JSONArray(tags);
     }
 
-    public String getType() {
-        return new JSONArray(tags).get(0).toString();
-    }
-
     // TODO: 接下来要归一化加权求优先值
     // TODO: 任务=发布时间+最大人数+期望时间+到达时间+交易金额
     public int autoSetPriority(
