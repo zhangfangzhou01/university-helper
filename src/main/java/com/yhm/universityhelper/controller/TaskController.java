@@ -355,6 +355,13 @@ public class TaskController {
                                     "}"
                     ),
                     @DynamicParameter(
+                            name = "sortType",
+                            value = "排序方式(priority or attribute)",
+                            required = true,
+                            dataTypeClass = String.class,
+                            example = "priority"
+                    ),
+                    @DynamicParameter(
                             name = "sort",
                             value = "排序",
                             required = true,

@@ -200,7 +200,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
 
-        if ("custom".equals(sortType)) {
+        if ("attribute".equals(sortType)) {
             page.setOrders(orderItems);
             return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
