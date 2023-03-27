@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
+import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,15 +10,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author yhm
@@ -27,16 +26,16 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_task")
-@ApiModel(value="UhTask对象", description="")
+@ApiModel(value = "UhTask对象", description = "")
 public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "taskId", type = IdType.AUTO)
-    private Integer taskId;
+    private Long taskId;
 
     @TableField("userId")
-    private Integer userId;
+    private Long userId;
 
     @TableField("tags")
     private String tags;
@@ -92,60 +91,71 @@ public class Task implements Serializable, Comparable {
     @TableField("isHunter")
     private Integer isHunter;
 
+    // 类型只能是外卖或者交易
+    @Pattern(regexp = "^(外卖|交易)$", message = "类型只能是外卖或者交易")
+    @TableField("type")
+    private String type;
+
     @Override
     public int compareTo(Object o) {
-        return ((Task) o).getPriority() - this.getPriority();
+        return ((Task)o).getPriority() - this.getPriority();
     }
 
-    // 比较器
-    public static final Comparator<Task> COMPARATOR_RELEASETIIME_ASC = (o1, o2) -> o1.getReleaseTime().getSecond()-o2.getReleaseTime().getSecond();
-    public static final Comparator<Task> COMPARATOR_RELEASETIIME_DESC = (o1, o2) -> o2.getReleaseTime().getSecond()-o1.getReleaseTime().getSecond();
-
-    public static final Comparator<Task> COMPARATOR_EXPERIODTIME_ASC = (o1, o2) -> o1.getExpectedPeriod()-o2.getExpectedPeriod();
-    public static final Comparator<Task> COMPARATOR_EXPERIODTIME_DESC = (o1, o2) -> o2.getExpectedPeriod()-o1.getExpectedPeriod();
-
-    public static final Comparator<Task> COMPARATOR_MAXNUMOFPEOPLE_ASC = (o1, o2) -> o1.getMaxNumOfPeopleTake()-o2.getMaxNumOfPeopleTake();
-    public static final Comparator<Task> COMPARATOR_MAXNUMOFPEOPLE_DESC = (o1, o2) -> o2.getMaxNumOfPeopleTake()-o1.getMaxNumOfPeopleTake();
-
-    public static final Comparator<Task> COMPARATOR_ARRIVALTIME_ASC= (o1, o2) -> o1.getArrivalTime().getSecond()-o2.getArrivalTime().getSecond();
-    public static final Comparator<Task> COMPARATOR_ARRIVALTIME_DESC= (o1, o2) -> o2.getArrivalTime().getSecond()-o1.getArrivalTime().getSecond();
-
-    public static final Comparator<Task> COMPARATOR_TRANSACTIONAMOUNT_ASC = (o1, o2) -> o1.getTransactionAmount()-o2.getTransactionAmount();
-    public static final Comparator<Task> COMPARATOR_TRANSACTIONAMOUNT_DESC = (o1, o2) -> o2.getTransactionAmount()-o1.getTransactionAmount();
-
-
-    public void autoSetPriority(Map<String, Object> sortData) {
-        final Set<String> keys = sortData.keySet();
-        // releaseTime 字段加权
-        if("asc".equals(sortData.get("releaseTime"))){
-            this.priority += this.releaseTime.getSecond();
-        }else if("desc".equals(sortData.get("releaseTime"))){
-            this.priority += this.releaseTime.getSecond();
-        }
-        // maxNumOfPeople 字段加权
-        if("asc".equals(sortData.get("maxNumOfPeopleTake"))){
-            this.priority += this.maxNumOfPeopleTake;
-        }else if("desc".equals(sortData.get("maxNumOfPeopleTake"))){
-            this.priority -= this.maxNumOfPeopleTake;
-        }
-        // expectedPeriod 字段加权
-        if("asc".equals(sortData.get("expectedPeriod"))){
-            this.priority += this.expectedPeriod;
-        }else if("desc".equals(sortData.get("expectedPeriod"))){
-            this.priority -= this.expectedPeriod;
-        }
-        // arrivalTime 字段加权
-        if("asc".equals(sortData.get("arrivalTime"))){
-            this.priority += this.arrivalTime.getSecond();
-        }else if("desc".equals(sortData.get("arrivalTime"))){
-            this.priority -= this.arrivalTime.getSecond();
-        }
-        // transactionAmount 字段加权
-        if("asc".equals(sortData.get("transactionAmount"))){
-            this.priority += this.transactionAmount;
-        }else if("desc".equals(sortData.get("transactionAmount"))){
-            this.priority -= this.transactionAmount;
-        }
+    public JSONArray getTagArray() {
+        return new JSONArray(tags);
     }
 
+    // TODO: 接下来要归一化加权求优先值
+    // TODO: 任务=发布时间+最大人数+期望时间+到达时间+交易金额
+    public int autoSetPriority(
+            LocalDateTime releaseTimeMax,
+            LocalDateTime releaseTimeMin,
+            Integer maxNumOfPeopleTakeMax,
+            Integer maxNumOfPeopleTakeMin,
+            Integer expectedPeriodMax,
+            Integer expectedPeriodMin,
+            LocalDateTime arrivalTimeMax,
+            LocalDateTime arrivalTimeMin,
+            Integer transactionAmountMax,
+            Integer transactionAmountMin
+    ) {
+//            JSONObject jsonObject = (JSONObject)obj;
+//            if (ObjectUtil.isEmpty(jsonObject) || jsonObject.isEmpty()) {
+//                continue;
+//            }
+//
+//            Integer order = jsonObject.get("order", Integer.class);
+//            String column = jsonObject.get("column", String.class);
+//            Boolean asc = jsonObject.get("asc", Boolean.class);
+//            if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+//                continue;
+//            }
+
+//            Object value = ReflectUtils.get(this, column);
+//            if (column.equals("releaseTime")) {
+////                if (StringUtils.containsIgnoreCase(priorityColumn, "time")) {
+////                    String timeStr = value.toString().replace(" ", "T");
+////                    LocalDateTime time = LocalDateTime.parse(timeStr);
+////                    if (asc) {
+//////                            this.priority += time.toEpochSecond();
+////                    } else {
+//////                            this.priority += time.toEpochSecond();
+////                    }
+////                } else {
+////                    if (asc) {
+////                        this.priority -= Integer.parseInt(value.toString());
+////                    } else {
+////                        this.priority += Integer.parseInt(value.toString());
+////                    }
+////                }
+//                Long releaseTimeSecond = ((LocalDateTime)value).toEpochSecond(ZoneOffset.of("+8"));
+//                Long releaseTimeMaxSecond = releaseTimeMax.toEpochSecond(ZoneOffset.of("+8"));
+//                Long releaseTimeMinSecond = releaseTimeMin.toEpochSecond(ZoneOffset.of("+8"));
+//
+//                if (asc) {
+//                    priority -=
+//                }
+//            }
+        return 0;
+    }
 }
