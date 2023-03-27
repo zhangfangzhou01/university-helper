@@ -122,7 +122,7 @@ public class Task implements Serializable, Comparable {
                     continue;
                 }
                 if (key.equals(column)) {
-                    if (value instanceof LocalDateTime) {
+                    if (StringUtils.containsIgnoreCase(column, "time")) {
                         String timeStr = value.toString().replace(" ", "T");
                         LocalDateTime time = LocalDateTime.parse(timeStr);
                         if ("asc".equals(sort)) {

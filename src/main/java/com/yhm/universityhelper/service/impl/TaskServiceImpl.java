@@ -100,7 +100,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
 
             Object value = json.get(key);
-            if (value instanceof LocalDateTime) {
+            if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("userId".equals(key)) {
@@ -139,9 +139,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         for (String key : keys) {
             Object value = json.get(key);
-            if (value instanceof Long) {
+            if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
                 ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(value.toString()));
-            } else if (value instanceof LocalDateTime) {
+            } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
                 ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
@@ -194,7 +194,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final JSONObject searchJson = json.get("search", JSONObject.class);
         final JSONObject pageJson = json.get("page", JSONObject.class);
         final JSONObject sortJson = json.get("sort", JSONObject.class);
-        final String sortType = json.get("sortType", String.class); // priority or custom
+        final String sortType = json.get("sortType", String.class);
 
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
         List<OrderItem> orderItems = sortWrapper(sortJson);
@@ -205,9 +205,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
             List<Task> list = taskMapper.selectList(wrapper);
-            for (Task task : list) {
-                task.autoSetPriority(sortJson);
-            }
 
             list.sort((o1, o2) -> o2.getPriority().compareTo(o1.getPriority()));
 
