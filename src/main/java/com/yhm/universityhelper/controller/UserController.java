@@ -130,4 +130,13 @@ public class UserController {
                 ? ResponseResult.ok("删除成功")
                 : ResponseResult.fail("删除失败");
     }
+
+    // 封禁(解封)用户
+    @ApiOperation(value = "封禁(解封)用户")
+    @PostMapping("/ban")
+    public ResponseResult<Object> ban(@RequestParam String username, @RequestParam boolean ban) {
+        return userService.ban(username, ban)
+                ? ResponseResult.ok("操作成功")
+                : ResponseResult.fail("操作失败");
+    }
 }

@@ -61,4 +61,6 @@ public class User implements Serializable {
     private Integer score;
     @TableField("createTime")
     private LocalDateTime createTime;
+    @TableField("banned")
+    private Boolean banned;
 }

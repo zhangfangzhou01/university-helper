@@ -5,10 +5,14 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UserRoleMapper;
+import com.yhm.universityhelper.dao.UsertaketaskMapper;
+import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.UserRole;
+import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +44,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserRoleMapper userRoleMapper;
 
     @Autowired
+    private TaskMapper taskMapper;
+
+    @Autowired
+    private UsertaketaskMapper usertaketaskMapper;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean register(String username, String password) {
-        User existUser = userMapper.selectByUsername(username);
-        if (ObjectUtils.isNotEmpty(existUser)) {
-            return false;
+        if (userMapper.exists(new LambdaUpdateWrapper<User>().eq(User::getUsername, username))) {
+            throw new RuntimeException("用户名已存在");
         }
+
         String encodePassword = bCryptPasswordEncoder.encode(password);
         User user = new User();
         user.setUsername(username);
@@ -55,7 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean result = userMapper.insert(user) > 0;
 
         if (!result) {
-            return false;
+            throw new RuntimeException("注册失败");
         }
 
         UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
@@ -67,14 +77,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean changePassword(String username, String oldPassword, String newPassword) {
         User user = userMapper.selectByUsername(username);
         if (ObjectUtils.isEmpty(user)) {
-            return false;
+            throw new RuntimeException("用户不存在");
+        } else if (user.getBanned()) {
+            throw new RuntimeException("用户已被封禁");
         }
+
         if (!bCryptPasswordEncoder.matches(oldPassword, user.getPassword())) {
             return false;
         }
         String encodePassword = bCryptPasswordEncoder.encode(newPassword);
         user.setPassword(encodePassword);
         return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId())) > 0;
+    }
+
+    @Override
+    public boolean ban(String username, boolean ban) {
+        User user = userMapper.selectByUsername(username);
+        if (ObjectUtils.isEmpty(user)) {
+            return false;
+        }
+
+        user.setBanned(ban);
+        return userMapper.updateById(user) > 0;
     }
 
     @Override
@@ -86,7 +110,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         User user = userMapper.selectByUsername(username);
         if (ObjectUtils.isEmpty(user)) {
-            return false;
+            throw new RuntimeException("用户不存在");
+        } else if (user.getBanned()) {
+            throw new RuntimeException("用户已被封禁");
         }
 
         for (String key : json.keySet()) {
@@ -114,6 +140,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean delete(String username) {
-        return userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
+        Long userId = userMapper.selectByUsername(username).getUserId();
+        boolean result = userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
+        userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId));
+        taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId));
+
+        Usertaketask usertaketask = usertaketaskMapper.selectById(userId);
+        if (ObjectUtils.isNotEmpty(usertaketask)) {
+            usertaketask.setUserId(0L);
+            usertaketaskMapper.updateById(usertaketask);
+        }
+
+        return result;
     }
 }

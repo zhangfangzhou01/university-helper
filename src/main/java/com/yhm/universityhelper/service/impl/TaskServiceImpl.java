@@ -10,9 +10,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.TaskTagsMapper;
+import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.TaskTags;
+import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.JsonUtils;
@@ -46,24 +50,37 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private TaskTagsMapper taskTagsMapper;
 
     @Autowired
+    private UsertaketaskMapper usertaketaskMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
     private BeanUtils beanUtils;
 
     public boolean update(JSONObject json) {
         final Object taskIdObj = json.get("taskId");
-        final Object userIdObj = json.get("taskId");
+        final Object userIdObj = json.get("userId");
         if (ObjectUtil.isEmpty(taskIdObj) || ObjectUtil.isEmpty(userIdObj)) {
-            return false;
+            throw new RuntimeException("可能未提供任务id或用户id");
         }
 
         Long taskId = Long.valueOf(taskIdObj.toString());
         Long userId = Long.valueOf(userIdObj.toString());
-        String type = (String)json.get("type");
+
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
 
         Task task = taskMapper.selectById(taskId);
         for (String key : json.keySet()) {
-            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
+            if (key.equals("taskId") || key.equals("userId")) {
                 continue;
+            } else if (key.equals("type")) {
+                throw new RuntimeException("任务类型不可变更，由系统自动生成");
             }
+
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
@@ -85,18 +102,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     public boolean insert(JSONObject json) {
         final Object userIdObj = json.get("userId");
-        final Object typeObj = json.get("type");
-        if (ObjectUtil.isEmpty(userIdObj) || ObjectUtil.isEmpty(typeObj)) {
-            return false;
+        if (ObjectUtil.isEmpty(userIdObj)) {
+            throw new RuntimeException("可能未提供用户id或任务类型");
         }
 
         Long userId = Long.valueOf(userIdObj.toString());
-        String type = (String)typeObj;
+
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
 
         Task task = new Task();
         for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("type")) {
-                continue;
+                throw new RuntimeException("任务id和任务类型不可变更，由系统自动生成");
             }
 
             Object value = json.get(key);
@@ -124,7 +144,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public boolean delete(Long taskId) {
-        return taskMapper.deleteById(taskId) > 0;
+        boolean result = taskMapper.deleteById(taskId) > 0;
+        usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
+        return result;
     }
 
     @Override

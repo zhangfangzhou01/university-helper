@@ -3,29 +3,36 @@ package com.yhm.universityhelper.util;
 import cn.hutool.core.util.ReflectUtil;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectUtils {
     public static void set(Object obj, String fieldName, Object value) {
-        ReflectUtil.setFieldValue(obj, fieldName, value);
+        try {
+            ReflectUtil.setFieldValue(obj, fieldName, value);
+        } catch (Exception e) {
+            throw new RuntimeException("对象" + obj.getClass().getName() + "中不存在字段" + fieldName);
+        }
     }
 
     public static Object get(Object obj, String fieldName) {
-        return ReflectUtil.getFieldValue(obj, fieldName);
+        try {
+            return ReflectUtil.getFieldValue(obj, fieldName);
+        } catch (Exception e) {
+            throw new RuntimeException("对象" + obj.getClass().getName() + "中不存在字段" + fieldName);
+        }
     }
 
     public static void setBatch(Object obj, Map<String, Object> data) {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
-            ReflectUtil.setFieldValue(obj, entry.getKey(), entry.getValue());
+            ReflectUtils.set(obj, entry.getKey(), entry.getValue());
         }
     }
 
     public static Map<String, Object> getBatch(Object obj, String... fieldNames) {
         Map<String, Object> data = new HashMap<>();
         for (String fieldName : fieldNames) {
-            data.put(fieldName, ReflectUtil.getFieldValue(obj, fieldName));
+            data.put(fieldName, ReflectUtils.get(obj, fieldName));
         }
         return data;
     }
@@ -40,7 +47,7 @@ public class ReflectUtils {
                 }
             }
             if (flag) {
-                ReflectUtil.setFieldValue(obj, entry.getKey(), entry.getValue());
+                ReflectUtils.set(obj, entry.getKey(), entry.getValue());
             }
         }
     }
@@ -56,7 +63,7 @@ public class ReflectUtils {
                 }
             }
             if (flag) {
-                data.put(field.getName(), ReflectUtil.getFieldValue(obj, field.getName()));
+                data.put(field.getName(), ReflectUtils.get(obj, field.getName()));
             }
         }
         return data;
@@ -71,17 +78,7 @@ public class ReflectUtils {
             }
             return returnType.cast(obj.getClass().getDeclaredMethod(methodName, argTypes).invoke(obj, args));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            throw new RuntimeException("对象" + obj.getClass().getName() + "中不存在方法" + methodName);
         }
-    }
-
-    public static <T> T call(Object obj, String methodName, Object... args) {
-        return ReflectUtil.invoke(obj, methodName, args);
-    }
-
-    public static <T> T callStatic(Class<?> clazz, String methodName, Object... args) {
-        Method method = ReflectUtil.getMethodByNameIgnoreCase(clazz, methodName);
-        return ReflectUtil.invokeStatic(method, args);
     }
 }
