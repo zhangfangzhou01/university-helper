@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,12 +98,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if (key.equals("taskId") || key.equals("type")) {
                 continue;
             }
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+
+            Object value = json.get(key);
+            if (value instanceof LocalDateTime) {
+                String time = value.toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
-            } else if (key.equals("userId")) {
+            } else if ("userId".equals(key)) {
                 ReflectUtils.set(task, "userId", userId);
-            } else if (key.equals("tags")) {
+            } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
                 for (Object tag : tags) {
@@ -114,7 +115,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     }
                 }
             } else {
-                ReflectUtils.set(task, key, json.get(key));
+                ReflectUtils.set(task, key, value);
             }
         }
 
@@ -137,19 +138,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Set<String> keys = json.keySet();
 
         for (String key : keys) {
-            if (StringUtils.equals(key, "userRelease") || StringUtils.equals(key, "userTake")) {
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(json.get(key).toString()));
-            } else if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+            Object value = json.get(key);
+            if (value instanceof Long) {
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(value.toString()));
+            } else if (value instanceof LocalDateTime) {
+                String time = value.toString().replace(" ", "T");
                 ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDateTime.parse(time));
-            } else if (StringUtils.containsIgnoreCase(key, "date")) {
-                String date = json.get(key).toString();
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDate.parse(date));
-            } else if (StringUtils.equals(key, "tags")) {
+            } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, tags);
             } else {
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, json.get(key));
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, value);
             }
         }
 
@@ -158,24 +157,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
 
     @Override
-    public List<OrderItem> sortWrapper(JSONArray sortJson) {
+    public List<OrderItem> sortWrapper(JSONObject sortJson) {
         List<OrderItem> orderItems = new ArrayList<>();
 
         if (ObjectUtil.isEmpty(sortJson) || sortJson.isEmpty()) {
             return orderItems;
         }
 
-        for (JSONObject sort : sortJson.toList(JSONObject.class)) {
-            String column = sort.get("column", String.class);
-            Boolean asc = sort.get("asc", Boolean.class);
-
-            if (ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+        for (String key : sortJson.keySet()) {
+            String value = sortJson.get(key, String.class);
+            if (StringUtils.isEmpty(value) || ((!"asc".equalsIgnoreCase(value)) && (!"desc".equalsIgnoreCase(value)))) {
                 continue;
             }
-
-            OrderItem orderItem = new OrderItem(column, asc);
+            OrderItem orderItem = new OrderItem(key, "asc".equals(value));
             orderItems.add(orderItem);
         }
+
         return orderItems;
     }
 
@@ -196,13 +193,43 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public Page<Task> select(JSONObject json) {
         final JSONObject searchJson = json.get("search", JSONObject.class);
         final JSONObject pageJson = json.get("page", JSONObject.class);
-        final JSONArray sortJson = json.get("sort", JSONArray.class);
+        final JSONObject sortJson = json.get("sort", JSONObject.class);
+        final String sortType = json.get("sortType", String.class); // priority or custom
 
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
         List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
-        page.setOrders(orderItems);
 
-        return taskMapper.selectPage(page, wrapper);
+        if ("custom".equals(sortType)) {
+            page.setOrders(orderItems);
+            return taskMapper.selectPage(page, wrapper);
+        } else if ("priority".equals(sortType)) {
+            List<Task> list = taskMapper.selectList(wrapper);
+            for (Task task : list) {
+                task.autoSetPriority(sortJson);
+            }
+
+            list.sort((o1, o2) -> o2.getPriority().compareTo(o1.getPriority()));
+
+            int start, end;
+            if (page.getSize() > 0) {
+                start = (int)((page.getCurrent() - 1) * page.getSize());
+                end = Math.min((int)(start + page.getSize()), list.size());
+            } else if (page.getSize() < 0) {
+                start = 0;
+                end = list.size();
+            } else {
+                return taskMapper.selectPage(new Page<>(0, 0), null);
+            }
+
+            page.setRecords(new ArrayList<>());
+            page.setTotal(list.size());
+            if (page.getSize() * (page.getCurrent() - 1) <= list.size()) {
+                page.setRecords(list.subList(start, end));
+            }
+            return page;
+        }
+
+        return taskMapper.selectPage(new Page<>(0, 0), null);
     }
 }

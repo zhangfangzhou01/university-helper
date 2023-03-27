@@ -1,14 +1,17 @@
 package com.yhm.universityhelper.entity.po;
 
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yhm.universityhelper.util.ReflectUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,14 +32,6 @@ import java.time.LocalDateTime;
 public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
-
-    public final String[] priorityColumn = {
-            "releaseTime",
-            "maxNumOfPeopleTake",
-            "expectedPeriod",
-            "arrivalTime",
-            "transactionAmount"
-    };
 
     @TableId(value = "taskId", type = IdType.AUTO)
     private Long taskId;
@@ -109,5 +104,42 @@ public class Task implements Serializable, Comparable {
 
     public String getType() {
         return new JSONArray(tags).get(0).toString();
+    }
+
+    public int autoSetPriority(JSONObject sortJson) {
+        final String[] priorityRelatedColumns = {
+                "releaseTime",
+                "maxNumOfPeopleTake",
+                "expectedPeriod",
+                "arrivalTime",
+                "transactionAmount",
+        };
+        for (String column : priorityRelatedColumns) {
+            Object value = ReflectUtils.get(this, column);
+            for (String key : sortJson.keySet()) {
+                String sort = sortJson.get(key, String.class);
+                if (StringUtils.isEmpty(sort) || ((!"asc".equalsIgnoreCase(sort)) && (!"desc".equalsIgnoreCase(sort)))) {
+                    continue;
+                }
+                if (key.equals(column)) {
+                    if (value instanceof LocalDateTime) {
+                        String timeStr = value.toString().replace(" ", "T");
+                        LocalDateTime time = LocalDateTime.parse(timeStr);
+                        if ("asc".equals(sort)) {
+                            this.priority += time.getSecond();
+                        } else if ("desc".equals(sort)) {
+                            this.priority -= time.getSecond();
+                        }
+                    } else {
+                        if ("asc".equals(sort)) {
+                            this.priority += Integer.parseInt(value.toString());
+                        } else if ("desc".equals(sort)) {
+                            this.priority -= Integer.parseInt(value.toString());
+                        }
+                    }
+                }
+            }
+        }
+        return this.priority;
     }
 }
