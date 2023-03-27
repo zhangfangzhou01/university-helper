@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.service.impl;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -28,8 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -74,6 +77,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
 
         Task task = taskMapper.selectById(taskId);
+
+        // TODO: 前端要针对类型，对某些字段设置为不可修改
         for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("userId")) {
                 continue;
@@ -102,7 +107,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     public boolean insert(JSONObject json) {
         final Object userIdObj = json.get("userId");
-        if (ObjectUtil.isEmpty(userIdObj)) {
+        final Object typeObj = json.get("type");
+        if (ObjectUtil.isEmpty(userIdObj) || ObjectUtil.isEmpty(typeObj)) {
             throw new RuntimeException("可能未提供用户id或任务类型");
         }
 
@@ -115,8 +121,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         Task task = new Task();
         for (String key : json.keySet()) {
-            if (key.equals("taskId") || key.equals("type")) {
-                throw new RuntimeException("任务id和任务类型不可变更，由系统自动生成");
+            if (key.equals("taskId")) {
+                continue;
             }
 
             Object value = json.get(key);
@@ -179,21 +185,37 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
 
     @Override
-    public List<OrderItem> sortWrapper(JSONObject sortJson) {
+    public List<OrderItem> sortWrapper(JSONArray sortJson) {
         List<OrderItem> orderItems = new ArrayList<>();
+        List<Pair<Integer, OrderItem>> orderItemPairs = new ArrayList<>();
 
         if (ObjectUtil.isEmpty(sortJson) || sortJson.isEmpty()) {
             return orderItems;
         }
 
-        for (String key : sortJson.keySet()) {
-            String value = sortJson.get(key, String.class);
-            if (StringUtils.isEmpty(value) || ((!"asc".equalsIgnoreCase(value)) && (!"desc".equalsIgnoreCase(value)))) {
+        for (Object obj : sortJson) {
+            JSONObject jsonObject = (JSONObject)obj;
+            if (ObjectUtil.isEmpty(jsonObject) || jsonObject.isEmpty()) {
                 continue;
             }
-            OrderItem orderItem = new OrderItem(key, "asc".equals(value));
-            orderItems.add(orderItem);
+
+            Integer order = jsonObject.get("order", Integer.class);
+            String column = jsonObject.get("column", String.class);
+            Boolean asc = jsonObject.get("asc", Boolean.class);
+            if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+                continue;
+            }
+
+            if ("priority".equals(column)) {
+                continue;
+            }
+
+            OrderItem orderItem = new OrderItem(column, asc);
+            orderItemPairs.add(new Pair<>(order, orderItem));
         }
+
+        orderItemPairs.sort(Comparator.comparing(Pair::getKey));
+        orderItems = orderItemPairs.stream().map(Pair::getValue).collect(Collectors.toList());
 
         return orderItems;
     }
@@ -215,7 +237,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public Page<Task> select(JSONObject json) {
         final JSONObject searchJson = json.get("search", JSONObject.class);
         final JSONObject pageJson = json.get("page", JSONObject.class);
-        final JSONObject sortJson = json.get("sort", JSONObject.class);
+        final JSONArray sortJson = json.get("sort", JSONArray.class);
         final String sortType = json.get("sortType", String.class);
 
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
@@ -227,6 +249,32 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
             List<Task> list = taskMapper.selectList(wrapper);
+
+            LocalDateTime releaseTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime)).getReleaseTime();
+            LocalDateTime releaseTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime)).getReleaseTime();
+            Integer maxNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
+            Integer maxNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
+            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod)).getExpectedPeriod();
+            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod)).getExpectedPeriod();
+            LocalDateTime arrivalTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getArrivalTime)).getArrivalTime();
+            LocalDateTime arrivalTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getArrivalTime)).getArrivalTime();
+            Integer transactionAmountMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getTransactionAmount)).getTransactionAmount();
+            Integer transactionAmountMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getTransactionAmount)).getTransactionAmount();
+
+            list.forEach(task -> {
+                task.autoSetPriority(
+                        releaseTimeMax,
+                        releaseTimeMin,
+                        maxNumOfPeopleTakeMax,
+                        maxNumOfPeopleTakeMin,
+                        expectedPeriodMax,
+                        expectedPeriodMin,
+                        arrivalTimeMax,
+                        arrivalTimeMin,
+                        transactionAmountMax,
+                        transactionAmountMin
+                );
+            });
 
             list.sort((o1, o2) -> o2.getPriority().compareTo(o1.getPriority()));
 

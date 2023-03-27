@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.service;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -27,7 +28,7 @@ public interface TaskService extends IService<Task> {
 
     LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
 
-    List<OrderItem> sortWrapper(JSONObject json);
+    List<OrderItem> sortWrapper(JSONArray json);
 
     Page<Task> pageWrapper(JSONObject json);
 
