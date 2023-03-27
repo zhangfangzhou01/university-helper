@@ -57,12 +57,6 @@ public class TaskController {
                             dataTypeClass = Integer.class,
                             example = "2345346364"
                     ),
-                    @DynamicParameter(name = "sex",
-                            value = "性别",
-                            required = true,
-                            dataTypeClass = String.class,
-                            example = "男"
-                    ),
                     @DynamicParameter(name = "type",
                             value = "任务核心类别",
                             required = true,
@@ -146,12 +140,6 @@ public class TaskController {
                             required = true,
                             dataTypeClass = Integer.class,
                             example = "1244435"
-                    ),
-                    @DynamicParameter(name = "sex",
-                            value = "性别",
-                            required = true,
-                            dataTypeClass = String.class,
-                            example = "男"
                     ),
                     @DynamicParameter(name = "type",
                             value = "任务核心类别",
@@ -352,7 +340,6 @@ public class TaskController {
                             example = "{\n" +
                                     "    \"taskId\": 1234321432,\n" +
                                     "    \"userId\": 123344,\n" +
-                                    "    \"sex\": \"男\",\n" +
                                     "    \"type\": \"外卖\",\n" +
                                     "    \"tags\": \"辣椒, 红色\",\n" +
                                     "    \"releaseTimeMin\": \"2020-12-12 12:12:12\",\n" +
