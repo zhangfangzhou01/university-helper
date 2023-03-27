@@ -121,8 +121,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .rememberMe()
+                .rememberMeParameter("rememberMe")
                 .tokenValiditySeconds(60 * 60 * 24 * 7) // 7天
-                .key("remember-me-key")
                 .userDetailsService(userDetailsService())
                 .tokenRepository(persistentTokenRepository())
 
@@ -140,7 +140,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .sessionManagement()
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true);
+                .maximumSessions(10);
     }
 }

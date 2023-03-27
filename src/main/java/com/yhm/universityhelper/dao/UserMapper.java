@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Select;
  * @author yhm
  * @since 2023-02-26
  */
+
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from uh_user where username = #{username}")

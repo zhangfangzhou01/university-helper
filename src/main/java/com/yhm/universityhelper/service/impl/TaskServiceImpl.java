@@ -1,19 +1,38 @@
 package com.yhm.universityhelper.service.impl;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.TaskMapper;
+import com.yhm.universityhelper.dao.TaskTagsMapper;
+import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.dao.UsertaketaskMapper;
+import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
 import com.yhm.universityhelper.entity.po.Task;
+import com.yhm.universityhelper.entity.po.TaskTags;
+import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
+import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
-
-import static com.yhm.universityhelper.entity.po.Task.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -23,220 +42,261 @@ import static com.yhm.universityhelper.entity.po.Task.*;
  * @author yhm
  * @since 2023-03-04
  */
+
+@Transactional
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
-    TaskMapper taskMapper;
+    private TaskMapper taskMapper;
 
-    public boolean update(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
+    @Autowired
+    private TaskTagsMapper taskTagsMapper;
 
-        Integer taskId = (Integer)data.get("taskId");
-        Integer userId = (Integer)data.get("userId");
-        String type = (String)data.get("type");
+    @Autowired
+    private UsertaketaskMapper usertaketaskMapper;
 
-        if (ObjectUtil.isEmpty(taskId) || ObjectUtil.isEmpty(type) || ObjectUtil.isEmpty(userId)) {
-            return false;
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private BeanUtils beanUtils;
+
+    public boolean update(JSONObject json) {
+        final Object taskIdObj = json.get("taskId");
+        final Object userIdObj = json.get("userId");
+        if (ObjectUtil.isEmpty(taskIdObj) || ObjectUtil.isEmpty(userIdObj)) {
+            throw new RuntimeException("可能未提供任务id或用户id");
         }
+
+        Long taskId = Long.valueOf(taskIdObj.toString());
+        Long userId = Long.valueOf(userIdObj.toString());
+
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
+
         Task task = taskMapper.selectById(taskId);
-        for (String key : data.keySet()) {
-            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
+
+        // TODO: 前端要针对类型，对某些字段设置为不可修改
+        for (String key : json.keySet()) {
+            if (key.equals("taskId") || key.equals("userId")) {
                 continue;
+            } else if (key.equals("type")) {
+                throw new RuntimeException("任务类型不可变更，由系统自动生成");
             }
-            ReflectUtils.set(task, key, data.get(key));
+
+            if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = json.get(key).toString().replace(" ", "T");
+                ReflectUtils.set(task, key, LocalDateTime.parse(time));
+            } else if (key.equals("tags")) {
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                for (Object tag : tags) {
+                    final TaskTags taskTags = new TaskTags((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
+                        taskTagsMapper.insert(taskTags);
+                    }
+                }
+            } else {
+                ReflectUtils.set(task, key, json.get(key));
+            }
         }
         return taskMapper.updateById(task) > 0;
     }
 
-    public boolean insert(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-
-        Integer userId = (Integer)data.get("userId");
-        String type = (String)data.get("type");
-
-        if (ObjectUtil.isEmpty(userId) || ObjectUtil.isEmpty(type)) {
-            return false;
+    public boolean insert(JSONObject json) {
+        final Object userIdObj = json.get("userId");
+        final Object typeObj = json.get("type");
+        if (ObjectUtil.isEmpty(userIdObj) || ObjectUtil.isEmpty(typeObj)) {
+            throw new RuntimeException("可能未提供用户id或任务类型");
         }
+
+        Long userId = Long.valueOf(userIdObj.toString());
+
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
+
         Task task = new Task();
-        for (String key : data.keySet()) {
-            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
+        for (String key : json.keySet()) {
+            if (key.equals("taskId")) {
                 continue;
             }
-            ReflectUtils.set(task, key, data.get(key));
+
+            Object value = json.get(key);
+            if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = value.toString().replace(" ", "T");
+                ReflectUtils.set(task, key, LocalDateTime.parse(time));
+            } else if ("userId".equals(key)) {
+                ReflectUtils.set(task, "userId", userId);
+            } else if ("tags".equals(key)) {
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                for (Object tag : tags) {
+                    final TaskTags taskTags = new TaskTags((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
+                        taskTagsMapper.insert(taskTags);
+                    }
+                }
+            } else {
+                ReflectUtils.set(task, key, value);
+            }
         }
-        // 插入的时候 不需要计算 priority
 
         return taskMapper.insert(task) > 0;
     }
-public Map<String, Object> select(String json) {
 
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-        // json 内有一个 sortJson
-        Map<String, Object> sortData = JsonUtils.jsonToMap( (String)data.get("sortData") );
-        final Integer userId = (Integer)data.get("userId");
-        final Set<String> keys = data.keySet();
-
-        // 存放 每一个 （满足一个基限制的 tasks）
-        List<ArrayList<Task>> taskss = new ArrayList<>();
-        // 存放最终满足所有限制的 tasks
-        List<Task> tasksResult;
-
-        if(keys.contains("userRelease")) {
-            taskss.add(taskMapper.selectByUserRelease(userId));
-        }else if(keys.contains("userTake")){
-            taskss.add(taskMapper.selectByUserTake(userId));
-        }else if(keys.contains("type")){
-            if ("全部".equals(data.get("type"))) {
-                taskss.add(taskMapper.selectAllType());
-            } else {
-                taskss.add(taskMapper.selectByType((String)data.get("type")));
-            }
-        }else if(keys.contains("releaseTimeMax")){
-            taskss.add(taskMapper.selectReleaseTimeMax((LocalDateTime)data.get("releaseTimeMax")));
-        }else if(keys.contains("releaseTimeMin")){
-            taskss.add(taskMapper.selectReleaseTimeMin((LocalDateTime)data.get("releaseTimeMin")));
-        }else if(keys.contains("maxNumOfPeople")){
-            taskss.add(taskMapper.selectByMaxNumOfPeople((Integer)data.get("maxNumOfPeople")));
-        }else if(keys.contains("taskState")){
-            taskss.add(taskMapper.selectByTaskState((Integer) data.get("taskState")));
-        }else if(keys.contains("arrivalTimeMax")){
-            taskss.add(taskMapper.selectArrivalTimeMax((LocalDateTime)data.get("arrivalTimeMax")));
-        }else if(keys.contains("arrivalTimeMin")){
-            taskss.add(taskMapper.selectArrivalTimeMin((LocalDateTime)data.get("arrivalTimeMin")));
-        }else if(keys.contains("arrivalLocation")){
-            taskss.add(taskMapper.selectByArrivalLocation((String)data.get("arrivalLocation")));
-        }else if(keys.contains("targetLocation")){
-            taskss.add(taskMapper.selectByTargetLocation((String)data.get("targetLocation")));
-        }else if(keys.contains("transactionTimeMax")){
-            taskss.add(taskMapper.selectTransactionAmountMax((Integer)data.get("transactionAmountMax")));
-        }else if(keys.contains("transactionTimeMin")) {
-            taskss.add(taskMapper.selectTransactionAmountMin((Integer) data.get("transactionAmountMin")));
-        }
-
-        // 做交集
-        tasksResult = taskss.stream()
-                .reduce((tasks1, tasks2) -> {
-                    tasks1.retainAll(tasks2);
-                    return tasks1;
-                }).orElse(new ArrayList<>());
-
-        // 三种排序方式
-        if(data.get("sortMethod") == "优先级综合排序") {
-            // 计算 priority
-            for (Task value : tasksResult) {
-                // 这个函数还是要传入当前taskResult 的 所有属性的 max 和 min 方便进行 每个属性加权的归一化
-                value.autoSetPriority(sortData);
-            }
-            // 排序
-            Collections.sort(tasksResult);
-        }else{
-            // Map的keySet 无序， 只有 LinkedHashMap有序
-            Set<String> sortKeys = sortData.keySet();
-            if(data.get("sortMethod") == "覆盖式排序"){
-                String key = (String)sortData.get("key");
-                if(key.equals("releaseTime")){
-                    if(sortData.get(key) == "asc"){
-                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
-                    }else{
-                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
-                    }
-                }else if(key.equals("maxNumOfPeople")){
-                    if(sortData.get(key) == "asc"){
-                        tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_ASC);
-                    }else{
-                        tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_DESC);
-                    }
-                }else if(key.equals("expectedPeriod")){
-                    if(sortData.get(key) == "asc"){
-                        tasksResult.sort(COMPARATOR_EXPERIODTIME_ASC);
-                    }else{
-                        tasksResult.sort(COMPARATOR_EXPERIODTIME_DESC);
-                    }
-                }else if(key.equals("arrivalTime")){
-                    if(sortData.get(key) == "asc"){
-                        tasksResult.sort(COMPARATOR_ARRIVALTIME_ASC);
-                    }else{
-                        tasksResult.sort(COMPARATOR_ARRIVALTIME_DESC);
-                    }
-                }else if(key.equals("transactionAmount")){
-                    if(sortData.get(key) == "asc"){
-                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
-                    }else{
-                        tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
-                    }
-                }
-            } else if(data.get("sortMethod") == "按照关键词次序排序"){
-                for(String key : sortKeys){
-                    if(key.equals("releaseTime")){
-                        if(sortData.get(key) == "asc"){
-                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
-                        }else{
-                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
-                        }
-                    }else if(key.equals("maxNumOfPeople")){
-                        if(sortData.get(key) == "asc"){
-                            tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_ASC);
-                        }else{
-                            tasksResult.sort(COMPARATOR_MAXNUMOFPEOPLE_DESC);
-                        }
-                    }else if(key.equals("expectedPeriod")){
-                        if(sortData.get(key) == "asc"){
-                            tasksResult.sort(COMPARATOR_EXPERIODTIME_ASC);
-                        }else{
-                            tasksResult.sort(COMPARATOR_EXPERIODTIME_DESC);
-                        }
-                    }else if(key.equals("arrivalTime")){
-                        if(sortData.get(key) == "asc"){
-                            tasksResult.sort(COMPARATOR_ARRIVALTIME_ASC);
-                        }else{
-                            tasksResult.sort(COMPARATOR_ARRIVALTIME_DESC);
-                        }
-                    }else if(key.equals("transactionAmount")){
-                        if(sortData.get(key) == "asc"){
-                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_ASC);
-                        }else{
-                            tasksResult.sort(COMPARATOR_TRANSACTIONAMOUNT_DESC);
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-        Map<String, Object> result = new HashMap<>();
-        for (Task task : tasksResult) {
-            result.put(task.getTaskId().toString(), task);
-        }
-
+    @Override
+    public boolean delete(Long taskId) {
+        boolean result = taskMapper.deleteById(taskId) > 0;
+        usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
         return result;
     }
 
     @Override
-    public Map<String, Object> sort(String json) {
-        Map<String, Object> data = JsonUtils.jsonToMap(json);
-        final List<Map<String, String>> sortBy = (List<Map<String, String>>)data.get("sortBy");
-        final Map<String, Object> tasks = (Map<String, Object>)data.get("tasks");
+    public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
+        TaskQueryWrapper taskQueryWrapper = beanUtils.getBean(TaskQueryWrapper.class);
 
-        List<Task> tasksResult = new ArrayList<>();
-        for (String key : tasks.keySet()) {
-            tasksResult.add( (Task)tasks.get(key) );
+        if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
+            return taskQueryWrapper.getWrapper();
         }
 
-        // sortBy是类似于 [{"userId": "asc"}, {"releaseTime": "desc"}] 的结构
-        // 也就是说，先按照userId升序排列，再按照releaseTime降序排列
-        // 这里的asc 和 desc是字符串，不是boolean
-        // 这里的userId和releaseTime是Task类的属性名
-        // 写一个方法，根据sortBy的结构，对tasksResult进行排序
+        final Set<String> keys = json.keySet();
 
-        tasksResult.sort((task1, task2) -> {
-            for (Map<String, String> map : sortBy) {
-                for (String key : map.keySet()) {
-
-                }
+        for (String key : keys) {
+            Object value = json.get(key);
+            if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(value.toString()));
+            } else if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = value.toString().replace(" ", "T");
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDateTime.parse(time));
+            } else if ("tags".equals(key)) {
+                JSONArray tags = json.getJSONArray(key);
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, tags);
+            } else {
+                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, value);
             }
-            return 0;
-        });
-        return null;
+        }
+
+        return taskQueryWrapper.getWrapper();
+    }
+
+
+    @Override
+    public List<OrderItem> sortWrapper(JSONArray sortJson) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        List<Pair<Integer, OrderItem>> orderItemPairs = new ArrayList<>();
+
+        if (ObjectUtil.isEmpty(sortJson) || sortJson.isEmpty()) {
+            return orderItems;
+        }
+
+        for (Object obj : sortJson) {
+            JSONObject jsonObject = (JSONObject)obj;
+            if (ObjectUtil.isEmpty(jsonObject) || jsonObject.isEmpty()) {
+                continue;
+            }
+
+            Integer order = jsonObject.get("order", Integer.class);
+            String column = jsonObject.get("column", String.class);
+            Boolean asc = jsonObject.get("asc", Boolean.class);
+            if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+                continue;
+            }
+
+            if ("priority".equals(column)) {
+                continue;
+            }
+
+            OrderItem orderItem = new OrderItem(column, asc);
+            orderItemPairs.add(new Pair<>(order, orderItem));
+        }
+
+        orderItemPairs.sort(Comparator.comparing(Pair::getKey));
+        orderItems = orderItemPairs.stream().map(Pair::getValue).collect(Collectors.toList());
+
+        return orderItems;
+    }
+
+    @Override
+    public Page<Task> pageWrapper(JSONObject json) {
+        Long current = 1L;
+        Long size = -1L;
+
+        if (ObjectUtil.isNotEmpty(json) && (!json.isEmpty())) {
+            current = json.get("current", Long.class);
+            size = json.get("size", Long.class);
+        }
+
+        return new Page<>(current, size);
+    }
+
+    @Override
+    public Page<Task> select(JSONObject json) {
+        final JSONObject searchJson = json.get("search", JSONObject.class);
+        final JSONObject pageJson = json.get("page", JSONObject.class);
+        final JSONArray sortJson = json.get("sort", JSONArray.class);
+        final String sortType = json.get("sortType", String.class);
+
+        LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
+        List<OrderItem> orderItems = sortWrapper(sortJson);
+        Page<Task> page = pageWrapper(pageJson);
+
+        if ("attribute".equals(sortType)) {
+            page.setOrders(orderItems);
+            return taskMapper.selectPage(page, wrapper);
+        } else if ("priority".equals(sortType)) {
+            List<Task> list = taskMapper.selectList(wrapper);
+
+            LocalDateTime releaseTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime)).getReleaseTime();
+            LocalDateTime releaseTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime)).getReleaseTime();
+            Integer maxNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
+            Integer maxNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
+            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod)).getExpectedPeriod();
+            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod)).getExpectedPeriod();
+            LocalDateTime arrivalTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getArrivalTime)).getArrivalTime();
+            LocalDateTime arrivalTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getArrivalTime)).getArrivalTime();
+            Integer transactionAmountMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getTransactionAmount)).getTransactionAmount();
+            Integer transactionAmountMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getTransactionAmount)).getTransactionAmount();
+
+            list.forEach(task -> {
+                task.autoSetPriority(
+                        releaseTimeMax,
+                        releaseTimeMin,
+                        maxNumOfPeopleTakeMax,
+                        maxNumOfPeopleTakeMin,
+                        expectedPeriodMax,
+                        expectedPeriodMin,
+                        arrivalTimeMax,
+                        arrivalTimeMin,
+                        transactionAmountMax,
+                        transactionAmountMin
+                );
+            });
+
+            list.sort((o1, o2) -> o2.getPriority().compareTo(o1.getPriority()));
+
+            int start, end;
+            if (page.getSize() > 0) {
+                start = (int)((page.getCurrent() - 1) * page.getSize());
+                end = Math.min((int)(start + page.getSize()), list.size());
+            } else if (page.getSize() < 0) {
+                start = 0;
+                end = list.size();
+            } else {
+                return taskMapper.selectPage(new Page<>(0, 0), null);
+            }
+
+            page.setRecords(new ArrayList<>());
+            page.setTotal(list.size());
+            if (page.getSize() * (page.getCurrent() - 1) <= list.size()) {
+                page.setRecords(list.subList(start, end));
+            }
+            return page;
+        }
+
+        return taskMapper.selectPage(new Page<>(0, 0), null);
     }
 }

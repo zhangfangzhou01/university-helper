@@ -1,7 +1,7 @@
 package com.yhm.universityhelper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yhm.universityhelper.entity.po.UserRole;
+import com.yhm.universityhelper.entity.po.TaskTags;
 
 /**
  * <p>
@@ -9,8 +9,8 @@ import com.yhm.universityhelper.entity.po.UserRole;
  * </p>
  *
  * @author yhm
- * @since 2023-02-26
+ * @since 2023-03-26
  */
+public interface TaskTagsService extends IService<TaskTags> {
 
-public interface UserRoleService extends IService<UserRole> {
 }

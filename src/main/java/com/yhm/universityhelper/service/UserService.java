@@ -1,9 +1,9 @@
 package com.yhm.universityhelper.service;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.User;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -16,13 +16,16 @@ import java.util.Map;
  * @since 2023-02-26
  */
 
-@Transactional
 public interface UserService extends IService<User> {
     boolean update(JSONObject json);
 
-    Map<String, Object> select(JSONObject json);
+    Map<String, Object> select(JSONArray json);
 
-    User selectByUsername(String username);
+    boolean delete(String username);
 
-    boolean update(User user);
+    boolean register(String username, String password);
+
+    boolean changePassword(String username, String oldPassword, String newPassword);
+
+    boolean ban(String username, boolean ban);
 }

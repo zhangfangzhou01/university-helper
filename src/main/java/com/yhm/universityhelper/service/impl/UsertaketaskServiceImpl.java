@@ -5,6 +5,7 @@ import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.UsertaketaskService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service;
  * @author yhm
  * @since 2023-03-04
  */
+
+@Transactional
 @Service
 public class UsertaketaskServiceImpl extends ServiceImpl<UsertaketaskMapper, Usertaketask> implements UsertaketaskService {
-
 }

@@ -2,6 +2,7 @@ package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Task;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
  * @author yhm
  * @since 2023-03-04
  */
+
+@Mapper
 public interface TaskMapper extends BaseMapper<Task> {
 
 //  \connect --mysql wsj@localhost/
@@ -24,14 +27,14 @@ public interface TaskMapper extends BaseMapper<Task> {
      * @return
      */
     @Select("Select * from uh_task where userId = ${userId} ")
-    ArrayList<Task> selectByUserRelease(Integer userId);
+    ArrayList<Task> selectByUserRelease(Long userId);
 
     /**
      * @param userId 选择给定用户所接取的所有任务
      * @return
      */
     @Select("Select * from uh_task where taskId in ( Select taskId from uh_usertaketask where userId = ${userId} ) ")
-    ArrayList<Task> selectByUserTake(Integer userId);
+    ArrayList<Task> selectByUserTake(Long userId);
 
     @Select("Select * from uh_task")
     ArrayList<Task> selectAllType();
@@ -54,7 +57,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("Select * from uh_task where DateDiff( date(releaseTime), date(now()) ) = 0 ")
     ArrayList<Task> selectReleaseTimeToday();
 
-    @Select("Select * from uh_task order by priority)")
+    @Select("Select * from uh_task order by priority")
     ArrayList<Task> selectOrderByPriority();
 
     @Select("Select * from uh_task order by priority desc")

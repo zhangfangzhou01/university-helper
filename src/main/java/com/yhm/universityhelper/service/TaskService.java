@@ -1,9 +1,14 @@
 package com.yhm.universityhelper.service;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.Task;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * <p>
@@ -13,9 +18,19 @@ import java.util.Map;
  * @author yhm
  * @since 2023-03-04
  */
+
 public interface TaskService extends IService<Task> {
-    boolean update(String json);
-    boolean insert(String json);
-    Map<String, Object> select(String json);
-    Map<String, Object> sort(String json);
+    boolean update(JSONObject json);
+
+    boolean insert(JSONObject json);
+
+    boolean delete(Long taskId);
+
+    LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
+
+    List<OrderItem> sortWrapper(JSONArray json);
+
+    Page<Task> pageWrapper(JSONObject json);
+
+    Page<Task> select(JSONObject json);
 }

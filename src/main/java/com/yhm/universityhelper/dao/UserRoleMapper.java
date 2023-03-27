@@ -15,8 +15,9 @@ import java.util.List;
  * @author yhm
  * @since 2023-02-26
  */
+
 @Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
     @Select("select * from uh_user_role where userId = #{userId}")
-    List<UserRole> listByUserId(Integer userId);
+    List<UserRole> listByUserId(Long userId);
 }

@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -27,14 +28,14 @@ public class Usertaketask implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId("id")
-    private Integer id;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 
     @TableField("taskId")
-    private Integer taskId;
+    private Long taskId;
 
     @TableField("userId")
-    private Integer userId;
+    private Long userId;
 
 
 }

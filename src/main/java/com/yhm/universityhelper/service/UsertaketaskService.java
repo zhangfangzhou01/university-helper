@@ -2,7 +2,6 @@ package com.yhm.universityhelper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.Usertaketask;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -13,6 +12,5 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 2023-03-04
  */
 
-@Transactional
 public interface UsertaketaskService extends IService<Usertaketask> {
 }
