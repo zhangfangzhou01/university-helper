@@ -11,7 +11,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @Api(tags = "用户管理")
@@ -88,17 +87,6 @@ public class UserController {
 
     // 获得个人信息
     @ApiOperation(value = "获取个人信息", notes = "获取个人信息")
-    @DynamicParameters(
-            name = "UserSelectDto",
-            properties = {
-                    @DynamicParameter(name = "usernames",
-                            value = "用户名数组",
-                            required = true,
-                            dataTypeClass = List.class,
-                            example = "[\"username1\",\"username2\"]"
-                    ),
-            }
-    )
     @PostMapping("/select")
     public ResponseResult<Map<String, Object>> select(@RequestBody JSONArray json) {
         return ResponseResult.ok(userService.select(json), "获取个人信息成功");
