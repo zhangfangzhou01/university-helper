@@ -8,14 +8,15 @@ create table uh_task
     userId             int                     not null,
 #   因为是select的时候排序，所以priority字段的数据胡存储没什么用，但是其po有用
     priority           int                     not null,
-#     核心tag, 外卖， 交易，
-#  tags:  " ["外卖", 辣"] " 之类的
+#  type核心tag, 外卖， 交易，
+#  tags:  " ["辣"] " 之类的
     type               varchar(255)            not null,
     tags               varchar(255)            not null,
     releaseTime        timestamp               not null,
     title              varchar(255) default '' not null,
     requireDescription varchar(255) default '' not null,
     maxNumOfPeopleTake int          default 1  not null,
+    leftNumOfPeopleTake int         default 0  not null,
 #     任务预计悬挂时间，
     expectedPeriod     timestamp,
 #     发布未领取，发布已领取，发布已完成三种状态

@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -32,11 +33,19 @@ public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
+    final public int NOT_PUBLISH = 0;
+    final public int NOT_TAKE = 1;
+    final public int TAKE = 2;
+    final public int COMPLETED = 3;
+
     @TableId(value = "taskId", type = IdType.AUTO)
     private Long taskId;
 
     @TableField("userId")
     private Long userId;
+
+    @TableField("type")
+    private String type;
 
     @TableField("tags")
     private String tags;
@@ -56,6 +65,12 @@ public class Task implements Serializable, Comparable {
     @TableField("maxNumOfPeopleTake")
     private Integer maxNumOfPeopleTake;
 
+    @TableField("leftNumOfPeopleTake")
+    private Integer leftNumOfPeopleTake;
+
+    @TableField("expectedPeriod")
+    private Integer expectedPeriod;
+
     @TableField("score")
     private Integer score;
 
@@ -63,7 +78,7 @@ public class Task implements Serializable, Comparable {
     private Integer taskState;
 
     @TableField("takeoutId")
-    private Long takeoutId;
+    private BigInteger takeoutId;
 
     @TableField("orderTime")
     private LocalDateTime orderTime;
@@ -86,17 +101,9 @@ public class Task implements Serializable, Comparable {
     @TableField("transactionAmount")
     private Double transactionAmount;
 
-    @TableField("expectedPeriod")
-    private Integer expectedPeriod;
-
     @TableField("isHunter")
     private Integer isHunter;
 
-    @TableField("type")
-    private String type;
-
-    @TableField("leftNumOfPeopleTake")
-    private Integer leftNumOfPeopleTake;
 
     @Override
     public int compareTo(Object o) {
@@ -122,18 +129,18 @@ public class Task implements Serializable, Comparable {
             Integer transactionAmountMax,
             Integer transactionAmountMin
     ) {
-        double tmp = 0;
-        // 公共考虑的属性有 发布时间， 预计时间
-        tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin));
-        tmp += (this.expectedPeriod - expectedPeriodMin) / (expectedPeriodMax - expectedPeriodMin);
-        if ("外卖".equals(this.type)) {
-            // 外卖考虑的属性有 送达时间
-            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin));
-            this.priority = (int)(tmp * 100) / 4;
-        } else if ("交易".equals(this.type)) {
-            // 交易考虑的属性有 交易金额
-            tmp += (this.transactionAmount - transactionAmountMin) / (transactionAmountMax - transactionAmountMin);
-            this.priority = (int)(tmp * 100) / 4;
-        }
+            double tmp = 0;
+            // 公共考虑的属性有 发布时间， 预计时间
+            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin));
+            tmp += (this.expectedPeriod - expectedPeriodMin)/(expectedPeriodMax-expectedPeriodMin);
+            if("外卖".equals(this.type) ){
+                // 外卖考虑的属性有 送达时间
+                tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin));
+                this.priority = (int)(tmp*100)/4;
+            }else if("交易".equals(this.type)){
+                // 交易考虑的属性有 交易金额
+                tmp += (this.transactionAmount - transactionAmountMin)/(transactionAmountMax-transactionAmountMin);
+                this.priority = (int)(tmp*100)/4;
+            }
     }
 }

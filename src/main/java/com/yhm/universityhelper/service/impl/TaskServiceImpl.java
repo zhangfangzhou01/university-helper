@@ -142,16 +142,74 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, value);
             }
         }
-
-
+        // 初始生成时，剩余可接取人数等于最大可接取人数
+        task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
         return taskMapper.insert(task) > 0;
     }
 
     @Override
-    public boolean delete(Long taskId) {
+    public boolean delete(Long taskId, Long userId) {
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
+        Task task = taskMapper.selectById(userId);
+        if(ObjectUtil.isEmpty(user)){
+            throw new RuntimeException("任务不存在");
+        }
+        if(!task.getUserId().equals(userId)){
+            throw new RuntimeException("删除非自己的任务");
+        }
+        // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
+        // 级联删除任务接取表里的相关记录
         usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
+        // todo 告知 taker ，任务取消
         return result;
+    }
+
+    @Override
+    public boolean deleteTaskByTaker(Long taskId, Long userId) {
+        User user = userMapper.selectById(userId);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
+        Task task = taskMapper.selectById(userId);
+        if(ObjectUtil.isEmpty(user)){
+            throw new RuntimeException("任务不存在");
+        }
+        Usertaketask usertaketask = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
+        if(ObjectUtil.isEmpty(usertaketask)){
+            throw new RuntimeException("您并未接取当前任务，错误的删除");
+        }
+        // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
+        int result = usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId) );
+        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake()+1);
+        if(task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())){
+            task.setTaskState(task.NOT_TAKE);
+        }
+        taskMapper.updateById(task);
+        return result>0;
+    }
+
+    @Override
+    public boolean take(Long taskId, Long userId) {
+        Usertaketask usertaketask1 = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
+        if(ObjectUtil.isEmpty(usertaketask1)){
+            throw new RuntimeException("重复接取相同任务");
+        }
+        Usertaketask usertaketask = new Usertaketask();
+        usertaketask.setTaskId(taskId);
+        usertaketask.setUserId(userId);
+        usertaketaskMapper.insert(usertaketask);
+
+        // 接取任务后，任务的剩余可接取人数-1, 任务变成了已接取状态
+        Task task = taskMapper.selectById(taskId);
+        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake()-1);
+        task.setTaskState(task.TAKE);
+        taskMapper.updateById(task);
+
+        return false;
     }
 
     @Override
@@ -251,6 +309,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
             Integer releaseTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
             Integer releaseTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
+            Integer leftNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
+            Integer leftNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
             Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
             Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
             Integer arrivalTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByDesc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
@@ -293,5 +353,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
 
         return taskMapper.selectPage(new Page<>(0, 0), null);
+    }
+
+    @Override
+    public Page<Task> selectYourTake(JSONObject json) {
+        final Long userId = json.getLong("userId");
+        final JSONObject pageJson = json.getJSONObject("page");
+        Page<Task> page = pageWrapper(pageJson);
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskQueryWrapper.class).userTake(userId).getWrapper();
+        return taskMapper.selectPage(page, wrapper);
+    }
+
+    @Override
+    public Page<Task> selectYourPublish(JSONObject json) {
+        final Long userId = json.getLong("userId");
+        final JSONObject pageJson = json.getJSONObject("page");
+        Page<Task> page = pageWrapper(pageJson);
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskQueryWrapper.class).userRelease(userId).getWrapper();
+
+        return taskMapper.selectPage(page, wrapper);
     }
 }

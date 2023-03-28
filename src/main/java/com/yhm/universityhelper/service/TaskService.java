@@ -20,11 +20,32 @@ import java.util.List;
  */
 
 public interface TaskService extends IService<Task> {
+    // 参数超过6个用json方便传
     boolean update(JSONObject json);
 
     boolean insert(JSONObject json);
 
-    boolean delete(Long taskId);
+    /**
+     * @param taskId
+     * 用于任务发布者删除自己发布的任务，并且任务接取表会级联删除相关记录
+     * @return
+     */
+    boolean delete(Long taskId, Long userId);
+
+    /**
+     * @param taskId
+    // 用于接取了该任务的用户删除该任务
+     * @return
+     */
+    boolean deleteTaskByTaker(Long taskId, Long userId);
+
+    /**
+     * @param taskId
+     * @param userId
+     * 用户接取任务
+     * @return
+     */
+    boolean take(Long taskId, Long userId);
 
     LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
 
@@ -33,4 +54,19 @@ public interface TaskService extends IService<Task> {
     Page<Task> pageWrapper(JSONObject json);
 
     Page<Task> select(JSONObject json);
+
+    /**
+     * @param json
+     * 获取用户接取的所有任务
+     * @return
+     */
+    Page<Task> selectYourTake(JSONObject json);
+
+    /**
+     * @param json
+     * 获取用户发布的所有任务
+     * @return
+     */
+    Page<Task> selectYourPublish(JSONObject json);
+
 }
