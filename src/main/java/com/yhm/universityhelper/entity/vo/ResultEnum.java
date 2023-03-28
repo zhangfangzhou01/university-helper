@@ -22,6 +22,7 @@ public enum ResultEnum {
     USER_ACCOUNT_LOGIN_IN_OTHER_PLACE(1013, "账号超时或账号在另一个地方登录"),
     TOKEN_VALIDATE_FAILED(1014, "Token令牌验证失败"),
     LIKE_ALREADY_GICED(1015, "请勿重复点赞"),
+    USER_ACCOUNT_DISABLED(1016, "账号已被禁用"),
 
     PICTURE_UPLOAD_FAILED(2001, "上传图片失败"),
     GIVE_LIKE_FAILED(2002, "点赞失败"),

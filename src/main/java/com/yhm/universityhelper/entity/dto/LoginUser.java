@@ -9,15 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Slf4j
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Component
 public class LoginUser implements UserDetails {
-
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(LoginUser.class);
     private Long userId;
@@ -28,13 +30,26 @@ public class LoginUser implements UserDetails {
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
     private boolean enabled;
+    private int passwordErrorCount;
+    private LocalDateTime unlockTime;
 
     public LoginUser(Long userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(userId, username, password, true, true, true, true, authorities);
     }
 
+    public LoginUser(Long userId, String username, String password, boolean banned, Collection<? extends GrantedAuthority> authorities) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.enabled = !banned;
+        this.accountNonExpired = true;
+        this.credentialsNonExpired = true;
+        this.accountNonLocked = this.isAccountNonLocked();
+        this.authorities = authorities;
+    }
+
     public LoginUser(Long userId, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
-        Assert.isTrue(username != null && !"".equals(username) && password != null, "Cannot pass null or empty values to constructor");
+        Assert.isTrue(username != null && (!"".equals(username)) && password != null, "Cannot pass null or empty values to constructor");
         this.userId = userId;
         this.username = username;
         this.password = password;

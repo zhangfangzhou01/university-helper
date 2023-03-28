@@ -31,7 +31,7 @@ public class JwtUtils {
                 .setHeaderParam("token", "JWT")
                 .setSubject(username)
                 .setIssuedAt(nowDate)
-                .setExpiration(expireDate)    // 7天过期
+                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
@@ -51,5 +51,9 @@ public class JwtUtils {
     // 判断JWT是否过期
     public boolean isTokenExpired(Claims claims) {
         return claims.getExpiration().before(new Date());
+    }
+
+    public void setExpiration(long expiration) {
+        this.expire = expiration;
     }
 }

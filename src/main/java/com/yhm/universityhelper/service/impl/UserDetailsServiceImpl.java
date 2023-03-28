@@ -11,7 +11,6 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -33,13 +32,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRoleMapper userRoleMapper;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public LoginUser loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userMapper.selectByUsername(username);
         if (ObjectUtils.isEmpty(user)) {
             throw new UsernameNotFoundException("用户不存在");
         }
         List<GrantedAuthority> authorities = this.getUserAuthorities(user.getUserId());
-        return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), authorities);
+        return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getBanned(), authorities);
     }
 
     public List<GrantedAuthority> getUserAuthorities(Long userId) {

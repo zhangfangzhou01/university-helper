@@ -58,9 +58,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private BeanUtils beanUtils;
-
     public boolean update(JSONObject json) {
         final Object taskIdObj = json.get("taskId");
         final Object userIdObj = json.get("userId");
@@ -145,6 +142,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
         }
 
+
+
         return taskMapper.insert(task) > 0;
     }
 
@@ -157,7 +156,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
-        TaskQueryWrapper taskQueryWrapper = beanUtils.getBean(TaskQueryWrapper.class);
+        TaskQueryWrapper taskQueryWrapper = BeanUtils.getBean(TaskQueryWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
             return taskQueryWrapper.getWrapper();
@@ -250,16 +249,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         } else if ("priority".equals(sortType)) {
             List<Task> list = taskMapper.selectList(wrapper);
 
-            LocalDateTime releaseTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime)).getReleaseTime();
-            LocalDateTime releaseTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime)).getReleaseTime();
-            Integer maxNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
-            Integer maxNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getMaxNumOfPeopleTake)).getMaxNumOfPeopleTake();
-            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod)).getExpectedPeriod();
-            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod)).getExpectedPeriod();
-            LocalDateTime arrivalTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getArrivalTime)).getArrivalTime();
-            LocalDateTime arrivalTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getArrivalTime)).getArrivalTime();
-            Integer transactionAmountMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getTransactionAmount)).getTransactionAmount();
-            Integer transactionAmountMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getTransactionAmount)).getTransactionAmount();
+            LocalDateTime releaseTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime();
+            LocalDateTime releaseTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime();
+            Integer maxNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getMaxNumOfPeopleTake).last("limit 1")).getMaxNumOfPeopleTake();
+            Integer maxNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getMaxNumOfPeopleTake).last("limit 1")).getMaxNumOfPeopleTake();
+            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
+            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
+            LocalDateTime arrivalTimeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getArrivalTime).last("limit 1")).getArrivalTime();
+            LocalDateTime arrivalTimeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getArrivalTime).last("limit 1")).getArrivalTime();
+            Integer transactionAmountMax = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
+            Integer transactionAmountMin = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
 
             list.forEach(task -> {
                 task.autoSetPriority(
@@ -276,7 +275,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 );
             });
 
-            list.sort((o1, o2) -> o2.getPriority().compareTo(o1.getPriority()));
+            list.sort(Task::compareTo);
 
             int start, end;
             if (page.getSize() > 0) {

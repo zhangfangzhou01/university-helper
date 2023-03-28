@@ -2,6 +2,7 @@ package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.validation.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UsertaketaskMapper usertaketaskMapper;
 
     @Autowired
+    private UserValidator userValidator;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean register(String username, String password) {
@@ -78,8 +83,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = userMapper.selectByUsername(username);
         if (ObjectUtils.isEmpty(user)) {
             throw new RuntimeException("用户不存在");
-        } else if (user.getBanned()) {
-            throw new RuntimeException("用户已被封禁");
         }
 
         if (!bCryptPasswordEncoder.matches(oldPassword, user.getPassword())) {
@@ -111,8 +114,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = userMapper.selectByUsername(username);
         if (ObjectUtils.isEmpty(user)) {
             throw new RuntimeException("用户不存在");
-        } else if (user.getBanned()) {
-            throw new RuntimeException("用户已被封禁");
         }
 
         for (String key : json.keySet()) {
@@ -152,5 +153,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         return result;
+    }
+
+    @Override
+    public boolean setRole(String username, String role) {
+        User user = userMapper.selectByUsername(username);
+        if (ObjectUtils.isEmpty(user)) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        if (!("admin".equalsIgnoreCase(role) || "user".equalsIgnoreCase(role))) {
+            throw new RuntimeException("角色不存在");
+        }
+
+        UserRole userRole = userRoleMapper.selectOne(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, user.getUserId()));
+        if (ObjectUtils.isEmpty(userRole)) {
+            throw new RuntimeException("用户角色不存在");
+        }
+
+        if ("admin".equalsIgnoreCase(role)) {
+            userRole.setRoleId(UserRole.ROLE_ADMIN);
+        } else {
+            userRole.setRoleId(UserRole.ROLE_USER);
+        }
+
+        return userRoleMapper.updateById(userRole) > 0;
     }
 }

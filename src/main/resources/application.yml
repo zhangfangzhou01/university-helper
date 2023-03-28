@@ -37,3 +37,8 @@ authentication:
     header: Authorization
     expire: 604800
     secret: UniversityHelper
+
+account:
+  locked:
+    max-failed-attempts: 5
+    lock-time: 30
