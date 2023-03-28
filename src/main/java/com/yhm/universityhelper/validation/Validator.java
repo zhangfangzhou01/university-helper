@@ -8,7 +8,15 @@ public class Validator {
     protected static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 
 
-    protected static String validateBetween(String name, String value, int min, int max) {
+    protected static String validateBetween(String name, String value, long min, long max) {
+        int length = value.length();
+        if (length < min || length > max) {
+            throw new ValidateException("参数" + name + "长度应在" + min + "-" + max + "之间");
+        }
+        return value;
+    }
+
+    protected static String validateBetween(String name, String value, double min, double max) {
         int length = value.length();
         if (length < min || length > max) {
             throw new ValidateException("参数" + name + "长度应在" + min + "-" + max + "之间");

@@ -27,4 +27,10 @@ public class ExceptionAdvice {
         log.error(e.getMessage());
         return ResponseResult.fail(ResultEnum.ERROR, e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseResult<ResultEnum> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error(e.getMessage());
+        return ResponseResult.fail(ResultEnum.ERROR, e.getMessage());
+    }
 }

@@ -7,6 +7,7 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.TaskService;
+import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -125,7 +126,8 @@ public class TaskController {
                     ),
             })
     @PostMapping("/update")
-    public ResponseResult update(@RequestBody JSONObject json) {
+    public ResponseResult<Object> update(@RequestBody JSONObject json) {
+        TaskValidator.validateUpdate(json);
         return taskService.update(json)
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -215,7 +217,8 @@ public class TaskController {
                     ),
             })
     @PostMapping("/insert")
-    public ResponseResult insert(@RequestBody JSONObject json) {
+    public ResponseResult<Object> insert(@RequestBody JSONObject json) {
+        TaskValidator.validateInsert(json);
         return taskService.insert(json)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -242,96 +245,6 @@ public class TaskController {
     @DynamicParameters(
             name = "TaskSelectDto",
             properties = {
-//                    @DynamicParameter(name = "taskId",
-//                            value = "任务 Id",
-//                            required = true,
-//                            dataTypeClass = Integer.class,
-//                            example = "1234321432"
-//                    ),
-//                    @DynamicParameter(name = "userId",
-//                            value = "用户Id",
-//                            required = true,
-//                            dataTypeClass = Integer.class,
-//                            example = "123344"
-//                    ),
-//                    @DynamicParameter(name = "sex",
-//                            value = "性别",
-//                            required = true,
-//                            dataTypeClass = String.class,
-//                            example = "男"
-//                    ),
-//                    @DynamicParameter(name = "type",
-//                            value = "任务核心类型",
-//                            required = true,
-//                            dataTypeClass = String.class,
-//                            example = "外卖"
-//                    ),
-//                    @DynamicParameter(name = "tags",
-//                            value = "任务自定义tag",
-//                            required = true,
-//                            dataTypeClass = String.class,
-//                            example = "辣椒, 红色"
-//                    ),
-//                    @DynamicParameter(name = "releaseTimeMin",
-//                            value = "任务发布时间左区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "2020-12-12 12:12:12"
-//                    ),
-//                    @DynamicParameter(name = "releaseTimeMax",
-//                            value = "任务发布时间右区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "2020-12-12 12:12:12"
-//                    ),
-//                    @DynamicParameter(name = "taskState",
-//                            value = "任务状态",
-//                            required = true,
-//                            dataTypeClass = String.class,
-//                            example = "0:发布但未领取 1:发布已领取 2:发布已完成"
-//                    ),
-//                    @DynamicParameter(name = "arrivalTimeMin",
-//                            value = "外卖送达时间左区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "2020-12-12 12:12:12"
-//                    ),
-//                    @DynamicParameter(name = "arrivalTimeMax",
-//                            value = "外卖送达时间右区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "2020-12-12 12:12:12"
-//                    ),
-//                    @DynamicParameter(name = "arrivalLocation",
-//                            value = "外卖到校地点",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "东校区西门"
-//                    ),
-//                    @DynamicParameter(name = "targetLocation",
-//                            value = "外卖校内送达地点",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "东八426"
-//                    ),
-//                    @DynamicParameter(name = "transactionAmountMin",
-//                            value = "交易金额左区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "100.00"
-//                    ),
-//                    @DynamicParameter(name = "transactionAmountMax",
-//                            value = "交易金额右区间",
-//                            required = true,
-//                            dataTypeClass = LocalDateTime.class,
-//                            example = "100.00"
-//                    ),
-//                    @DynamicParameter(name = "isHunter",
-//                            value = "任务双向类型",
-//                            required = true,
-//                            dataTypeClass = Integer.class,
-//                            example = "0: 雇主 1: 猎人"
-//                    ),
                     @DynamicParameter(
                             name = "search",
                             value = "搜索",
@@ -390,13 +303,15 @@ public class TaskController {
             })
     @PostMapping("/select")
     public ResponseResult<Page<Task>> select(@RequestBody JSONObject json) {
+        TaskValidator.validateSelect(json);
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 
     @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
     @ApiImplicitParam(name = "taskId", value = "任务Id", required = true, dataType = "Long", example = "1234321432")
     @PostMapping("/delete")
-    public ResponseResult<Boolean> delete(@RequestParam Long taskId) {
+    public ResponseResult<Object> delete(@RequestParam Long taskId) {
+        TaskValidator.validateDelete(taskId);
         return taskService.delete(taskId)
                 ? ResponseResult.ok("删除任务信息成功")
                 : ResponseResult.fail("删除任务信息失败");

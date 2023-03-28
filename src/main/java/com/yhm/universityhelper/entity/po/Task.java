@@ -63,7 +63,7 @@ public class Task implements Serializable, Comparable {
     private Integer taskState;
 
     @TableField("takeoutId")
-    private Integer takeoutId;
+    private Long takeoutId;
 
     @TableField("orderTime")
     private LocalDateTime orderTime;
@@ -95,6 +95,9 @@ public class Task implements Serializable, Comparable {
     @TableField("type")
     private String type;
 
+    @TableField("leftNumOfPeopleTake")
+    private Integer leftNumOfPeopleTake;
+
     @Override
     public int compareTo(Object o) {
         if (ObjectUtil.isEmpty(o) || !(o instanceof Task)) {
@@ -119,18 +122,18 @@ public class Task implements Serializable, Comparable {
             Integer transactionAmountMax,
             Integer transactionAmountMin
     ) {
-            double tmp = 0;
-            // 公共考虑的属性有 发布时间， 预计时间
-            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin));
-            tmp += (this.expectedPeriod - expectedPeriodMin)/(expectedPeriodMax-expectedPeriodMin);
-            if("外卖".equals(this.type) ){
-                // 外卖考虑的属性有 送达时间
-                tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin));
-                this.priority = (int)(tmp*100)/4;
-            }else if("交易".equals(this.type)){
-                // 交易考虑的属性有 交易金额
-                tmp += (this.transactionAmount - transactionAmountMin)/(transactionAmountMax-transactionAmountMin);
-                this.priority = (int)(tmp*100)/4;
-            }
+        double tmp = 0;
+        // 公共考虑的属性有 发布时间， 预计时间
+        tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin));
+        tmp += (this.expectedPeriod - expectedPeriodMin) / (expectedPeriodMax - expectedPeriodMin);
+        if ("外卖".equals(this.type)) {
+            // 外卖考虑的属性有 送达时间
+            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin));
+            this.priority = (int)(tmp * 100) / 4;
+        } else if ("交易".equals(this.type)) {
+            // 交易考虑的属性有 交易金额
+            tmp += (this.transactionAmount - transactionAmountMin) / (transactionAmountMax - transactionAmountMin);
+            this.priority = (int)(tmp * 100) / 4;
+        }
     }
 }
