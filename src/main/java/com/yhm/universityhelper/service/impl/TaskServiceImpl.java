@@ -60,30 +60,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private UserMapper userMapper;
 
     public boolean update(JSONObject json) {
-        final Object taskIdObj = json.get("taskId");
-        final Object userIdObj = json.get("userId");
-        if (ObjectUtil.isEmpty(taskIdObj) || ObjectUtil.isEmpty(userIdObj)) {
-            throw new RuntimeException("可能未提供任务id或用户id");
-        }
-
-        Long taskId = Long.valueOf(taskIdObj.toString());
-        Long userId = Long.valueOf(userIdObj.toString());
-
-        User user = userMapper.selectById(userId);
-        if (ObjectUtil.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
-
+        Long taskId = json.getLong("taskId");
         Task task = taskMapper.selectById(taskId);
 
         // TODO: 前端要针对类型，对某些字段设置为不可修改
         for (String key : json.keySet()) {
             if (key.equals("taskId") || key.equals("userId")) {
                 continue;
-            } else if (key.equals("type")) {
-                throw new RuntimeException("任务类型不可变更，由系统自动生成");
             }
-
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
@@ -104,25 +88,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     public boolean insert(JSONObject json) {
-        final Object userIdObj = json.get("userId");
-        final Object typeObj = json.get("type");
-        if (ObjectUtil.isEmpty(userIdObj) || ObjectUtil.isEmpty(typeObj)) {
-            throw new RuntimeException("可能未提供用户id或任务类型");
-        }
-
-        Long userId = Long.valueOf(userIdObj.toString());
-
-        User user = userMapper.selectById(userId);
-        if (ObjectUtil.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
-
+        final Long userId = json.getLong("userId");
         Task task = new Task();
         for (String key : json.keySet()) {
-            if (key.equals("taskId")) {
-                continue;
-            }
-
             Object value = json.get(key);
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
@@ -148,23 +116,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public boolean delete(Long taskId, Long userId) {
-        User user = userMapper.selectById(userId);
-        if (ObjectUtil.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
-        Task task = taskMapper.selectById(userId);
-        if(ObjectUtil.isEmpty(user)){
-            throw new RuntimeException("任务不存在");
-        }
-        if(!task.getUserId().equals(userId)){
-            throw new RuntimeException("删除非自己的任务");
-        }
+    public boolean delete(Long taskId) {
         // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
         // 级联删除任务接取表里的相关记录
         usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
         // todo 告知 taker ，任务取消
+
         return result;
     }
 
@@ -175,27 +133,27 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             throw new RuntimeException("用户不存在");
         }
         Task task = taskMapper.selectById(userId);
-        if(ObjectUtil.isEmpty(user)){
+        if (ObjectUtil.isEmpty(user)) {
             throw new RuntimeException("任务不存在");
         }
         Usertaketask usertaketask = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
-        if(ObjectUtil.isEmpty(usertaketask)){
+        if (ObjectUtil.isEmpty(usertaketask)) {
             throw new RuntimeException("您并未接取当前任务，错误的删除");
         }
         // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
-        int result = usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId) );
-        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake()+1);
-        if(task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())){
+        int result = usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId));
+        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() + 1);
+        if (task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())) {
             task.setTaskState(task.NOT_TAKE);
         }
         taskMapper.updateById(task);
-        return result>0;
+        return result > 0;
     }
 
     @Override
     public boolean take(Long taskId, Long userId) {
         Usertaketask usertaketask1 = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
-        if(ObjectUtil.isEmpty(usertaketask1)){
+        if (ObjectUtil.isEmpty(usertaketask1)) {
             throw new RuntimeException("重复接取相同任务");
         }
         Usertaketask usertaketask = new Usertaketask();
@@ -205,7 +163,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         // 接取任务后，任务的剩余可接取人数-1, 任务变成了已接取状态
         Task task = taskMapper.selectById(taskId);
-        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake()-1);
+        task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() - 1);
         task.setTaskState(task.TAKE);
         taskMapper.updateById(task);
 

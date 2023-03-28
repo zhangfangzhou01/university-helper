@@ -30,7 +30,7 @@ public interface TaskService extends IService<Task> {
      * 用于任务发布者删除自己发布的任务，并且任务接取表会级联删除相关记录
      * @return
      */
-    boolean delete(Long taskId, Long userId);
+    boolean delete(Long taskId);
 
     /**
      * @param taskId

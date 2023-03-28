@@ -240,6 +240,9 @@ public class TaskValidator extends com.yhm.universityhelper.validation.Validator
     }
 
     public static void validateInsert(JSONObject task) {
+        Optional.ofNullable(task.getStr("taskId"))
+                .map(taskId -> Validator.validateNull(taskId, "禁止提供任务ID，由系统自动生成"));
+
         Optional.ofNullable(task.getStr("userId"))
                 .map(userId -> Validator.validateNumber(userId, "用户ID不合法"))
                 .map(userId -> TaskValidator.validateBetween("用户ID", userId, 1, Long.MAX_VALUE))
