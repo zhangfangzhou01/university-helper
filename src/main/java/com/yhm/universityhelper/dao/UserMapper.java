@@ -2,8 +2,11 @@ package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.UserRole;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * <p>
@@ -18,4 +21,6 @@ import org.apache.ibatis.annotations.Select;
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from uh_user where username = #{username}")
     User selectByUsername(String username);
+    @Select("select * from uh_user_role where userId = #{userId}")
+    List<UserRole> listByUserId(Long userId);
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BeanUtils {
+    // spring 上下文
     private static ApplicationContext applicationContext;
 
     public static void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

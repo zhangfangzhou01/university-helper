@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -32,11 +33,19 @@ public class Task implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
+    final public int NOT_PUBLISH = 0;
+    final public int NOT_TAKE = 1;
+    final public int TAKE = 2;
+    final public int COMPLETED = 3;
+
     @TableId(value = "taskId", type = IdType.AUTO)
     private Long taskId;
 
     @TableField("userId")
     private Long userId;
+
+    @TableField("type")
+    private String type;
 
     @TableField("tags")
     private String tags;
@@ -56,6 +65,12 @@ public class Task implements Serializable, Comparable {
     @TableField("maxNumOfPeopleTake")
     private Integer maxNumOfPeopleTake;
 
+    @TableField("leftNumOfPeopleTake")
+    private Integer leftNumOfPeopleTake;
+
+    @TableField("expectedPeriod")
+    private Integer expectedPeriod;
+
     @TableField("score")
     private Integer score;
 
@@ -63,7 +78,7 @@ public class Task implements Serializable, Comparable {
     private Integer taskState;
 
     @TableField("takeoutId")
-    private Integer takeoutId;
+    private BigInteger takeoutId;
 
     @TableField("orderTime")
     private LocalDateTime orderTime;
@@ -86,14 +101,9 @@ public class Task implements Serializable, Comparable {
     @TableField("transactionAmount")
     private Double transactionAmount;
 
-    @TableField("expectedPeriod")
-    private Integer expectedPeriod;
-
     @TableField("isHunter")
     private Integer isHunter;
 
-    @TableField("type")
-    private String type;
 
     @Override
     public int compareTo(Object o) {

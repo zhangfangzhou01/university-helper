@@ -396,8 +396,8 @@ public class TaskController {
     @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
     @ApiImplicitParam(name = "taskId", value = "任务Id", required = true, dataType = "Long", example = "1234321432")
     @PostMapping("/delete")
-    public ResponseResult<Boolean> delete(@RequestParam Long taskId) {
-        return taskService.delete(taskId)
+    public ResponseResult<Boolean> delete(@RequestParam Long taskId, @RequestParam Long userId) {
+        return taskService.delete(taskId, userId)
                 ? ResponseResult.ok("删除任务信息成功")
                 : ResponseResult.fail("删除任务信息失败");
     }
