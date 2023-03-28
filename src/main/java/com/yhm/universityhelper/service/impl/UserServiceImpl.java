@@ -16,7 +16,6 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
-import com.yhm.universityhelper.validation.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,16 +51,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UsertaketaskMapper usertaketaskMapper;
 
     @Autowired
-    private UserValidator userValidator;
-
-    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean register(String username, String password) {
-        if (userMapper.exists(new LambdaUpdateWrapper<User>().eq(User::getUsername, username))) {
-            throw new RuntimeException("用户名已存在");
-        }
-
         String encodePassword = bCryptPasswordEncoder.encode(password);
         User user = new User();
         user.setUsername(username);
@@ -69,25 +61,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setCreateTime(LocalDateTime.now());
         boolean result = userMapper.insert(user) > 0;
 
-        if (!result) {
-            throw new RuntimeException("注册失败");
-        }
-
         UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
         userRoleMapper.insert(userRole);
 
-        return true;
+        return result;
     }
 
     public boolean changePassword(String username, String oldPassword, String newPassword) {
         User user = userMapper.selectByUsername(username);
-        if (ObjectUtils.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        if (!bCryptPasswordEncoder.matches(oldPassword, user.getPassword())) {
-            return false;
-        }
         String encodePassword = bCryptPasswordEncoder.encode(newPassword);
         user.setPassword(encodePassword);
         return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId())) > 0;
@@ -96,25 +77,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean ban(String username, boolean ban) {
         User user = userMapper.selectByUsername(username);
-        if (ObjectUtils.isEmpty(user)) {
-            return false;
-        }
-
         user.setBanned(ban);
         return userMapper.updateById(user) > 0;
     }
 
     @Override
     public boolean update(JSONObject json) {
-        String username = json.get("username", String.class);
-        if (ObjectUtils.isEmpty(username)) {
-            return false;
-        }
-
+        String username = json.getStr("username");
         User user = userMapper.selectByUsername(username);
-        if (ObjectUtils.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
 
         for (String key : json.keySet()) {
             if ("username".equals(key) || "userId".equals(key)) {

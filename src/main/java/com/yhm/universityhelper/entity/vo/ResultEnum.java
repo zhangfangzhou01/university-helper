@@ -23,6 +23,8 @@ public enum ResultEnum {
     TOKEN_VALIDATE_FAILED(1014, "Token令牌验证失败"),
     LIKE_ALREADY_GICED(1015, "请勿重复点赞"),
     USER_ACCOUNT_DISABLED(1016, "账号已被禁用"),
+    TOKEN_EXPIRED(1017, "Token令牌已过期"),
+    TOKEN_ABNORMAL(1018, "Token令牌异常"),
 
     PICTURE_UPLOAD_FAILED(2001, "上传图片失败"),
     GIVE_LIKE_FAILED(2002, "点赞失败"),

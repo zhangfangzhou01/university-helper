@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -56,7 +57,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
         if (ObjectUtils.isEmpty(user)) {
-            throw new JwtException("用户不存在");
+            throw new UsernameNotFoundException("用户不存在");
         }
 
         // 构建UsernamePasswordAuthenticationToken,这里密码为null，是因为提供了正确的JWT,实现自动登录
