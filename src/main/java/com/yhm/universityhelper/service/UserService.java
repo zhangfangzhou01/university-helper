@@ -28,4 +28,6 @@ public interface UserService extends IService<User> {
     boolean changePassword(String username, String oldPassword, String newPassword);
 
     boolean ban(String username, boolean ban);
+
+    boolean setRole(String username, String role);
 }

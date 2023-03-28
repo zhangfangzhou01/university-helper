@@ -9,6 +9,7 @@ import com.yhm.universityhelper.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -88,7 +89,7 @@ public class UserController {
     // 获得个人信息
     @ApiOperation(value = "获取个人信息", notes = "获取个人信息")
     @PostMapping("/select")
-    public ResponseResult<Map<String, Object>> select(@RequestBody JSONArray json) {
+    public ResponseResult<Map<String, Object>> select(@Validated @RequestBody JSONArray json) {
         return ResponseResult.ok(userService.select(json), "获取个人信息成功");
     }
 
@@ -126,5 +127,14 @@ public class UserController {
         return userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
+    }
+
+    // 设置用户角色
+    @ApiOperation(value = "设置用户角色")
+    @PostMapping("/setRole")
+    public ResponseResult<Object> setRole(@RequestParam String username, @RequestParam String role) {
+        return userService.setRole(username, role)
+                ? ResponseResult.ok("设置成功")
+                : ResponseResult.fail("设置失败");
     }
 }

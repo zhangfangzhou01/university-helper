@@ -20,15 +20,21 @@ import java.time.LocalDateTime;
 @ApiModel(value = "Chat", description = "")
 public class Chat implements Serializable {
     private ChatUser from;
+
     private ChatUser to;
+
     @TableId(value = "chatId", type = IdType.AUTO)
     private Long chatId;
+
     @TableField("fromUsername")
     private String fromUsername;
+
     @TableField("toUsername")
     private String toUsername;
+
     @TableField("content")
     private String content;
+
     @TableField("time")
     private LocalDateTime time;
 

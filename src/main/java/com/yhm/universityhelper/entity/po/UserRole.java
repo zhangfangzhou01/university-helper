@@ -29,10 +29,13 @@ public class UserRole implements Serializable {
     public static final Long ROLE_ADMIN = 1L;
     public static final Long ROLE_USER = 2L;
     private static final long serialVersionUID = 1L;
+
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
     @TableField("userId")
     private Long userId;
+
     @TableField("roleId")
     private Long roleId;
 

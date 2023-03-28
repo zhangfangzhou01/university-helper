@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -10,7 +11,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -83,7 +83,7 @@ public class Task implements Serializable, Comparable {
     private Integer phoneNumForNow;
 
     @TableField("transactionAmount")
-    private Integer transactionAmount;
+    private Double transactionAmount;
 
     @TableField("expectedPeriod")
     private Integer expectedPeriod;
@@ -91,13 +91,14 @@ public class Task implements Serializable, Comparable {
     @TableField("isHunter")
     private Integer isHunter;
 
-    // 类型只能是外卖或者交易
-    @Pattern(regexp = "^(外卖|交易)$", message = "类型只能是外卖或者交易")
     @TableField("type")
     private String type;
 
     @Override
     public int compareTo(Object o) {
+        if (ObjectUtil.isEmpty(o) || !(o instanceof Task)) {
+            return 0;
+        }
         return ((Task)o).getPriority() - this.getPriority();
     }
 

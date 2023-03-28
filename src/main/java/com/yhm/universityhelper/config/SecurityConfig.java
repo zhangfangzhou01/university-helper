@@ -133,6 +133,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .clearAuthentication(true)  //清除认证信息
                 .invalidateHttpSession(true)   //清除session
                 .deleteCookies("JSESSIONID")    //删除cookie
+                .clearAuthentication(true) //清除认证信息
 
                 .and().exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler)    //权限不足的时候的逻辑处理
@@ -140,6 +141,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .sessionManagement()
-                .maximumSessions(10);
+                .maximumSessions(3);
     }
 }

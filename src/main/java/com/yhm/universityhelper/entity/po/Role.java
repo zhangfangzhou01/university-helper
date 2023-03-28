@@ -30,6 +30,7 @@ public class Role implements Serializable {
 
     @TableId(value = "roleId", type = IdType.AUTO)
     private Long roleId;
+
     @TableField("rolename")
     private String rolename;
 
