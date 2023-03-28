@@ -10,6 +10,7 @@ create table uh_task
     priority           int                     not null,
 #     核心tag, 外卖， 交易，
 #  tags:  " ["外卖", 辣"] " 之类的
+    type               varchar(255)            not null,
     tags               varchar(255)            not null,
     releaseTime        timestamp               not null,
     title              varchar(255) default '' not null,

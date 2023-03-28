@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * <p>
@@ -108,55 +109,28 @@ public class Task implements Serializable, Comparable {
 
     // TODO: 接下来要归一化加权求优先值
     // TODO: 任务=发布时间+最大人数+期望时间+到达时间+交易金额
-    public int autoSetPriority(
-            LocalDateTime releaseTimeMax,
-            LocalDateTime releaseTimeMin,
-            Integer maxNumOfPeopleTakeMax,
-            Integer maxNumOfPeopleTakeMin,
+    public void autoSetPriority(
+            Integer releaseTimeMax,
+            Integer releaseTimeMin,
             Integer expectedPeriodMax,
             Integer expectedPeriodMin,
-            LocalDateTime arrivalTimeMax,
-            LocalDateTime arrivalTimeMin,
+            Integer arrivalTimeMin,
+            Integer arrivalTimeMax,
             Integer transactionAmountMax,
             Integer transactionAmountMin
     ) {
-//            JSONObject jsonObject = (JSONObject)obj;
-//            if (ObjectUtil.isEmpty(jsonObject) || jsonObject.isEmpty()) {
-//                continue;
-//            }
-//
-//            Integer order = jsonObject.get("order", Integer.class);
-//            String column = jsonObject.get("column", String.class);
-//            Boolean asc = jsonObject.get("asc", Boolean.class);
-//            if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
-//                continue;
-//            }
-
-//            Object value = ReflectUtils.get(this, column);
-//            if (column.equals("releaseTime")) {
-////                if (StringUtils.containsIgnoreCase(priorityColumn, "time")) {
-////                    String timeStr = value.toString().replace(" ", "T");
-////                    LocalDateTime time = LocalDateTime.parse(timeStr);
-////                    if (asc) {
-//////                            this.priority += time.toEpochSecond();
-////                    } else {
-//////                            this.priority += time.toEpochSecond();
-////                    }
-////                } else {
-////                    if (asc) {
-////                        this.priority -= Integer.parseInt(value.toString());
-////                    } else {
-////                        this.priority += Integer.parseInt(value.toString());
-////                    }
-////                }
-//                Long releaseTimeSecond = ((LocalDateTime)value).toEpochSecond(ZoneOffset.of("+8"));
-//                Long releaseTimeMaxSecond = releaseTimeMax.toEpochSecond(ZoneOffset.of("+8"));
-//                Long releaseTimeMinSecond = releaseTimeMin.toEpochSecond(ZoneOffset.of("+8"));
-//
-//                if (asc) {
-//                    priority -=
-//                }
-//            }
-        return 0;
+            double tmp = 0;
+            // 公共考虑的属性有 发布时间， 预计时间
+            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin));
+            tmp += (this.expectedPeriod - expectedPeriodMin)/(expectedPeriodMax-expectedPeriodMin);
+            if("外卖".equals(this.type) ){
+                // 外卖考虑的属性有 送达时间
+                tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin));
+                this.priority = (int)(tmp*100)/4;
+            }else if("交易".equals(this.type)){
+                // 交易考虑的属性有 交易金额
+                tmp += (this.transactionAmount - transactionAmountMin)/(transactionAmountMax-transactionAmountMin);
+                this.priority = (int)(tmp*100)/4;
+            }
     }
 }
