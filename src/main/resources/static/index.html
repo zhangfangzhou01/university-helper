@@ -77,33 +77,42 @@
                 print(JSON.parse(greeting.body).fromUsername + "的广播: ", JSON.parse(greeting.body).content);
             })
             stompClient.subscribe('/user/queue/chat', function (greeting) {
-                console.log("返回内容：" + greeting.body);
+                console.log(greeting.body);
                 print(JSON.parse(greeting.body).fromUsername + ": ", JSON.parse(greeting.body).content);
+            });
+            stompClient.subscribe('/topic/notification', function (msg) {
+                console.log(msg.body);
+                print('系统提示：', msg.body);
+            });
+            stompClient.subscribe('/user/topic/notification', function (msg) {
+                console.log(msg.body);
+                print('系统提示：', msg.body);
             });
         });
 
     }
 
-    function send(targetOne) {
+    function send(targetStr) {
         if (stompClient == null) {
             print('系统提示：', '请先点击客户端登陆');
             return false;
         }
-        //
+
         print(yourId + ": ", input.val());
-        if (targetOne === "all" || targetOne === "") {
+        // targets是一个数组，如果数组为空，就是广播
+        if (targetStr === "") {
             stompClient.send("/app/broadcast", {},
                 JSON.stringify({
                     'content': input.val()
                 }));
         } else {
+            let targets = targetStr.split(",");
             stompClient.send("/app/chat", {},
                 JSON.stringify({
-                    'to': targetOne,
+                    'to': targets,
                     'content': input.val()
                 }));
         }
-        input.val('');
     }
 
     function disconnected() {

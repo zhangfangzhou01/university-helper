@@ -24,8 +24,4 @@ public class ChatController {
         chatService.broadcast(authentication, msg);
     }
 
-    @MessageMapping("/notification")
-    public void notification(String msg) {
-        chatService.notification(msg);
-    }
 }

@@ -6,7 +6,6 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
-import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +81,7 @@ public class UserController {
     )
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
-        UserValidator.validateUpdate(json);
+//        UserValidator.validateUpdate(json);
         return userService.update(json)
                 ? ResponseResult.ok("个人信息修改成功")
                 : ResponseResult.fail("个人信息修改失败");
@@ -92,7 +91,7 @@ public class UserController {
     @ApiOperation(value = "获取个人信息", notes = "获取个人信息")
     @PostMapping("/select")
     public ResponseResult<Map<String, Object>> select(@Validated @RequestBody JSONArray json) {
-        UserValidator.validateSelect(json);
+//        UserValidator.validateSelect(json);
         return ResponseResult.ok(userService.select(json), "获取个人信息成功");
     }
 
@@ -100,7 +99,7 @@ public class UserController {
     @ApiOperation(value = "修改密码")
     @PostMapping("/changePassword")
     public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
-        UserValidator.validateChangePassword(username, oldPassword, newPassword);
+//        UserValidator.validateChangePassword(username, oldPassword, newPassword);
         return userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
                 : ResponseResult.fail("修改失败");
@@ -110,7 +109,7 @@ public class UserController {
     @ApiOperation(value = "注册")
     @PostMapping("/insert")
     public ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
-        UserValidator.validateRegister(username, password);
+//        UserValidator.validateRegister(username, password);
         return userService.register(username, password)
                 ? ResponseResult.ok("注册成功")
                 : ResponseResult.fail("注册失败");
@@ -120,7 +119,7 @@ public class UserController {
     @ApiOperation(value = "删除用户")
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam String username) {
-        UserValidator.validateDelete(username);
+//        UserValidator.validateDelete(username);
         return userService.delete(username)
                 ? ResponseResult.ok("删除成功")
                 : ResponseResult.fail("删除失败");
@@ -130,7 +129,7 @@ public class UserController {
     @ApiOperation(value = "封禁(解封)用户")
     @PostMapping("/ban")
     public ResponseResult<Object> ban(@RequestParam String username, @RequestParam boolean ban) {
-        UserValidator.validateBan(username, ban);
+//        UserValidator.validateBan(username, ban);
         return userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
@@ -140,7 +139,7 @@ public class UserController {
     @ApiOperation(value = "设置用户角色")
     @PostMapping("/setRole")
     public ResponseResult<Object> setRole(@RequestParam String username, @RequestParam String role) {
-        UserValidator.validateSetRole(username, role);
+//        UserValidator.validateSetRole(username, role);
         return userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");

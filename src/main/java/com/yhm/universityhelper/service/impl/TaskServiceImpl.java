@@ -116,30 +116,29 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public boolean delete(Long taskId) {
+    public Pair<Boolean, List<String>> delete(Long taskId) {
         // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
         // 级联删除任务接取表里的相关记录
+        List<Long> userIds = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId))
+                .stream()
+                .map(Usertaketask::getUserId)
+                .collect(Collectors.toList());
+        if (userIds.isEmpty()) {
+            throw new RuntimeException("任务接取表中没有该任务的接取记录");
+        }
+        List<String> usernames = userMapper.selectBatchIds(userIds)
+                .stream()
+                .map(User::getUsername)
+                .collect(Collectors.toList());
         usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
-        // todo 告知 taker ，任务取消
-
-        return result;
+        // todo 告知 taker ，任务取消，在控制层实现
+        return new Pair<>(result, usernames);
     }
 
     @Override
     public boolean deleteTaskByTaker(Long taskId, Long userId) {
-        User user = userMapper.selectById(userId);
-        if (ObjectUtil.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
         Task task = taskMapper.selectById(userId);
-        if (ObjectUtil.isEmpty(user)) {
-            throw new RuntimeException("任务不存在");
-        }
-        Usertaketask usertaketask = usertaketaskMapper.selectOne(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId));
-        if (ObjectUtil.isEmpty(usertaketask)) {
-            throw new RuntimeException("您并未接取当前任务，错误的删除");
-        }
         // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() + 1);
         if (task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())) {
@@ -148,16 +147,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return usertaketaskMapper
                 .delete(new LambdaUpdateWrapper<Usertaketask>()
                         .eq(Usertaketask::getTaskId, taskId)
-                        .eq(Usertaketask::getUserId, userId))>0
+                        .eq(Usertaketask::getUserId, userId)) > 0
                 &&
-                taskMapper.updateById(task)>0;
+                taskMapper.updateById(task) > 0;
     }
 
     @Override
     public boolean take(Long taskId, Long userId) {
-        if ( !usertaketaskMapper.exists(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId)) ) {
-            throw new RuntimeException("重复接取相同任务");
-        }
         // 任务接取表添加记录
         Usertaketask usertaketask = new Usertaketask();
         usertaketask.setTaskId(taskId);
@@ -168,21 +164,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() - 1);
         task.setTaskState(Task.TAKE);
 
-        return usertaketaskMapper.insert(usertaketask)>0 && taskMapper.updateById(task)>0;
+        return usertaketaskMapper.insert(usertaketask) > 0 && taskMapper.updateById(task) > 0;
     }
 
     @Override
     public boolean complete(Long taskId, Long userId) {
         // 删除usertaketask 相关的接取记录
         List<Usertaketask> allTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
-        Boolean flag = true;
-        for (Usertaketask usertaketask: allTake) {
-            flag = flag && usertaketaskMapper.deleteById(usertaketask)>0;
+        boolean flag = true;
+        for (Usertaketask usertaketask : allTake) {
+            flag = flag && usertaketaskMapper.deleteById(usertaketask) > 0;
         }
         // 接取任务后，任务的剩余可接取人数字段无效, 任务变成了已完成
         Task task = taskMapper.selectById(taskId);
         task.setTaskState(Task.COMPLETED);
-        return  taskMapper.updateById(task)>0 && flag;
+        return taskMapper.updateById(task) > 0 && flag;
     }
 
     @Override

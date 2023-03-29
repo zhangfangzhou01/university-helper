@@ -23,4 +23,9 @@ public interface UserMapper extends BaseMapper<User> {
     User selectByUsername(String username);
     @Select("select * from uh_user_role where userId = #{userId}")
     List<UserRole> listByUserId(Long userId);
+    // 由于username和userId是唯一的，所以可以用username或者userId来查询
+    @Select("select username from uh_user where userId = #{userId}")
+    String selectUsernameByUserId(Long userId);
+    @Select("select userId from uh_user where username = #{username}")
+    Long selectUserIdByUsername(String username);
 }

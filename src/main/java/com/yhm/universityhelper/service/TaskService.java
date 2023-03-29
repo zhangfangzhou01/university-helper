@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.service;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -30,7 +31,7 @@ public interface TaskService extends IService<Task> {
      * 用于任务发布者删除自己发布的任务，并且任务接取表会级联删除相关记录
      * @return
      */
-    boolean delete(Long taskId);
+    Pair<Boolean, List<String>> delete(Long taskId);
 
     /**
      * @param taskId

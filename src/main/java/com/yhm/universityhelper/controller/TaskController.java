@@ -1,13 +1,14 @@
 package com.yhm.universityhelper.controller;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
+import com.yhm.universityhelper.service.ChatService;
 import com.yhm.universityhelper.service.TaskService;
-import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +23,10 @@ import java.util.List;
 @RequestMapping("/task")
 public class TaskController {
     @Autowired
-    TaskService taskService;
+    private TaskService taskService;
+
+    @Autowired
+    private ChatService chatService;
 
     /**
      * taskId    不可改
@@ -127,7 +131,7 @@ public class TaskController {
             })
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
-        TaskValidator.validateUpdate(json);
+//        TaskValidator.validateUpdate(json);
         return taskService.update(json)
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -218,7 +222,7 @@ public class TaskController {
             })
     @PostMapping("/insert")
     public ResponseResult<Object> insert(@RequestBody JSONObject json) {
-        TaskValidator.validateInsert(json);
+//        TaskValidator.validateInsert(json);
         return taskService.insert(json)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -303,7 +307,7 @@ public class TaskController {
             })
     @PostMapping("/select")
     public ResponseResult<Page<Task>> select(@RequestBody JSONObject json) {
-        TaskValidator.validateSelect(json);
+//        TaskValidator.validateSelect(json);
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 
@@ -311,9 +315,13 @@ public class TaskController {
     @ApiImplicitParam(name = "taskId", value = "任务Id", required = true, dataType = "Long", example = "1234321432")
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam Long taskId) {
-        TaskValidator.validateDelete(taskId);
-        return taskService.delete(taskId)
+//        TaskValidator.validateDelete(taskId);
+        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId);
+        ResponseResult<Object> result = resAndUsernames.getKey()
                 ? ResponseResult.ok("删除任务信息成功")
                 : ResponseResult.fail("删除任务信息失败");
+        List<String> usernames = resAndUsernames.getValue();
+        chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
+        return result;
     }
 }

@@ -1,6 +1,7 @@
 package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.ChatMapper;
 import com.yhm.universityhelper.dao.UserMapper;
@@ -13,6 +14,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -38,6 +42,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         return baseMapper.insert(chat);
     }
 
+/*
     public void chat(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
@@ -53,6 +58,25 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         chatMapper.insert(chat);
 
         simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", chat);
+    }
+*/
+
+    public void chat(Authentication authentication, JSONObject msg) {
+        String srcUsername = authentication.getName();
+        User srcUser = userMapper.selectByUsername(srcUsername);
+        ChatUser srcChatUser = new ChatUser(srcUser);
+
+        List<String> destUsernames = msg.getJSONArray("to").toList(String.class);
+        List<User> destUsers = userMapper.selectList(new LambdaQueryWrapper<User>().in(User::getUsername, destUsernames));
+        List<ChatUser> destChatUsers = destUsers.stream().map(ChatUser::new).collect(Collectors.toList());
+
+        String message = msg.getStr("content");
+
+        destChatUsers.forEach(destChatUser -> {
+            final Chat chat = new Chat(srcChatUser, destChatUser, message);
+            chatMapper.insert(chat);
+            simpMessagingTemplate.convertAndSendToUser(destChatUser.getUsername(), "/queue/chat", chat);
+        });
     }
 
     public void broadcast(Authentication authentication, JSONObject msg) {
@@ -70,5 +94,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
 
     public void notification(String msg) {
         simpMessagingTemplate.convertAndSend("/topic/notification", msg);
+    }
+
+    public void notification(List<String> usernames, String msg) {
+        usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
     }
 }
