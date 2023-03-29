@@ -13,80 +13,28 @@ university-helper
 ├── main
 │   ├── java.com.universityhelper
 │   │   ├── authentication
-│   │   │   ├── JwtAccessDeniedHandler.java
-│   │   │   ├── JwtAuthenticationEntryPoint.java
-│   │   │   ├── JwtAuthenticationFailure.java
-│   │   │   ├── JwtAuthenticationFilter.java
-│   │   │   ├── JwtAuthenticationLogout.java
-│   │   │   ├── JwtAuthenticationSuccess.java
-│   │   │   ├── JwtAuthenticationProvider.java
 │   │   ├── config
-│   │   │   ├── MybatisPlusConfig.java
-│   │   │   ├── SecurityConfig.java
-│   │   │   ├── SwaggerConfig.java
-│   │   │   ├── WebSocketConfig.java
 │   │   ├── controller
-│   │   │   ├── ChatController.java
-│   │   │   ├── LoginController.java
-│   │   │   ├── TaskController.java
-│   │   │   ├── UserController.java
-│   │   │   ├── WebviewController.java
 │   │   ├── dao
-│   │   │   ├── wrapper
-│   │   │   │   ├── TaskQueryWrapper.java
-│   │   │   ├── ChatMapper.java
-│   │   │   ├── LoginMapper.java
-│   │   │   ├── TaskMapper.java
-│   │   │   ├── UserMapper.java
-│   │   │   ├── RoleMapper.java
-│   │   │   ├── UserRoleMapper.java
-│   │   │   ├── UsertaketaskMapper.java
 │   │   ├── entity
 │   │   │   ├── dto
-│   │   │   │   ├── ChatUserDto.java
-│   │   │   │   ├── LoginUserDto.java
 │   │   │   ├── po
-│   │   │   │   ├── Chat.java
-│   │   │   │   ├── Role.java
-│   │   │   │   ├── Task.java
-│   │   │   │   ├── User.java
-│   │   │   │   ├── UserRole.java
-│   │   │   │   ├── UserTask.java
 │   │   │   ├── vo
-│   │   │   │   ├── ResponseResult.java
-│   │   │   │   ├── ResultEnum.java
 │   │   ├── service
-│   │   │   ├── ChatService.java
-│   │   │   ├── LoginService.java
-│   │   │   ├── TaskService.java
-│   │   │   ├── UserService.java
-│   │   │   ├── RoleService.java
-│   │   │   ├── UserRoleService.java
-│   │   │   ├── UsertaketaskService.java
-│   │   │   ├── UserDetailService.java
 │   │   │   ├── impl
-│   │   │   │   ├── ChatServiceImpl.java
-│   │   │   │   ├── LoginServiceImpl.java
-│   │   │   │   ├── TaskServiceImpl.java
-│   │   │   │   ├── UserServiceImpl.java
-│   │   │   │   ├── RoleServiceImpl.java
-│   │   │   │   ├── UserRoleServiceImpl.java
-│   │   │   │   ├── UsertaketaskServiceImpl.java
-│   │   │   │   ├── UserDetailServiceImpl.java
 │   │   ├── util
-│   │   │   ├── BeanUtils.java
-│   │   │   ├── JwtUtils.java
-│   │   │   ├── JsonUtils.java
-│   │   │   ├── ReflectUtils.java
+│   │   ├── exception
+│   │   ├── validation
 │   │   ├── UniversityhelperApplication.java
 │   ├── resources
 │   │   ├── application.yml
 ```
 
-## 项目技术
+## 项目涉及库
 
 - SpringBoot
 - SpringSecurity
+- Druid
 - Mybatis
 - MybatisPlus
 - JWT
@@ -102,9 +50,9 @@ university-helper
 
 ### 1.环境准备
 
-- JDK1.8
-- MySQL8.0
-- Maven4.0
+- JDK 1.8
+- MySQL 8.0.28
+- Maven 3.6.3
 
 ### 2.数据库配置
 
@@ -119,9 +67,11 @@ university-helper
 - 或访问http://localhost:8080/doc.html
 - 登录账号：2027405037 密码：123
 
-## 项目说明
+## 项目自带页面
 
-- 软工23-Group18 大学互助平台-后端
+- swagger: /swagger-ui.html
+- knife4j: /doc.html
+- druid: /druid/index.html
 
 ## 项目成员
 

@@ -10,12 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionAdvice {
-    @ExceptionHandler(GlobalException.class)
-    public ResponseResult<ResultEnum> handleGlobalException(GlobalException e) {
-        log.error(e.getMessage());
-        return ResponseResult.fail(e.getResultEnum());
-    }
-
     @ExceptionHandler(ValidateException.class)
     public ResponseResult<ResultEnum> handleValidationException(ValidateException e) {
         log.error(e.getMessage());
