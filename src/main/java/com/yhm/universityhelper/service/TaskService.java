@@ -47,6 +47,14 @@ public interface TaskService extends IService<Task> {
      */
     boolean take(Long taskId, Long userId);
 
+    /**
+     * @param taskId
+     * @param userId
+     * 任务发布者可以决定任务是否完成
+     * @return
+     */
+    boolean complete(Long taskId, Long userId);
+
     LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
 
     List<OrderItem> sortWrapper(JSONArray json);

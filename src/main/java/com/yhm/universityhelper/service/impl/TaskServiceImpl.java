@@ -136,38 +136,53 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (ObjectUtil.isEmpty(user)) {
             throw new RuntimeException("任务不存在");
         }
-        Usertaketask usertaketask = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
+        Usertaketask usertaketask = usertaketaskMapper.selectOne(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId));
         if (ObjectUtil.isEmpty(usertaketask)) {
             throw new RuntimeException("您并未接取当前任务，错误的删除");
         }
         // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
-        int result = usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId));
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() + 1);
         if (task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())) {
-            task.setTaskState(task.NOT_TAKE);
+            task.setTaskState(Task.NOT_TAKE);
         }
-        taskMapper.updateById(task);
-        return result > 0;
+        return usertaketaskMapper
+                .delete(new LambdaUpdateWrapper<Usertaketask>()
+                        .eq(Usertaketask::getTaskId, taskId)
+                        .eq(Usertaketask::getUserId, userId))>0
+                &&
+                taskMapper.updateById(task)>0;
     }
 
     @Override
     public boolean take(Long taskId, Long userId) {
-        Usertaketask usertaketask1 = new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId).getEntity();
-        if (ObjectUtil.isEmpty(usertaketask1)) {
+        if ( !usertaketaskMapper.exists(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId).eq(Usertaketask::getTaskId, taskId)) ) {
             throw new RuntimeException("重复接取相同任务");
         }
+        // 任务接取表添加记录
         Usertaketask usertaketask = new Usertaketask();
         usertaketask.setTaskId(taskId);
         usertaketask.setUserId(userId);
-        usertaketaskMapper.insert(usertaketask);
 
         // 接取任务后，任务的剩余可接取人数-1, 任务变成了已接取状态
         Task task = taskMapper.selectById(taskId);
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() - 1);
-        task.setTaskState(task.TAKE);
-        taskMapper.updateById(task);
+        task.setTaskState(Task.TAKE);
 
-        return false;
+        return usertaketaskMapper.insert(usertaketask)>0 && taskMapper.updateById(task)>0;
+    }
+
+    @Override
+    public boolean complete(Long taskId, Long userId) {
+        // 删除usertaketask 相关的接取记录
+        List<Usertaketask> allTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
+        Boolean flag = true;
+        for (Usertaketask usertaketask: allTake) {
+            flag = flag && usertaketaskMapper.deleteById(usertaketask)>0;
+        }
+        // 接取任务后，任务的剩余可接取人数字段无效, 任务变成了已完成
+        Task task = taskMapper.selectById(taskId);
+        task.setTaskState(Task.COMPLETED);
+        return  taskMapper.updateById(task)>0 && flag;
     }
 
     @Override
@@ -197,7 +212,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         return taskQueryWrapper.getWrapper();
     }
-
 
     @Override
     public List<OrderItem> sortWrapper(JSONArray sortJson) {
@@ -280,6 +294,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 task.autoSetPriority(
                         releaseTimeMax,
                         releaseTimeMin,
+                        leftNumOfPeopleTakeMax,
+                        leftNumOfPeopleTakeMin,
                         expectedPeriodMax,
                         expectedPeriodMin,
                         arrivalTimeMax,

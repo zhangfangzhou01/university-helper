@@ -70,7 +70,6 @@ public interface TaskMapper extends BaseMapper<Task> {
     ArrayList<Task> selectByTaskState(Integer taskState);
 
     // 外卖
-
     @Select("Select * from uh_task order by arrivalTime")
     ArrayList<Task> selectOrderByArrivalTime();
 
