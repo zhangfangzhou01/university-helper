@@ -62,12 +62,6 @@ public class TaskController {
                             dataTypeClass = Integer.class,
                             example = "2345346364"
                     ),
-                    @DynamicParameter(name = "type",
-                            value = "任务核心类别",
-                            required = true,
-                            dataTypeClass = String.class,
-                            example = "外卖"
-                    ),
                     @DynamicParameter(name = "title",
                             value = "任务标题",
                             required = true,
@@ -79,18 +73,6 @@ public class TaskController {
                             required = true,
                             dataTypeClass = String.class,
                             example = "帮我拿外卖"
-                    ),
-                    @DynamicParameter(name = "releaseTime",
-                            value = "任务发布时间",
-                            required = true,
-                            dataTypeClass = LocalDateTime.class,
-                            example = "2020-12-12 12:12:12"
-                    ),
-                    @DynamicParameter(name = "taskState",
-                            value = "任务状态",
-                            required = true,
-                            dataTypeClass = Integer.class,
-                            example = "0:发布但未领取 1:发布已领取 2:发布已完成"
                     ),
                     @DynamicParameter(name = "orderTime",
                             value = "外卖订单时间",
@@ -121,13 +103,7 @@ public class TaskController {
                             required = true,
                             dataTypeClass = Double.class,
                             example = "100.00"
-                    ),
-                    @DynamicParameter(name = "isHunter",
-                            value = "任务双向类型",
-                            required = true,
-                            dataTypeClass = Integer.class,
-                            example = "0: 雇主 1: 猎人"
-                    ),
+                    )
             })
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
@@ -181,7 +157,7 @@ public class TaskController {
                             value = "任务状态",
                             required = true,
                             dataTypeClass = Integer.class,
-                            example = "0:发布但未领取 1:发布已领取 2:发布已完成"
+                            example = "0:任务未发布 1:已发布未领取"
                     ),
                     @DynamicParameter(name = "orderTime",
                             value = "外卖订单时间",
@@ -261,7 +237,7 @@ public class TaskController {
                                     "    \"tags\": \"辣椒, 红色\",\n" +
                                     "    \"releaseTimeMin\": \"2020-12-12 12:12:12\",\n" +
                                     "    \"releaseTimeMax\": \"2020-12-12 12:12:12\",\n" +
-                                    "    \"taskState\": \"0:发布但未领取 1:发布已领取 2:发布已完成\",\n" +
+                                    "    \"taskState\": \"0:未发布 1:已发布未领取 2:已领取未完成 3:已完成\",\n" +
                                     "    \"arrivalTimeMin\": \"2020-12-12 12:12:12\",\n" +
                                     "    \"arrivalTimeMax\": \"2020-12-12 12:12:12\",\n" +
                                     "    \"arrivalLocation\": \"东校区西门\",\n" +

@@ -17,7 +17,6 @@ import java.util.List;
  */
 
 public interface ChatService extends IService<Chat> {
-    int insert(Chat chat);
 
     void chat(Authentication authentication, JSONObject msg);
 

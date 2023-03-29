@@ -37,11 +37,6 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @Override
-    public int insert(Chat chat) {
-        return baseMapper.insert(chat);
-    }
-
 /*
     public void chat(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();

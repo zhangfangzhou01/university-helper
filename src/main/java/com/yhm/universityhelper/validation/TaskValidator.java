@@ -212,6 +212,10 @@ public class TaskValidator extends com.yhm.universityhelper.validation.Validator
                             .map(score -> Validator.validateNumber(score, "评分不合法"))
                             .map(score -> TaskValidator.validateBetween("评分", score, 0, Integer.MAX_VALUE));
 
+                    Optional.ofNullable(search.getStr("leftNumOfPeopleTake"))
+                            .map(leftNumOfPeopleTake -> Validator.validateNumber(leftNumOfPeopleTake, "剩余接单人数不合法"))
+                            .map(leftNumOfPeopleTake -> TaskValidator.validateBetween("剩余接单人数", leftNumOfPeopleTake, 0, Integer.MAX_VALUE));
+
                     return search;
                 });
 
@@ -293,8 +297,7 @@ public class TaskValidator extends com.yhm.universityhelper.validation.Validator
                 .map(score -> TaskValidator.validateBetween("积分", score, 0, Integer.MAX_VALUE));
 
         Optional.ofNullable(task.getStr("taskState"))
-                .map(taskState -> Validator.validateNumber(taskState, "任务状态不合法"))
-                .map(taskState -> TaskValidator.validateBetween("任务状态", taskState, 0, 2));
+                .map(taskState -> Validator.validateMatchRegex("[01]", taskState, "创建任务时只有草稿和发布两种状态，0: 草稿，1: 发布"));
 
         Optional.ofNullable(task.getStr("takeoutId"))
                 .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"))
@@ -330,7 +333,7 @@ public class TaskValidator extends com.yhm.universityhelper.validation.Validator
                 .map(expectedPeriod -> TaskValidator.validateBetween("expectedPeriod", expectedPeriod, 0, Integer.MAX_VALUE));
 
         Optional.ofNullable(task.getStr("isHunter"))
-                .map(isHunter -> Validator.validateNull(isHunter, "禁止修改是否为猎人任务"));
+                .map(isHunter -> Validator.validateMatchRegex("(0|1)", isHunter, "0: 雇主， 1: 猎人"));
 
         Optional.ofNullable(task.getStr("leftNumOfPeopleTake"))
                 .map(leftNumOfPeopleTake -> Validator.validateNull(leftNumOfPeopleTake, "禁止修改剩余接单人数"));

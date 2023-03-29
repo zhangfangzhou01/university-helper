@@ -177,7 +177,7 @@ public class TaskQueryWrapper {
         return this;
     }
 
-    public TaskQueryWrapper transactionAmount(Integer transactionAmount) {
+    public TaskQueryWrapper transactionAmount(Double transactionAmount) {
         wrapper.eq(Task::getTransactionAmount, transactionAmount);
         return this;
     }
@@ -189,6 +189,11 @@ public class TaskQueryWrapper {
 
     public TaskQueryWrapper isHunter(Integer isHunter) {
         wrapper.eq(Task::getIsHunter, isHunter);
+        return this;
+    }
+
+    public TaskQueryWrapper leftNumOfPeopleTake(Integer leftNumOfPeopleTake) {
+        wrapper.eq(Task::getLeftNumOfPeopleTake, leftNumOfPeopleTake);
         return this;
     }
 }
