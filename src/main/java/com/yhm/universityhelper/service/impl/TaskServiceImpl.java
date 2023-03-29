@@ -84,7 +84,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, json.get(key));
             }
         }
-        return taskMapper.updateById(task) > 0;
+        boolean result = taskMapper.updateById(task) > 0;
+
+        if (!result) {
+            throw new RuntimeException("更新任务失败，事务回滚");
+        }
+        return true;
     }
 
     public boolean insert(JSONObject json) {
@@ -112,7 +117,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
         // 初始生成时，剩余可接取人数等于最大可接取人数
         task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
-        return taskMapper.insert(task) > 0;
+        boolean result = taskMapper.insert(task) > 0;
+
+        if (!result) {
+            throw new RuntimeException("发布任务失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -127,13 +137,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (userIds.isEmpty()) {
             throw new RuntimeException("任务接取表中没有该任务的接取记录");
         }
+
         List<String> usernames = userMapper.selectBatchIds(userIds)
                 .stream()
                 .map(User::getUsername)
                 .collect(Collectors.toList());
-        usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
-        // todo 告知 taker ，任务取消，在控制层实现
-        return new Pair<>(result, usernames);
+        result &= usertaketaskMapper.delete(new LambdaUpdateWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId)) > 0;
+
+        if (!result) {
+            throw new RuntimeException("删除任务失败，事务回滚");
+        }
+        return new Pair<>(true, usernames);
     }
 
     @Override
@@ -144,12 +158,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())) {
             task.setTaskState(Task.NOT_TAKE);
         }
-        return usertaketaskMapper
+        boolean result = usertaketaskMapper
                 .delete(new LambdaUpdateWrapper<Usertaketask>()
                         .eq(Usertaketask::getTaskId, taskId)
                         .eq(Usertaketask::getUserId, userId)) > 0
                 &&
                 taskMapper.updateById(task) > 0;
+
+        if (!result) {
+            throw new RuntimeException("撤销任务接取失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -164,7 +183,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() - 1);
         task.setTaskState(Task.TAKE);
 
-        return usertaketaskMapper.insert(usertaketask) > 0 && taskMapper.updateById(task) > 0;
+        boolean result = usertaketaskMapper.insert(usertaketask) > 0 && taskMapper.updateById(task) > 0;
+
+        if (!result) {
+            throw new RuntimeException("接取任务失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -178,7 +202,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         // 接取任务后，任务的剩余可接取人数字段无效, 任务变成了已完成
         Task task = taskMapper.selectById(taskId);
         task.setTaskState(Task.COMPLETED);
-        return taskMapper.updateById(task) > 0 && flag;
+        boolean result = taskMapper.updateById(task) > 0 && flag;
+
+        if (!result) {
+            throw new RuntimeException("完成任务失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -322,7 +351,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             return page;
         }
 
-        return taskMapper.selectPage(new Page<>(0, 0), null);
+        return taskMapper.selectPage(page, wrapper);
     }
 
     @Override

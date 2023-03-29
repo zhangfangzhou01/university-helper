@@ -3,8 +3,8 @@ package com.yhm.universityhelper.validation;
 import cn.hutool.core.exceptions.ValidateException;
 
 public class Validator {
-    protected static final String JSON_ARRAY_REGEX = "^\\[(\\\"\\w+\\\"|\\d+)(,\\s*(\\\"\\w+\\\"|\\d+))*\\]$";
-    protected static final String JSON_OBJECT_REGEX = "^\\{\\\"\\w+\\\":\\s*(\\\"\\w+\\\"|\\d+)(,\\s*\\\"\\w+\\\":\\s*(\\\"\\w+\\\"|\\d+))*\\}$";
+    protected static final String JSON_ARRAY_REGEX = "^\\[(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\]$";
+    protected static final String JSON_OBJECT_REGEX = "^\\{\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\}$";
     protected static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 
 

@@ -31,13 +31,11 @@ import java.time.ZoneOffset;
 @ApiModel(value = "UhTask对象", description = "")
 public class Task implements Serializable, Comparable {
 
-    private static final long serialVersionUID = 1L;
-
     final static public int NOT_PUBLISH = 0;
     final static public int NOT_TAKE = 1;
     final static public int TAKE = 2;
     final static public int COMPLETED = 3;
-
+    private static final long serialVersionUID = 1L;
     @TableId(value = "taskId", type = IdType.AUTO)
     private Long taskId;
 
@@ -131,19 +129,19 @@ public class Task implements Serializable, Comparable {
             Integer transactionAmountMax,
             Integer transactionAmountMin
     ) {
-            double tmp = 0;
-            // 公共考虑的属性有 发布时间， 预计时间
-            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin + 1));
-            tmp += (this.expectedPeriod - expectedPeriodMin)/(expectedPeriodMax-expectedPeriodMin+1);
-            tmp += (this.leftNumOfPeopleTake - leftNumOfPeopleTakeMin)/(leftNumOfPeopleTakeMax-leftNumOfPeopleTakeMin+1);
-            if("外卖".equals(this.type) ){
-                // 外卖考虑的属性有 送达时间
-                tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin + 1));
-                this.priority = (int)(tmp*100)/5;
-            }else if("交易".equals(this.type)){
-                // 交易考虑的属性有 交易金额
-                tmp += (this.transactionAmount - transactionAmountMin)/(transactionAmountMax-transactionAmountMin+1);
-                this.priority = (int)(tmp*100)/5;
-            }
+        double tmp = 0;
+        // 公共考虑的属性有 发布时间， 预计时间
+        tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - releaseTimeMin) / (releaseTimeMax - releaseTimeMin + 1));
+        tmp += (double)(this.expectedPeriod - expectedPeriodMin) / (expectedPeriodMax - expectedPeriodMin + 1);
+        tmp += (double)(this.leftNumOfPeopleTake - leftNumOfPeopleTakeMin) / (leftNumOfPeopleTakeMax - leftNumOfPeopleTakeMin + 1);
+        if ("外卖".equals(this.type)) {
+            // 外卖考虑的属性有 送达时间
+            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin + 1));
+            this.priority = (int)(tmp * 100) / 5;
+        } else if ("交易".equals(this.type)) {
+            // 交易考虑的属性有 交易金额
+            tmp += (this.transactionAmount - transactionAmountMin) / (transactionAmountMax - transactionAmountMin + 1);
+            this.priority = (int)(tmp * 100) / 5;
+        }
     }
 }

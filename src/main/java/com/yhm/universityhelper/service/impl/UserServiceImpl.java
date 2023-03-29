@@ -62,23 +62,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean result = userMapper.insert(user) > 0;
 
         UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
-        userRoleMapper.insert(userRole);
+        result &= userRoleMapper.insert(userRole) > 0;
 
-        return result;
+        if (!result) {
+            throw new RuntimeException("注册失败，事务回滚");
+        }
+        return true;
     }
 
     public boolean changePassword(String username, String oldPassword, String newPassword) {
         User user = userMapper.selectByUsername(username);
         String encodePassword = bCryptPasswordEncoder.encode(newPassword);
         user.setPassword(encodePassword);
-        return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId())) > 0;
+        boolean result = userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId())) > 0;
+
+        if (!result) {
+            throw new RuntimeException("修改密码失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
     public boolean ban(String username, boolean ban) {
         User user = userMapper.selectByUsername(username);
         user.setBanned(ban);
-        return userMapper.updateById(user) > 0;
+        boolean result = userMapper.updateById(user) > 0;
+
+        if (!result) {
+            throw new RuntimeException("修改用户封禁状态失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -93,7 +106,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             ReflectUtils.set(user, key, json.get(key));
         }
 
-        return userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
+        boolean result = userMapper.update(user, new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
+
+        if (!result) {
+            throw new RuntimeException("修改用户信息失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
@@ -113,33 +131,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean delete(String username) {
         Long userId = userMapper.selectByUsername(username).getUserId();
         boolean result = userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
-        userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId));
-        taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId));
+        result &= userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId)) > 0;
+        result &= taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId)) > 0;
 
         Usertaketask usertaketask = usertaketaskMapper.selectById(userId);
         if (ObjectUtils.isNotEmpty(usertaketask)) {
             usertaketask.setUserId(0L);
-            usertaketaskMapper.updateById(usertaketask);
+            result &= usertaketaskMapper.updateById(usertaketask) > 0;
         }
 
-        return result;
+        if (!result) {
+            throw new RuntimeException("删除用户失败，事务回滚");
+        }
+        return true;
     }
 
     @Override
     public boolean setRole(String username, String role) {
         User user = userMapper.selectByUsername(username);
-        if (ObjectUtils.isEmpty(user)) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        if (!("admin".equalsIgnoreCase(role) || "user".equalsIgnoreCase(role))) {
-            throw new RuntimeException("角色不存在");
-        }
-
         UserRole userRole = userRoleMapper.selectOne(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, user.getUserId()));
-        if (ObjectUtils.isEmpty(userRole)) {
-            throw new RuntimeException("用户角色不存在");
-        }
 
         if ("admin".equalsIgnoreCase(role)) {
             userRole.setRoleId(UserRole.ROLE_ADMIN);
@@ -147,6 +157,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userRole.setRoleId(UserRole.ROLE_USER);
         }
 
-        return userRoleMapper.updateById(userRole) > 0;
+        boolean result = userRoleMapper.updateById(userRole) > 0;
+
+        if (!result) {
+            throw new RuntimeException("修改用户角色失败，事务回滚");
+        }
+        return true;
     }
 }
