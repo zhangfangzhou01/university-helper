@@ -26,8 +26,9 @@ import java.io.Serializable;
 @ApiModel(value = "UserRole", description = "")
 public class UserRole implements Serializable {
 
-    public static final Long ROLE_ADMIN = 1L;
-    public static final Long ROLE_USER = 2L;
+    public static final int USER_CAN_CHANGE_SELF = 2;
+    public static final int USER_CAN_CHANGE_NOBODY = 3;
+
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)

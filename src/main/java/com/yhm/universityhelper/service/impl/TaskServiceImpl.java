@@ -29,10 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +43,7 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Service
+
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
     private TaskMapper taskMapper;
@@ -68,6 +66,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if (key.equals("taskId") || key.equals("userId")) {
                 continue;
             }
+
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
@@ -126,7 +125,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public Pair<Boolean, List<String>> delete(Long taskId) {
+    public Pair<Boolean, List<String>> delete(Long taskId, Long userId) {
         // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
         // 级联删除任务接取表里的相关记录
@@ -135,7 +134,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 .map(Usertaketask::getUserId)
                 .collect(Collectors.toList());
         if (userIds.isEmpty()) {
-            throw new RuntimeException("任务接取表中没有该任务的接取记录");
+//            throw new RuntimeException("任务接取表中没有该任务的接取记录");
+            return new Pair<>(true, new ArrayList<>());
         }
 
         List<String> usernames = userMapper.selectBatchIds(userIds)
@@ -174,14 +174,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public boolean take(Long taskId, Long userId) {
         // 任务接取表添加记录
-        Usertaketask usertaketask = new Usertaketask();
-        usertaketask.setTaskId(taskId);
-        usertaketask.setUserId(userId);
+        Usertaketask usertaketask = new Usertaketask(taskId, userId);
 
         // 接取任务后，任务的剩余可接取人数-1, 任务变成了已接取状态
         Task task = taskMapper.selectById(taskId);
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() - 1);
         task.setTaskState(Task.TAKE);
+
+        if (task.getLeftNumOfPeopleTake() < 0) {
+            throw new RuntimeException("任务剩余可接取人数不足");
+        }
 
         boolean result = usertaketaskMapper.insert(usertaketask) > 0 && taskMapper.updateById(task) > 0;
 
@@ -192,15 +194,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public boolean complete(Long taskId, Long userId) {
+    public boolean complete(Long taskId, Long userId, Integer score) {
         // 删除usertaketask 相关的接取记录
         List<Usertaketask> allTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
         boolean flag = true;
         for (Usertaketask usertaketask : allTake) {
-            flag = flag && usertaketaskMapper.deleteById(usertaketask) > 0;
+            final User user = userMapper.selectById(usertaketask.getUserId());
+            user.setScore(user.getScore() + score);
+            flag &= userMapper.updateById(user) > 0;
+            flag &= usertaketaskMapper.deleteById(usertaketask) > 0;
         }
         // 接取任务后，任务的剩余可接取人数字段无效, 任务变成了已完成
         Task task = taskMapper.selectById(taskId);
+        task.setScore(score);
         task.setTaskState(Task.COMPLETED);
         boolean result = taskMapper.updateById(task) > 0 && flag;
 

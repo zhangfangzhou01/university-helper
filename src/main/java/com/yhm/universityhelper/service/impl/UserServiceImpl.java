@@ -10,10 +10,7 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
-import com.yhm.universityhelper.entity.po.Task;
-import com.yhm.universityhelper.entity.po.User;
-import com.yhm.universityhelper.entity.po.UserRole;
-import com.yhm.universityhelper.entity.po.Usertaketask;
+import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setCreateTime(LocalDateTime.now());
         boolean result = userMapper.insert(user) > 0;
 
-        UserRole userRole = new UserRole(user.getUserId(), UserRole.ROLE_USER);
+        UserRole userRole = new UserRole(user.getUserId(), Role.USER);
         result &= userRoleMapper.insert(userRole) > 0;
 
         if (!result) {
@@ -152,9 +149,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserRole userRole = userRoleMapper.selectOne(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, user.getUserId()));
 
         if ("admin".equalsIgnoreCase(role)) {
-            userRole.setRoleId(UserRole.ROLE_ADMIN);
+            userRole.setRoleId(Role.ADMIN);
         } else {
-            userRole.setRoleId(UserRole.ROLE_USER);
+            userRole.setRoleId(Role.USER);
         }
 
         boolean result = userRoleMapper.updateById(userRole) > 0;

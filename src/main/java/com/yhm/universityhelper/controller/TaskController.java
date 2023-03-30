@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.Task;
+import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
 import com.yhm.universityhelper.service.TaskService;
+import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -107,7 +108,8 @@ public class TaskController {
             })
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
-//        TaskValidator.validateUpdate(json);
+        TaskValidator.update(json);
+        TaskValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         return taskService.update(json)
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -198,7 +200,8 @@ public class TaskController {
             })
     @PostMapping("/insert")
     public ResponseResult<Object> insert(@RequestBody JSONObject json) {
-//        TaskValidator.validateInsert(json);
+        TaskValidator.insert(json);
+        TaskValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         return taskService.insert(json)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -283,21 +286,51 @@ public class TaskController {
             })
     @PostMapping("/select")
     public ResponseResult<Page<Task>> select(@RequestBody JSONObject json) {
-//        TaskValidator.validateSelect(json);
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
 
     @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
-    @ApiImplicitParam(name = "taskId", value = "任务Id", required = true, dataType = "Long", example = "1234321432")
     @PostMapping("/delete")
-    public ResponseResult<Object> delete(@RequestParam Long taskId) {
-//        TaskValidator.validateDelete(taskId);
-        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId);
+    public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
+        TaskValidator.delete(taskId);
+        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId, userId);
         ResponseResult<Object> result = resAndUsernames.getKey()
                 ? ResponseResult.ok("删除任务信息成功")
                 : ResponseResult.fail("删除任务信息失败");
         List<String> usernames = resAndUsernames.getValue();
         chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
         return result;
+    }
+
+    // deleteTaskByTaker
+    @ApiOperation(value = "接单者撤销接单", notes = "接单者撤销接单")
+    @PostMapping("/deleteTaskByTaker")
+    public ResponseResult<Object> deleteTaskByTaker(@RequestParam Long taskId, @RequestParam Long userId) {
+        TaskValidator.deleteTaskByTaker(taskId, userId);
+        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        return taskService.deleteTaskByTaker(taskId, userId)
+                ? ResponseResult.ok("撤销接单成功")
+                : ResponseResult.fail("撤销接单失败");
+    }
+
+    @ApiOperation(value = "用户接单", notes = "用户接单")
+    @PostMapping("/take")
+    public ResponseResult<Object> take(@RequestParam Long taskId, @RequestParam Long userId) {
+        TaskValidator.take(taskId, userId);
+        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        return taskService.take(taskId, userId)
+                ? ResponseResult.ok("接单成功")
+                : ResponseResult.fail("接单失败");
+    }
+
+    @ApiOperation(value = "用户完成任务", notes = "用户完成任务")
+    @PostMapping("/complete")
+    public ResponseResult<Object> complete(@RequestParam Long taskId, @RequestParam Long userId, @RequestParam Integer score) {
+        TaskValidator.complete(taskId, userId, score);
+        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        return taskService.complete(taskId, userId, score)
+                ? ResponseResult.ok("完成任务成功")
+                : ResponseResult.fail("完成任务失败");
     }
 }

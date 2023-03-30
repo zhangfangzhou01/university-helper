@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
-public class UserValidator extends com.yhm.universityhelper.validation.Validator {
+public class UserValidator extends CustomValidator {
 
     public static void validateUpdate(JSONObject user) {
         Optional.ofNullable(user.getLong("userId"))
@@ -105,14 +105,8 @@ public class UserValidator extends com.yhm.universityhelper.validation.Validator
     public static void validateBan(String username, boolean banned) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
-                .map(u -> BeanUtils.getBean(UserMapper.class).selectByUsername(u))
-                .map(user -> Validator.validateNotNull(user, "用户名不存在"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
                 .map(user -> Validator.validateTrue(user.getBanned() != banned, "用户已经处于该状态"))
-                .orElseThrow(() -> new ValidateException("必须提供用户名"));
-
-        Optional.of(username)
-                .map(u -> BeanUtils.getBean(UserMapper.class).selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
-                .map(user -> Validator.validateTrue(user.getBanned() == banned, "用户已经处于该状态"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
     }
 
