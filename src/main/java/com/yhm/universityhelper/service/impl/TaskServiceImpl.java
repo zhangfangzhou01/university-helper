@@ -91,6 +91,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return true;
     }
 
+    // TODO: 有一些系统自动算出来的变量，还没有写，比如releaseTime之类的
     public boolean insert(JSONObject json) {
         final Long userId = json.getLong("userId");
         Task task = new Task();
@@ -114,6 +115,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, value);
             }
         }
+        // 对title，requireDescription，targetLocation， arrivalLocation做全文索引
+
+
         // 初始生成时，剩余可接取人数等于最大可接取人数
         task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
         boolean result = taskMapper.insert(task) > 0;
@@ -304,8 +308,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
 
+        List<String> fuzzyQueryColumns = Arrays.asList("requireDescription", "title", "arrivalLocation", "targetLocation");
+        for (String column : fuzzyQueryColumns) {
+            if (searchJson.containsKey(column)) {
+                page.addOrder(TaskQueryWrapper.fuzzyQuery(column, searchJson.getStr(column)));
+            }
+        }
+
         if ("attribute".equals(sortType)) {
-            page.setOrders(orderItems);
+            page.addOrder(orderItems);
             return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
             List<Task> list = taskMapper.selectList(wrapper);

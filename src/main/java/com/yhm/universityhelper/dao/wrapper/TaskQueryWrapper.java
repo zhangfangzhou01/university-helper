@@ -1,31 +1,49 @@
 package com.yhm.universityhelper.dao.wrapper;
 
+import cn.hutool.core.io.file.FileReader;
+import cn.hutool.extra.tokenizer.Word;
+import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.yhm.universityhelper.dao.TaskTagsMapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Data
 @Component
 @Scope("prototype")
 public class TaskQueryWrapper {
+    private final static List<String> STOP_WORDS = Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n"));
+    private final static JiebaEngine JIEBA = new JiebaEngine();
     private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 
-    @Autowired
-    private TaskTagsMapper taskTagsMapper;
+    public static OrderItem fuzzyQuery(String field, String keyword) {
+        return StringUtils.isNotEmpty(keyword)
+                ? OrderItem.desc(
+                StreamSupport
+                        .stream(JIEBA.parse(keyword).spliterator(), true)
+                        .map(Word::getText)
+                        .filter(token -> !STOP_WORDS.contains(token))
+                        .map(token -> "(case when " + field + " like '%" + token + "%' then 1 else 0 end)")
+                        .collect(Collectors.joining(" + ")))
+                : new OrderItem();
+    }
+
 
     public TaskQueryWrapper userRelease(Long userId) {
         wrapper.eq(Task::getUserId, userId);
@@ -96,12 +114,10 @@ public class TaskQueryWrapper {
     }
 
     public TaskQueryWrapper arrivalLocation(String arrivalLocation) {
-        wrapper.like(Task::getArrivalLocation, arrivalLocation);
         return this;
     }
 
     public TaskQueryWrapper targetLocation(String targetLocation) {
-        wrapper.like(Task::getTargetLocation, targetLocation);
         return this;
     }
 
@@ -138,12 +154,10 @@ public class TaskQueryWrapper {
     }
 
     public TaskQueryWrapper title(String title) {
-        wrapper.like(Task::getTitle, title);
         return this;
     }
 
     public TaskQueryWrapper requireDescription(String requireDescription) {
-        wrapper.like(Task::getRequireDescription, requireDescription);
         return this;
     }
 
@@ -151,6 +165,7 @@ public class TaskQueryWrapper {
         wrapper.eq(Task::getScore, score);
         return this;
     }
+
 
     public TaskQueryWrapper takeoutId(Integer takeoutId) {
         wrapper.eq(Task::getTakeoutId, takeoutId);
