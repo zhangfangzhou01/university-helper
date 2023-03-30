@@ -13,7 +13,7 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.TaskTagsMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
-import com.yhm.universityhelper.dao.wrapper.TaskQueryWrapper;
+import com.yhm.universityhelper.dao.wrapper.TaskWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.TaskTags;
 import com.yhm.universityhelper.entity.po.User;
@@ -29,7 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -222,10 +225,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
-        TaskQueryWrapper taskQueryWrapper = BeanUtils.getBean(TaskQueryWrapper.class);
+        TaskWrapper taskWrapper = BeanUtils.getBean(TaskWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            return taskQueryWrapper.getWrapper();
+            return taskWrapper.getWrapper();
         }
 
         final Set<String> keys = json.keySet();
@@ -233,19 +236,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String key : keys) {
             Object value = json.get(key);
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, Long.valueOf(value.toString()));
+                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, LocalDateTime.parse(time));
+                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, tags);
+                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, tags);
             } else {
-                ReflectUtils.call(taskQueryWrapper, key, TaskQueryWrapper.class, value);
+                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, value);
             }
         }
 
-        return taskQueryWrapper.getWrapper();
+        return taskWrapper.getWrapper();
     }
 
     @Override
@@ -308,18 +311,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
 
-        List<String> fuzzyQueryColumns = Arrays.asList("requireDescription", "title", "arrivalLocation", "targetLocation");
-        for (String column : fuzzyQueryColumns) {
-            if (searchJson.containsKey(column)) {
-                page.addOrder(TaskQueryWrapper.fuzzyQuery(column, searchJson.getStr(column)));
+        if (ObjectUtil.isNotEmpty(searchJson)) {
+            for (String column : TaskWrapper.FUZZY_QUERY_COLUMNS) {
+                if (searchJson.containsKey(column)) {
+                    page.addOrder(TaskWrapper.fuzzySearch(column, searchJson.getStr(column)));
+                }
             }
         }
 
         if ("attribute".equals(sortType)) {
             page.addOrder(orderItems);
-            return taskMapper.selectPage(page, wrapper);
+//            return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
-            List<Task> list = taskMapper.selectList(wrapper);
+//            List<Task> list = taskMapper.selectList(wrapper);
 
             Integer releaseTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
             Integer releaseTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
@@ -332,40 +336,43 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             Integer transactionAmountMax = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByDesc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
             Integer transactionAmountMin = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByAsc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
 
-            list.forEach(task -> {
-                task.autoSetPriority(
-                        releaseTimeMax,
-                        releaseTimeMin,
-                        leftNumOfPeopleTakeMax,
-                        leftNumOfPeopleTakeMin,
-                        expectedPeriodMax,
-                        expectedPeriodMin,
-                        arrivalTimeMax,
-                        arrivalTimeMin,
-                        transactionAmountMax,
-                        transactionAmountMin
-                );
-            });
+            page.addOrder(TaskWrapper.prioritySort(releaseTimeMax, releaseTimeMin, leftNumOfPeopleTakeMax, leftNumOfPeopleTakeMin, expectedPeriodMax, expectedPeriodMin, arrivalTimeMax, arrivalTimeMin, transactionAmountMax, transactionAmountMin));
 
-            list.sort(Task::compareTo);
-
-            int start, end;
-            if (page.getSize() > 0) {
-                start = (int)((page.getCurrent() - 1) * page.getSize());
-                end = Math.min((int)(start + page.getSize()), list.size());
-            } else if (page.getSize() < 0) {
-                start = 0;
-                end = list.size();
-            } else {
-                return taskMapper.selectPage(new Page<>(0, 0), null);
-            }
-
-            page.setRecords(new ArrayList<>());
-            page.setTotal(list.size());
-            if (page.getSize() * (page.getCurrent() - 1) <= list.size()) {
-                page.setRecords(list.subList(start, end));
-            }
-            return page;
+//            return taskMapper.selectPage(page, wrapper);
+//            list.forEach(task -> {
+//                task.autoSetPriority(
+//                        releaseTimeMax,
+//                        releaseTimeMin,
+//                        leftNumOfPeopleTakeMax,
+//                        leftNumOfPeopleTakeMin,
+//                        expectedPeriodMax,
+//                        expectedPeriodMin,
+//                        arrivalTimeMax,
+//                        arrivalTimeMin,
+//                        transactionAmountMax,
+//                        transactionAmountMin
+//                );
+//            });
+//
+//            list.sort(Task::compareTo);
+//
+//            int start, end;
+//            if (page.getSize() > 0) {
+//                start = (int)((page.getCurrent() - 1) * page.getSize());
+//                end = Math.min((int)(start + page.getSize()), list.size());
+//            } else if (page.getSize() < 0) {
+//                start = 0;
+//                end = list.size();
+//            } else {
+//                return taskMapper.selectPage(new Page<>(0, 0), null);
+//            }
+//
+//            page.setRecords(new ArrayList<>());
+//            page.setTotal(list.size());
+//            if (page.getSize() * (page.getCurrent() - 1) <= list.size()) {
+//                page.setRecords(list.subList(start, end));
+//            }
+//            return page;
         }
 
         return taskMapper.selectPage(page, wrapper);
@@ -376,7 +383,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskQueryWrapper.class).userTake(userId).getWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userTake(userId).getWrapper();
         return taskMapper.selectPage(page, wrapper);
     }
 
@@ -385,7 +392,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskQueryWrapper.class).userRelease(userId).getWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userRelease(userId).getWrapper();
 
         return taskMapper.selectPage(page, wrapper);
     }
