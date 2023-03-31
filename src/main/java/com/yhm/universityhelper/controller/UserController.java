@@ -83,7 +83,7 @@ public class UserController {
     )
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
-        UserValidator.validateUpdate(json);
+        UserValidator.update(json);
         UserValidator.auth(json.getStr("username"), UserRole.USER_CAN_CHANGE_SELF);
         return userService.update(json)
                 ? ResponseResult.ok("个人信息修改成功")
@@ -102,7 +102,7 @@ public class UserController {
     @ApiOperation(value = "修改密码")
     @PostMapping("/changePassword")
     public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
-        UserValidator.validateChangePassword(username, oldPassword, newPassword);
+        UserValidator.changePassword(username, oldPassword, newPassword);
         UserValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
@@ -113,7 +113,7 @@ public class UserController {
     @ApiOperation(value = "注册")
     @PostMapping("/insert")
     public ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
-        UserValidator.validateRegister(username, password);
+        UserValidator.register(username, password);
         return userService.register(username, password)
                 ? ResponseResult.ok("注册成功")
                 : ResponseResult.fail("注册失败");
@@ -123,7 +123,7 @@ public class UserController {
     @ApiOperation(value = "删除用户")
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam String username) {
-        UserValidator.validateDelete(username);
+        UserValidator.delete(username);
         UserValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return userService.delete(username)
                 ? ResponseResult.ok("删除成功")
@@ -134,7 +134,7 @@ public class UserController {
     @ApiOperation(value = "封禁(解封)用户")
     @PostMapping("/ban")
     public ResponseResult<Object> ban(@RequestParam String username, @RequestParam boolean ban) {
-        UserValidator.validateBan(username, ban);
+        UserValidator.ban(username, ban);
         UserValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
         return userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
@@ -145,7 +145,7 @@ public class UserController {
     @ApiOperation(value = "设置用户角色")
     @PostMapping("/setRole")
     public ResponseResult<Object> setRole(@RequestParam String username, @RequestParam String role) {
-        UserValidator.validateSetRole(username, role);
+        UserValidator.setRole(username, role);
         UserValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
         return userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")

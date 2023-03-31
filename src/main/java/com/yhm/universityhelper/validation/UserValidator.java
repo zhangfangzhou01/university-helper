@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public class UserValidator extends CustomValidator {
 
-    public static void validateUpdate(JSONObject user) {
+    public static void update(JSONObject user) {
         Optional.ofNullable(user.getLong("userId"))
                 .map(userId -> Validator.validateNull(userId, "禁止修改用户ID"));
 
@@ -69,7 +69,7 @@ public class UserValidator extends CustomValidator {
                 .map(createTime -> Validator.validateNull(createTime, "禁止修改创建时间"));
     }
 
-    public static void validateRegister(String username, String password) {
+    public static void register(String username, String password) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
@@ -82,7 +82,7 @@ public class UserValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供密码"));
     }
 
-    public static void validateChangePassword(String username, String oldPassword, String newPassword) {
+    public static void changePassword(String username, String oldPassword, String newPassword) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
@@ -102,7 +102,7 @@ public class UserValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供新密码"));
     }
 
-    public static void validateBan(String username, boolean banned) {
+    public static void ban(String username, boolean banned) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
@@ -110,7 +110,7 @@ public class UserValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
     }
 
-    public static void validateDelete(String username) {
+    public static void delete(String username) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).selectByUsername(u))
@@ -118,7 +118,7 @@ public class UserValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
     }
 
-    public static void validateSetRole(String username, String role) {
+    public static void setRole(String username, String role) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).selectByUsername(u))
@@ -134,7 +134,6 @@ public class UserValidator extends CustomValidator {
 
     public static void validateSelect(JSONArray usernames) {
         Optional.ofNullable(usernames)
-                .map(u -> Validator.validateNotEmpty(u, "用户名列表不能为空"))
                 .map(u -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, u.toString(), "用户名列表不合法"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名列表"));
     }

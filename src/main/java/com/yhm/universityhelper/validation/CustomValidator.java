@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CustomValidator {
-    protected static final String JSON_ARRAY_REGEX = "^\\[(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\]$";
-    protected static final String JSON_OBJECT_REGEX = "^\\{\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\}$";
+    protected static final String JSON_ARRAY_REGEX = "(\\[\\])|(^\\[(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\]$)";
+    protected static final String JSON_OBJECT_REGEX = "(\\{\\})|(^\\{\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\}$)";
     protected static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 
 
