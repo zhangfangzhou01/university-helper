@@ -6,19 +6,24 @@ import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.Usertaketask;
+import com.yhm.universityhelper.util.BeanUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,47 +31,50 @@ import java.util.stream.StreamSupport;
 @Component
 @Scope("prototype")
 public class TaskWrapper {
-    public final static String[] FUZZY_QUERY_COLUMNS = {"requireDescription", "title", "arrivalLocation", "targetLocation"};
+    public final static String[] FUZZY_QUERY_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
     private final static List<String> STOP_WORDS = Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n"));
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 
-    public static OrderItem prioritySort(
-            Integer releaseTimeMax,
-            Integer releaseTimeMin,
-            Integer expectedPeriodMax,
-            Integer expectedPeriodMin,
-            Integer leftNumOfPeopleTakeMax,
-            Integer leftNumOfPeopleTakeMin,
-            Integer arrivalTimeMin,
-            Integer arrivalTimeMax,
-            Integer transactionAmountMax,
-            Integer transactionAmountMin
-    ) {
-        return OrderItem.desc("(case type " +
-                "when '外卖' then " +
-                "(releaseTime - " + arrivalTimeMin + ") / (" + arrivalTimeMax + " - " + arrivalTimeMin + " + 1) + " +
+    public static OrderItem prioritySort() {
+        final List<Map<String, Object>> maps = BeanUtils.getBean(TaskMapper.class).selectPriorityRelated();
+
+        long releaseTimeMax = ((Timestamp)maps.get(0).get("releaseTimeMax")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+        long releaseTimeMin = ((Timestamp)maps.get(0).get("releaseTimeMin")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+        int leftNumOfPeopleTakeMax = (int)maps.get(0).get("leftNumOfPeopleTakeMax");
+        int leftNumOfPeopleTakeMin = (int)maps.get(0).get("leftNumOfPeopleTakeMin");
+        int expectedPeriodMax = (int)maps.get(0).get("expectedPeriodMax");
+        int expectedPeriodMin = (int)maps.get(0).get("expectedPeriodMin");
+
+        long arrivalTimeMax = ((Timestamp)maps.get(0).get("arrivalTimeMax")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+        long arrivalTimeMin = ((Timestamp)maps.get(0).get("arrivalTimeMin")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+        double transactionAmountMax = (double)maps.get(1).get("transactionAmountMax");
+        double transactionAmountMin = (double)maps.get(1).get("transactionAmountMin");
+
+        return OrderItem.desc("(releaseTime - " + releaseTimeMin + ") / (" + releaseTimeMax + " - " + releaseTimeMin + " + 1) + " +
                 "(expectedPeriod - " + expectedPeriodMin + ") / (" + expectedPeriodMax + " - " + expectedPeriodMin + " + 1) + " +
                 "(leftNumOfPeopleTake - " + leftNumOfPeopleTakeMin + ") / (" + leftNumOfPeopleTakeMax + " - " + leftNumOfPeopleTakeMin + " + 1) " +
+                "+ " +
+                "(case type " +
+                "when '外卖' then " +
+                "(arrivalTime - " + arrivalTimeMin + ") / (" + arrivalTimeMax + " - " + arrivalTimeMin + " + 1) " +
                 "when '交易' then " +
-                "(releaseTime - " + releaseTimeMin + ") / (" + releaseTimeMax + " - " + releaseTimeMin + " + 1) + " +
-                "(expectedPeriod - " + expectedPeriodMin + ") / (" + expectedPeriodMax + " - " + expectedPeriodMin + " + 1) + " +
-                "(leftNumOfPeopleTake - " + leftNumOfPeopleTakeMin + ") / (" + leftNumOfPeopleTakeMax + " - " + leftNumOfPeopleTakeMin + " + 1) + " +
                 "(transactionAmount - " + transactionAmountMin + ") / (" + transactionAmountMax + " - " + transactionAmountMin + " + 1) " +
                 "end) ");
     }
 
     public static OrderItem fuzzySearch(String field, String keyword) {
+        final String collect = StreamSupport
+                .stream(JIEBA.parse(keyword).spliterator(), true)
+                .map(Word::getText)
+                .filter(token -> !STOP_WORDS.contains(token))
+                .map(token -> "(case when " + field + " like '%" + token + "%' then 1 else 0 end)")
+                .collect(Collectors.joining(" + "));
+        System.out.println(collect);
         return StringUtils.isNotEmpty(keyword)
-                ? OrderItem.desc(
-                StreamSupport
-                        .stream(JIEBA.parse(keyword).spliterator(), true)
-                        .map(Word::getText)
-                        .filter(token -> !STOP_WORDS.contains(token))
-                        .map(token -> "(case when " + field + " like '%" + token + "%' then 1 else 0 end)")
-                        .collect(Collectors.joining(" + ")))
+                ? OrderItem.desc(collect)
                 : new OrderItem();
     }
 

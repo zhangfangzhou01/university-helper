@@ -136,7 +136,7 @@ public class Task implements Serializable, Comparable {
         tmp += (double)(this.leftNumOfPeopleTake - leftNumOfPeopleTakeMin) / (leftNumOfPeopleTakeMax - leftNumOfPeopleTakeMin + 1);
         if ("外卖".equals(this.type)) {
             // 外卖考虑的属性有 送达时间
-            tmp += Math.toIntExact((this.releaseTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin + 1));
+            tmp += Math.toIntExact((this.arrivalTime.toEpochSecond(ZoneOffset.of("+8")) - arrivalTimeMin) / (arrivalTimeMax - arrivalTimeMin + 1));
             this.priority = (int)(tmp * 100) / 5;
         } else if ("交易".equals(this.type)) {
             // 交易考虑的属性有 交易金额

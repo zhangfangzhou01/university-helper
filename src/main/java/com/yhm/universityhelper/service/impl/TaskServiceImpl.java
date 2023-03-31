@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -325,18 +324,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         } else if ("priority".equals(sortType)) {
 //            List<Task> list = taskMapper.selectList(wrapper);
 
-            Integer releaseTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
-            Integer releaseTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
-            Integer leftNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
-            Integer leftNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
-            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
-            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
-            Integer arrivalTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByDesc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
-            Integer arrivalTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByAsc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
-            Integer transactionAmountMax = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByDesc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
-            Integer transactionAmountMin = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByAsc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
+//            Integer releaseTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
+//            Integer releaseTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
+//            Integer leftNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
+//            Integer leftNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
+//            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
+//            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
+//            Integer arrivalTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByDesc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
+//            Integer arrivalTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByAsc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
+//            Integer transactionAmountMax = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByDesc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
+//            Integer transactionAmountMin = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByAsc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
 
-            page.addOrder(TaskWrapper.prioritySort(releaseTimeMax, releaseTimeMin, leftNumOfPeopleTakeMax, leftNumOfPeopleTakeMin, expectedPeriodMax, expectedPeriodMin, arrivalTimeMax, arrivalTimeMin, transactionAmountMax, transactionAmountMin));
+            page.addOrder(TaskWrapper.prioritySort(/*releaseTimeMax, releaseTimeMin, leftNumOfPeopleTakeMax, leftNumOfPeopleTakeMin, expectedPeriodMax, expectedPeriodMin, arrivalTimeMax, arrivalTimeMin, transactionAmountMax, transactionAmountMin)*/));
 
 //            return taskMapper.selectPage(page, wrapper);
 //            list.forEach(task -> {
