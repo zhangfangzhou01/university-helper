@@ -311,7 +311,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Page<Task> page = pageWrapper(pageJson);
 
         if (ObjectUtil.isNotEmpty(searchJson)) {
-            for (String column : TaskWrapper.FUZZY_QUERY_COLUMNS) {
+            for (String column : TaskWrapper.FUZZY_SEARCH_COLUMNS) {
                 if (searchJson.containsKey(column)) {
                     page.addOrder(TaskWrapper.fuzzySearch(column, searchJson.getStr(column)));
                 }

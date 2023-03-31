@@ -31,10 +31,11 @@ import java.util.stream.StreamSupport;
 @Component
 @Scope("prototype")
 public class TaskWrapper {
-    public final static String[] FUZZY_QUERY_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
+    public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
     private final static List<String> STOP_WORDS = Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n"));
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
+
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 

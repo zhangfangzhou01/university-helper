@@ -256,7 +256,7 @@ public class TaskValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
         Validator.validateTrue(BeanUtils.getBean(UsertaketaskMapper.class).exists(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId)), "用户" + userId + "没有接任务" + taskId);
-        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId +"已经完成，无法删除");
+        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId + "已经完成，无法删除");
     }
 
     public static void take(Long taskId, Long userId) {
