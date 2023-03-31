@@ -1,6 +1,7 @@
 package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -231,7 +231,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
 
         final Set<String> keys = json.keySet();
-
         for (String key : keys) {
             Object value = json.get(key);
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
@@ -253,8 +252,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public List<OrderItem> sortWrapper(JSONArray sortJson) {
         List<OrderItem> orderItems = new ArrayList<>();
-        List<Pair<Integer, OrderItem>> orderItemPairs = new ArrayList<>();
-
         if (ObjectUtil.isEmpty(sortJson) || sortJson.isEmpty()) {
             return orderItems;
         }
@@ -265,20 +262,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 continue;
             }
 
-            Integer order = jsonObject.get("order", Integer.class);
             String column = jsonObject.get("column", String.class);
             Boolean asc = jsonObject.get("asc", Boolean.class);
-            if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
-                continue;
+            if (ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
+                throw new RuntimeException("排序参数缺失，需要提供column和asc参数");
             }
 
             OrderItem orderItem = new OrderItem(column, asc);
-            orderItemPairs.add(new Pair<>(order, orderItem));
+            orderItems.add(orderItem);
         }
-
-        orderItemPairs.sort(Comparator.comparing(Pair::getKey));
-        orderItems = orderItemPairs.stream().map(Pair::getValue).collect(Collectors.toList());
-
         return orderItems;
     }
 
@@ -288,6 +280,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Long size = -1L;
 
         if (ObjectUtil.isNotEmpty(json) && (!json.isEmpty())) {
+            Validator.validateNotNull(json.get("current"), "分页参数缺失，需要提供current参数");
+            Validator.validateNotNull(json.get("size"), "分页参数缺失，需要提供size参数");
+
             current = json.get("current", Long.class);
             size = json.get("size", Long.class);
         }
@@ -305,9 +300,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
         Page<Task> page = pageWrapper(pageJson);
 
+        if (ObjectUtil.isNotNull(sortJson) && (!sortJson.isEmpty())) {
+            Validator.validateNotNull(sortType, "排序类型不能为空");
+            Validator.validateMatchRegex("^(attribute|priority)$", sortType, "排序类型不正确，只能是attribute或者priority");
+        }
+
         if ("attribute".equals(sortType)) {
-            List<OrderItem> orderItems = sortWrapper(sortJson);
-            page.addOrder(orderItems);
+            page.addOrder(sortWrapper(sortJson));
         } else if ("priority".equals(sortType)) {
             page.addOrder(TaskWrapper.prioritySort());
         }
