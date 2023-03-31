@@ -129,10 +129,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Long userId = userMapper.selectByUsername(username).getUserId();
         boolean result = userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
         result &= userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId)) > 0;
-        result &= taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId)) > 0;
+        result &= taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId)) >= 0;
 
-        Usertaketask usertaketask = usertaketaskMapper.selectById(userId);
-        if (ObjectUtils.isNotEmpty(usertaketask)) {
+        List<Usertaketask> usertaketasks = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId));
+        for (Usertaketask usertaketask : usertaketasks) {
             usertaketask.setUserId(0L);
             result &= usertaketaskMapper.updateById(usertaketask) > 0;
         }

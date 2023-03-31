@@ -7,10 +7,9 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
-import com.yhm.universityhelper.entity.po.Task;
-import com.yhm.universityhelper.entity.po.User;
-import com.yhm.universityhelper.entity.po.Usertaketask;
+import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.util.BeanUtils;
 
 import java.util.Optional;
@@ -52,6 +51,7 @@ public class TaskValidator extends CustomValidator {
         // 插入时必须给的
         Optional.ofNullable(task.getStr("userId"))
                 .map(userId -> Validator.validateNumber(userId, "用户ID不合法"))
+                .map(Long::parseLong)
                 .map(taskId -> TaskValidator.validateBetween("用户ID", taskId, 1, Long.MAX_VALUE))
                 .map(userId -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, userId)))
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
@@ -76,6 +76,7 @@ public class TaskValidator extends CustomValidator {
 
         Optional.ofNullable(task.getStr("transactionAmount"))
                 .map(transactionAmount -> Validator.validateNumber(transactionAmount, "交易金额不合法"))
+                .map(Double::parseDouble)
                 .map(transactionAmount -> TaskValidator.validateBetween("交易金额", transactionAmount, 0, Double.MAX_VALUE))
                 .orElseThrow(() -> new ValidateException("必须提供transactionAmount"));
 
@@ -100,6 +101,7 @@ public class TaskValidator extends CustomValidator {
             // 交易必须给的
             Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
                     .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
+                    .map(Integer::parseInt)
                     .map(maxNumOfPeopleTake -> TaskValidator.validateBetween("最大接单人数", maxNumOfPeopleTake, 1, Integer.MAX_VALUE))
                     .orElseThrow(() -> new ValidateException("必须提供maxNumOfPeopleTake"));
 
@@ -116,11 +118,7 @@ public class TaskValidator extends CustomValidator {
 
             // 外卖必须给的
             Optional.ofNullable(task.getStr("takeoutId"))
-                    .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"))
-                    .map(takeoutId -> TaskValidator.validateBetween("外卖ID", takeoutId, 1, Long.MAX_VALUE))
-                    .map(takeoutId -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, takeoutId)))
-                    .map(exists -> Validator.validateTrue(exists, "外卖ID不存在"))
-                    .orElseThrow(() -> new ValidateException("必须提供takeoutId"));
+                    .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"));
 
             Optional.ofNullable(task.getStr("orderTime"))
                     .map(orderTime -> Validator.validateMatchRegex(DATE_TIME_REGEX, orderTime, "下单时间不合法"))
@@ -144,6 +142,7 @@ public class TaskValidator extends CustomValidator {
         // 更新时必须给的
         Optional.ofNullable(task.getStr("taskId"))
                 .map(taskId -> Validator.validateNumber(taskId, "任务ID不合法"))
+                .map(Long::parseLong)
                 .map(taskId -> TaskValidator.validateBetween("任务ID", taskId, 1, Long.MAX_VALUE))
                 .map(taskId -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId)))
                 .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
@@ -151,21 +150,27 @@ public class TaskValidator extends CustomValidator {
 
         Optional.ofNullable(task.getStr("userId"))
                 .map(userId -> Validator.validateNumber(userId, "用户ID不合法"))
+                .map(Long::parseLong)
                 .map(taskId -> TaskValidator.validateBetween("用户ID", taskId, 1, Long.MAX_VALUE))
                 .map(userId -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, userId)))
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
+        Optional.ofNullable(task.getStr("type"))
+                .map(type -> Validator.validateMatchRegex("(交易|外卖)", type, "任务类型不合法"))
+                .orElseThrow(() -> new ValidateException("必须提供任务类型"));
+
+        Validator.validateTrue(task.getStr("type").equals(BeanUtils.getBean(TaskMapper.class).selectById(task.getLong("taskId")).getType()), "禁止修改任务的类型");
+
         // 任务库内必须存在该任务
-        Optional.ofNullable(BeanUtils.getBean(TaskMapper.class).selectOne(
-                new LambdaQueryWrapper<Task>()
-                        .eq(Task::getTaskId, task.getLong("taskId"))
-                        .eq(Task::getUserId, task.getLong("userId"))
-        )).orElseThrow(() -> new ValidateException("任务库内不存在该任务"));
+        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(
+                        new LambdaQueryWrapper<Task>()
+                                .eq(Task::getTaskId, task.getLong("taskId"))
+                                .eq(Task::getUserId, task.getLong("userId"))),
+                "任务库内不存在该任务");
 
         // 更新时不能改的
         Validator.validateNull(task.getStr("isHunter"), "禁止修改任务的isHunter");
-        Validator.validateNull(task.getStr("type"), "禁止修改任务的类型");
         Validator.validateNull(task.getStr("transactionAmount"), "禁止修改任务的交易金额");
         Validator.validateNull(task.getStr("priority"), "priority由系统自动填充");
         Validator.validateNull(task.getStr("releaseTime"), "releaseTime由系统自动填充");
@@ -193,6 +198,7 @@ public class TaskValidator extends CustomValidator {
             // 交易可以改的
             Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
                     .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
+                    .map(Integer::parseInt)
                     .map(maxNumOfPeopleTake -> TaskValidator.validateBetween("最大接单人数", maxNumOfPeopleTake, 1, Integer.MAX_VALUE));
 
             // 交易不能改的
@@ -208,10 +214,7 @@ public class TaskValidator extends CustomValidator {
 
             // 外卖可以改的
             Optional.ofNullable(task.getStr("takeoutId"))
-                    .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"))
-                    .map(takeoutId -> TaskValidator.validateBetween("外卖ID", takeoutId, 1, Long.MAX_VALUE))
-                    .map(takeoutId -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, takeoutId)))
-                    .map(exists -> Validator.validateTrue(exists, "外卖ID不存在"));
+                    .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"));
 
             Optional.ofNullable(task.getStr("orderTime"))
                     .map(orderTime -> Validator.validateMatchRegex(DATE_TIME_REGEX, orderTime, "下单时间不合法"));
@@ -228,35 +231,44 @@ public class TaskValidator extends CustomValidator {
         }
     }
 
-    public static void delete(Long taskId) {
+    // userId是发布者的userId，taskId是任务的taskId
+    public static void delete(Long taskId, Long userId) {
         Optional.ofNullable(taskId)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "任务ID不合法"))
-                .map(id -> TaskValidator.validateBetween("任务ID", id, 1, Long.MAX_VALUE))
-                .map(id -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, id)))
-                .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
-                .orElseThrow(() -> new ValidateException("必须提供任务ID"));
-    }
-
-    public static void deleteTaskByTaker(Long taskId, Long userId) {
-        Optional.ofNullable(taskId)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "任务ID不合法"))
                 .map(id -> TaskValidator.validateBetween("任务ID", id, 1, Long.MAX_VALUE))
                 .map(id -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, id)))
                 .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供任务ID"));
 
         Optional.ofNullable(userId)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "用户ID不合法"))
+                .map(id -> TaskValidator.validateBetween("用户ID", id, 1, Long.MAX_VALUE))
+                .map(id -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, id)))
+                .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户ID"));
+
+        final Long role = BeanUtils.getBean(UserRoleMapper.class).selectOne(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId)).getRoleId();
+        if (role == Role.USER) {
+            Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId).eq(Task::getUserId, userId)), "用户" + userId + "不是任务" + taskId + "的发布者");
+        } else {
+            Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId)), "任务" + taskId + "不存在");
+        }
+    }
+
+    // userId是接单者的userId，taskId是任务ID
+    public static void deleteTaskByTaker(Long taskId, Long userId) {
+        Optional.ofNullable(taskId)
+                .map(id -> TaskValidator.validateBetween("任务ID", id, 1, Long.MAX_VALUE))
+                .map(id -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, id)))
+                .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供任务ID"));
+
+        Optional.ofNullable(userId)
                 .map(id -> TaskValidator.validateBetween("用户ID", id, 1, Long.MAX_VALUE))
                 .map(id -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, id)))
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
         Validator.validateTrue(BeanUtils.getBean(UsertaketaskMapper.class).exists(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId)), "用户" + userId + "没有接任务" + taskId);
-        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId + "已经完成，无法删除");
+        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId + "已经完成，无法撤销");
     }
 
     public static void take(Long taskId, Long userId) {
@@ -282,25 +294,19 @@ public class TaskValidator extends CustomValidator {
 
     public static void complete(Long taskId, Long userId, Integer score) {
         Optional.ofNullable(taskId)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "任务ID不合法"))
                 .map(id -> TaskValidator.validateBetween("任务ID", id, 1, Long.MAX_VALUE))
                 .map(id -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, id)))
                 .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供任务ID"));
 
         Optional.ofNullable(userId)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "用户ID不合法"))
                 .map(id -> TaskValidator.validateBetween("用户ID", id, 1, Long.MAX_VALUE))
                 .map(id -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, id)))
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
         Optional.ofNullable(score)
-                .map(Object::toString)
-                .map(id -> Validator.validateNumber(id, "评分不合法"))
-                .map(id -> TaskValidator.validateBetween("评分", id, 1, 5))
+                .map(s -> TaskValidator.validateBetween("评分", s, 1, 5))
                 .orElseThrow(() -> new ValidateException("必须提供评分"));
 
         Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId).eq(Task::getUserId, userId)), "用户" + userId + "没有发布任务" + taskId);

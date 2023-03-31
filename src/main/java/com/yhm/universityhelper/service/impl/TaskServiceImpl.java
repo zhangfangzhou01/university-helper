@@ -65,7 +65,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         // TODO: 前端要针对类型，对某些字段设置为不可修改
         for (String key : json.keySet()) {
-            if (key.equals("taskId") || key.equals("userId")) {
+            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
                 continue;
             }
 
@@ -120,7 +120,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         // 初始生成时，剩余可接取人数等于最大可接取人数
         task.setReleaseTime(LocalDateTime.now());
         task.setTaskState(Task.NOT_TAKE);
-        task.setPhoneNumForNow(Integer.valueOf(userMapper.selectById(userId).getPhone()));
+        task.setPhoneNumForNow(userMapper.selectById(userId).getPhone());
         task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
         boolean result = taskMapper.insert(task) > 0;
 
@@ -158,7 +158,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public boolean deleteTaskByTaker(Long taskId, Long userId) {
-        Task task = taskMapper.selectById(userId);
+        Task task = taskMapper.selectById(taskId);
         // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() + 1);
         if (task.getLeftNumOfPeopleTake().equals(task.getMaxNumOfPeopleTake())) {
@@ -203,18 +203,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public boolean complete(Long taskId, Long userId, Integer score) {
         // 删除usertaketask 相关的接取记录
         List<Usertaketask> allTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId));
-        boolean flag = true;
+        boolean result = true;
         for (Usertaketask usertaketask : allTake) {
             final User user = userMapper.selectById(usertaketask.getUserId());
             user.setScore(user.getScore() + score);
-            flag &= userMapper.updateById(user) > 0;
-            flag &= usertaketaskMapper.deleteById(usertaketask) > 0;
+            result &= userMapper.updateById(user) > 0;
+            result &= usertaketaskMapper.deleteById(usertaketask) > 0;
         }
         // 接取任务后，任务的剩余可接取人数字段无效, 任务变成了已完成
         Task task = taskMapper.selectById(taskId);
         task.setScore(score);
         task.setTaskState(Task.COMPLETED);
-        boolean result = taskMapper.updateById(task) > 0 && flag;
+        result &= taskMapper.updateById(task) > 0;
 
         if (!result) {
             throw new RuntimeException("完成任务失败，事务回滚");

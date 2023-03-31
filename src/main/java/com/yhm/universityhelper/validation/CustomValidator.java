@@ -34,6 +34,27 @@ public class CustomValidator {
         return value;
     }
 
+    protected static Integer validateBetween(String name, int value, int min, int max) {
+        if (value < min || value > max) {
+            throw new ValidateException("参数" + name + "应在" + min + "-" + max + "之间");
+        }
+        return value;
+    }
+
+    protected static Long validateBetween(String name, long value, long min, long max) {
+        if (value < min || value > max) {
+            throw new ValidateException("参数" + name + "应在" + min + "-" + max + "之间");
+        }
+        return value;
+    }
+
+    protected static Double validateBetween(String name, double value, double min, double max) {
+        if (value < min || value > max) {
+            throw new ValidateException("参数" + name + "应在" + min + "-" + max + "之间");
+        }
+        return value;
+    }
+
     protected static String validateNotEqual(String thisValue, String thatValue, String message) {
         if (thisValue.equals(thatValue)) {
             throw new ValidateException(message);

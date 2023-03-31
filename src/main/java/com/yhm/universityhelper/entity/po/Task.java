@@ -94,7 +94,7 @@ public class Task implements Serializable, Comparable {
     private Integer distance;
 
     @TableField("phoneNumForNow")
-    private Integer phoneNumForNow;
+    private String phoneNumForNow;
 
     @TableField("transactionAmount")
     private Double transactionAmount;

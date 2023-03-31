@@ -292,7 +292,7 @@ public class TaskController {
     @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
-        TaskValidator.delete(taskId);
+        TaskValidator.delete(taskId, userId);
         TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId, userId);
         ResponseResult<Object> result = resAndUsernames.getKey()
