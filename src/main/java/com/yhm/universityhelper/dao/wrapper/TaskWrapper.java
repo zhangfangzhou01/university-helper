@@ -67,15 +67,13 @@ public class TaskWrapper {
     }
 
     public static OrderItem fuzzySearch(String field, String keyword) {
-        final String collect = StreamSupport
+        return StringUtils.isNotEmpty(keyword)
+                ? OrderItem.desc(StreamSupport
                 .stream(JIEBA.parse(keyword).spliterator(), true)
                 .map(Word::getText)
                 .filter(token -> !STOP_WORDS.contains(token))
                 .map(token -> "(case when " + field + " like '%" + token + "%' then 1 else 0 end)")
-                .collect(Collectors.joining(" + "));
-        System.out.println(collect);
-        return StringUtils.isNotEmpty(keyword)
-                ? OrderItem.desc(collect)
+                .collect(Collectors.joining(" + ")))
                 : new OrderItem();
     }
 
