@@ -117,10 +117,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, value);
             }
         }
-        // 对title，requireDescription，targetLocation， arrivalLocation做全文索引
-
-
         // 初始生成时，剩余可接取人数等于最大可接取人数
+        task.setReleaseTime(LocalDateTime.now());
+        task.setTaskState(Task.NOT_TAKE);
+        task.setPhoneNumForNow(Integer.valueOf(userMapper.selectById(userId).getPhone()));
         task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
         boolean result = taskMapper.insert(task) > 0;
 
@@ -227,7 +227,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         TaskWrapper taskWrapper = BeanUtils.getBean(TaskWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            return taskWrapper.getWrapper();
+            return taskWrapper.getLambdaQueryWrapper();
         }
 
         final Set<String> keys = json.keySet();
@@ -247,7 +247,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
         }
 
-        return taskWrapper.getWrapper();
+        return taskWrapper.getLambdaQueryWrapper();
     }
 
     @Override
@@ -269,10 +269,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             String column = jsonObject.get("column", String.class);
             Boolean asc = jsonObject.get("asc", Boolean.class);
             if (ObjectUtil.isEmpty(order) || ObjectUtil.isEmpty(column) || ObjectUtil.isEmpty(asc)) {
-                continue;
-            }
-
-            if ("priority".equals(column)) {
                 continue;
             }
 
@@ -307,71 +303,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final String sortType = json.get("sortType", String.class);
 
         LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
-        List<OrderItem> orderItems = sortWrapper(sortJson);
         Page<Task> page = pageWrapper(pageJson);
 
-        if (ObjectUtil.isNotEmpty(searchJson)) {
-            for (String column : TaskWrapper.FUZZY_SEARCH_COLUMNS) {
-                if (searchJson.containsKey(column)) {
-                    page.addOrder(TaskWrapper.fuzzySearch(column, searchJson.getStr(column)));
-                }
-            }
-        }
-
         if ("attribute".equals(sortType)) {
+            List<OrderItem> orderItems = sortWrapper(sortJson);
             page.addOrder(orderItems);
-//            return taskMapper.selectPage(page, wrapper);
         } else if ("priority".equals(sortType)) {
-//            List<Task> list = taskMapper.selectList(wrapper);
-
-//            Integer releaseTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
-//            Integer releaseTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getReleaseTime).last("limit 1")).getReleaseTime().toEpochSecond(ZoneOffset.of("+8")));
-//            Integer leftNumOfPeopleTakeMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
-//            Integer leftNumOfPeopleTakeMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getLeftNumOfPeopleTake).last("limit 1")).getLeftNumOfPeopleTake();
-//            Integer expectedPeriodMax = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByDesc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
-//            Integer expectedPeriodMin = taskMapper.selectOne(new LambdaQueryWrapper<Task>().orderByAsc(Task::getExpectedPeriod).last("limit 1")).getExpectedPeriod();
-//            Integer arrivalTimeMax = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByDesc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
-//            Integer arrivalTimeMin = Math.toIntExact(taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "外卖").orderByAsc(Task::getArrivalTime).last("limit 1")).getArrivalTime().toEpochSecond(ZoneOffset.of("+8")));
-//            Integer transactionAmountMax = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByDesc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
-//            Integer transactionAmountMin = (taskMapper.selectOne(new LambdaQueryWrapper<Task>().eq(Task::getType, "交易").orderByAsc(Task::getTransactionAmount).last("limit 1")).getTransactionAmount()).intValue();
-
-            page.addOrder(TaskWrapper.prioritySort(/*releaseTimeMax, releaseTimeMin, leftNumOfPeopleTakeMax, leftNumOfPeopleTakeMin, expectedPeriodMax, expectedPeriodMin, arrivalTimeMax, arrivalTimeMin, transactionAmountMax, transactionAmountMin)*/));
-
-//            return taskMapper.selectPage(page, wrapper);
-//            list.forEach(task -> {
-//                task.autoSetPriority(
-//                        releaseTimeMax,
-//                        releaseTimeMin,
-//                        leftNumOfPeopleTakeMax,
-//                        leftNumOfPeopleTakeMin,
-//                        expectedPeriodMax,
-//                        expectedPeriodMin,
-//                        arrivalTimeMax,
-//                        arrivalTimeMin,
-//                        transactionAmountMax,
-//                        transactionAmountMin
-//                );
-//            });
-//
-//            list.sort(Task::compareTo);
-//
-//            int start, end;
-//            if (page.getSize() > 0) {
-//                start = (int)((page.getCurrent() - 1) * page.getSize());
-//                end = Math.min((int)(start + page.getSize()), list.size());
-//            } else if (page.getSize() < 0) {
-//                start = 0;
-//                end = list.size();
-//            } else {
-//                return taskMapper.selectPage(new Page<>(0, 0), null);
-//            }
-//
-//            page.setRecords(new ArrayList<>());
-//            page.setTotal(list.size());
-//            if (page.getSize() * (page.getCurrent() - 1) <= list.size()) {
-//                page.setRecords(list.subList(start, end));
-//            }
-//            return page;
+            page.addOrder(TaskWrapper.prioritySort());
         }
 
         return taskMapper.selectPage(page, wrapper);
@@ -382,7 +320,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userTake(userId).getWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userTake(userId).getLambdaQueryWrapper();
         return taskMapper.selectPage(page, wrapper);
     }
 
@@ -391,7 +329,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userRelease(userId).getWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userRelease(userId).getLambdaQueryWrapper();
 
         return taskMapper.selectPage(page, wrapper);
     }

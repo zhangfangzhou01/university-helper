@@ -5,6 +5,7 @@ import cn.hutool.extra.tokenizer.Word;
 import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
@@ -12,7 +13,6 @@ import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.util.BeanUtils;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,11 @@ public class TaskWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
     private final static List<String> STOP_WORDS = Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n"));
     private final static JiebaEngine JIEBA = new JiebaEngine();
-    private final LambdaQueryWrapper<Task> wrapper = new LambdaQueryWrapper<>();
+    private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+
+    public LambdaQueryWrapper<Task> getLambdaQueryWrapper() {
+        return queryWrapper.lambda();
+    }
 
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
@@ -66,20 +70,18 @@ public class TaskWrapper {
                 "end) ");
     }
 
-    public static OrderItem fuzzySearch(String field, String keyword) {
-        return StringUtils.isNotEmpty(keyword)
-                ? OrderItem.desc(StreamSupport
+    public static String fuzzyQueryString(String field, String keyword) {
+        return StreamSupport
                 .stream(JIEBA.parse(keyword).spliterator(), true)
                 .map(Word::getText)
                 .filter(token -> !STOP_WORDS.contains(token))
-                .map(token -> "(case when " + field + " like '%" + token + "%' then 1 else 0 end)")
-                .collect(Collectors.joining(" + ")))
-                : new OrderItem();
+                .map(token -> "(case when " + field + " like \"%" + token + "%\" then 1 else 0 end)")
+                .collect(Collectors.joining(" + "));
     }
 
 
     public TaskWrapper userRelease(Long userId) {
-        wrapper.eq(Task::getUserId, userId);
+        queryWrapper.eq("userId", userId);
         return this;
     }
 
@@ -93,155 +95,159 @@ public class TaskWrapper {
                 .collect(Collectors.toList());
 
         if (taskIds.isEmpty()) {
-            wrapper.eq(Task::getTaskId, -1);
+            queryWrapper.eq("taskId", -1);
         } else {
-            wrapper.in(Task::getTaskId, taskIds);
+            queryWrapper.in("taskId", taskIds);
         }
         return this;
     }
 
     public TaskWrapper type(String type) {
-        wrapper.eq(Task::getType, type);
+        queryWrapper.eq("type", type);
         return this;
     }
 
     public TaskWrapper releaseTimeMax(LocalDateTime releaseTimeMax) {
-        wrapper.le(Task::getReleaseTime, releaseTimeMax);
+        queryWrapper.le("releaseTime", releaseTimeMax);
         return this;
     }
 
     public TaskWrapper releaseTimeMin(LocalDateTime releaseTimeMin) {
-        wrapper.ge(Task::getReleaseTime, releaseTimeMin);
+        queryWrapper.ge("releaseTime", releaseTimeMin);
         return this;
     }
 
     public TaskWrapper releaseTime(LocalDateTime releaseTime) {
-        wrapper.eq(Task::getReleaseTime, releaseTime);
+        queryWrapper.eq("releaseTime", releaseTime);
         return this;
     }
 
     public TaskWrapper releaseDate(LocalDate releaseTime) {
-        wrapper.ge(Task::getReleaseTime, releaseTime.atStartOfDay())
-                .le(Task::getReleaseTime, releaseTime.plusDays(1).atStartOfDay());
+        queryWrapper.ge("releaseTime", releaseTime.atStartOfDay())
+                .le("releaseTime", releaseTime.plusDays(1).atStartOfDay());
         return this;
     }
 
     public TaskWrapper maxNumOfPeopleTake(Integer maxNumOfPeopleTake) {
-        wrapper.le(Task::getMaxNumOfPeopleTake, maxNumOfPeopleTake);
+        queryWrapper.le("maxNumOfPeopleTake", maxNumOfPeopleTake);
         return this;
     }
 
     public TaskWrapper taskState(Integer taskState) {
-        wrapper.eq(Task::getTaskState, taskState);
+        queryWrapper.eq("taskState", taskState);
         return this;
     }
 
     public TaskWrapper arrivalTimeMax(LocalDateTime arrivalTimeMax) {
-        wrapper.le(Task::getArrivalTime, arrivalTimeMax);
+        queryWrapper.le("arrivalTime", arrivalTimeMax);
         return this;
     }
 
     public TaskWrapper arrivalTimeMin(LocalDateTime arrivalTimeMin) {
-        wrapper.ge(Task::getArrivalTime, arrivalTimeMin);
+        queryWrapper.ge("arrivalTime", arrivalTimeMin);
         return this;
     }
 
     public TaskWrapper arrivalLocation(String arrivalLocation) {
+        queryWrapper.orderByDesc(fuzzyQueryString("arrivalLocation", arrivalLocation));
         return this;
     }
 
     public TaskWrapper targetLocation(String targetLocation) {
+        queryWrapper.orderByDesc(fuzzyQueryString("targetLocation", targetLocation));
         return this;
     }
 
     public TaskWrapper transactionAmountMax(Integer transactionAmountMax) {
-        wrapper.le(Task::getTransactionAmount, transactionAmountMax);
+        queryWrapper.le("transactionAmount", transactionAmountMax);
         return this;
     }
 
     public TaskWrapper transactionAmountMin(Integer transactionAmountMin) {
-        wrapper.ge(Task::getTransactionAmount, transactionAmountMin);
+        queryWrapper.ge("transactionAmount", transactionAmountMin);
         return this;
     }
 
     public TaskWrapper taskId(Long taskId) {
-        wrapper.eq(Task::getTaskId, taskId);
+        queryWrapper.eq("taskId", taskId);
         return this;
     }
 
     public TaskWrapper userId(Long userId) {
-        wrapper.eq(Task::getUserId, userId);
+        queryWrapper.eq("userId", userId);
         return this;
     }
 
     public TaskWrapper tags(JSONArray tags) {
         for (Object tag : tags) {
-            wrapper.like(Task::getTags, tag);
+            queryWrapper.like("tags", tag);
         }
         return this;
     }
 
     public TaskWrapper priority(Integer priority) {
-        wrapper.eq(Task::getPriority, priority);
+        queryWrapper.eq("priority", priority);
         return this;
     }
 
     public TaskWrapper title(String title) {
+        queryWrapper.orderByDesc(fuzzyQueryString("title", title));
         return this;
     }
 
     public TaskWrapper requireDescription(String requireDescription) {
+        queryWrapper.orderByDesc(fuzzyQueryString("requireDescription", requireDescription));
         return this;
     }
 
     public TaskWrapper score(Integer score) {
-        wrapper.eq(Task::getScore, score);
+        queryWrapper.eq("score", score);
         return this;
     }
 
 
     public TaskWrapper takeoutId(Integer takeoutId) {
-        wrapper.eq(Task::getTakeoutId, takeoutId);
+        queryWrapper.eq("takeoutId", takeoutId);
         return this;
     }
 
     public TaskWrapper orderTime(LocalDateTime orderTime) {
-        wrapper.eq(Task::getOrderTime, orderTime);
+        queryWrapper.eq("orderTime", orderTime);
         return this;
     }
 
     public TaskWrapper arrivalTime(LocalDateTime arrivalTime) {
-        wrapper.eq(Task::getArrivalTime, arrivalTime);
+        queryWrapper.eq("arrivalTime", arrivalTime);
         return this;
     }
 
     public TaskWrapper distance(Integer distance) {
-        wrapper.eq(Task::getDistance, distance);
+        queryWrapper.eq("distance", distance);
         return this;
     }
 
     public TaskWrapper phoneNumForNow(Integer phoneNumForNow) {
-        wrapper.eq(Task::getPhoneNumForNow, phoneNumForNow);
+        queryWrapper.eq("phoneNumForNow", phoneNumForNow);
         return this;
     }
 
     public TaskWrapper transactionAmount(Double transactionAmount) {
-        wrapper.eq(Task::getTransactionAmount, transactionAmount);
+        queryWrapper.eq("transactionAmount", transactionAmount);
         return this;
     }
 
     public TaskWrapper expectedPeriod(Integer expectedPeriod) {
-        wrapper.eq(Task::getExpectedPeriod, expectedPeriod);
+        queryWrapper.eq("expectedPeriod", expectedPeriod);
         return this;
     }
 
     public TaskWrapper isHunter(Integer isHunter) {
-        wrapper.eq(Task::getIsHunter, isHunter);
+        queryWrapper.eq("isHunter", isHunter);
         return this;
     }
 
     public TaskWrapper leftNumOfPeopleTake(Integer leftNumOfPeopleTake) {
-        wrapper.eq(Task::getLeftNumOfPeopleTake, leftNumOfPeopleTake);
+        queryWrapper.eq("leftNumOfPeopleTake", leftNumOfPeopleTake);
         return this;
     }
 }
