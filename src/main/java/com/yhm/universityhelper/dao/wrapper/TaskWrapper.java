@@ -146,7 +146,7 @@ public class TaskWrapper {
 
     public TaskWrapper arrivalLocation(String arrivalLocation) {
         queryWrapper
-                .apply("(@arrivalLocationMatchingDegree:=" + fuzzyQuery("arrivalLocation", arrivalLocation) + ")")
+                .apply("(@arrivalLocationMatchingDegree := " + fuzzyQuery("arrivalLocation", arrivalLocation) + ")")
                 .apply("@arrivalLocationMatchingDegree > 0")
                 .orderByDesc("@arrivalLocationMatchingDegree");
         return this;
@@ -154,7 +154,7 @@ public class TaskWrapper {
 
     public TaskWrapper targetLocation(String targetLocation) {
         queryWrapper
-                .apply("(@targetLocationMatchingDegree:=" + fuzzyQuery("targetLocation", targetLocation) + ")")
+                .apply("(@targetLocationMatchingDegree := " + fuzzyQuery("targetLocation", targetLocation) + ")")
                 .apply("@targetLocationMatchingDegree > 0")
                 .orderByDesc("@targetLocationMatchingDegree");
         return this;
@@ -194,7 +194,7 @@ public class TaskWrapper {
 
     public TaskWrapper title(String title) {
         queryWrapper
-                .apply("(@titleMatchingDegree:=" + fuzzyQuery("title", title) + ")")
+                .apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")")
                 .apply("@titleMatchingDegree > 0")
                 .orderByDesc("@titleMatchingDegree");
         return this;
@@ -202,7 +202,7 @@ public class TaskWrapper {
 
     public TaskWrapper requireDescription(String requireDescription) {
         queryWrapper
-                .apply("(@requireDescriptionMatchingDegree:=" + fuzzyQuery("requireDescription", requireDescription) + ")")
+                .apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")")
                 .apply("@requireDescriptionMatchingDegree > 0")
                 .orderByDesc("@requireDescriptionMatchingDegree");
         return this;

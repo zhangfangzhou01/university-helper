@@ -19,16 +19,16 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-    @Select("select * from uh_user where username = #{username}")
+    @Select("select * from universityhelper.uh_user where username = #{username}")
     User selectByUsername(String username);
 
-    @Select("select * from uh_user_role where userId = #{userId}")
+    @Select("select * from universityhelper.uh_user_role where userId = #{userId}")
     List<UserRole> listByUserId(Long userId);
 
     // 由于username和userId是唯一的，所以可以用username或者userId来查询
-    @Select("select username from uh_user where userId = #{userId}")
+    @Select("select username from universityhelper.uh_user where userId = #{userId}")
     String selectUsernameByUserId(Long userId);
 
-    @Select("select userId from uh_user where username = #{username}")
+    @Select("select userId from universityhelper.uh_user where username = #{username}")
     Long selectUserIdByUsername(String username);
 }

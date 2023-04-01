@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Mapper
 public interface TaskMapper extends BaseMapper<Task> {
-    @Select("select userId from task where taskId = #{taskId}")
+    @Select("select userId from universityhelper.uh_task where taskId = #{taskId}")
     Long selectUserIdByTaskId(Long taskId);
 
     @Select("select " +
@@ -33,7 +33,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "case when type = '外卖' then min(arrivalTime) end as arrivalTimeMin, " +
             "case when type = '交易' then max(transactionAmount) end as transactionAmountMax, " +
             "case when type = '交易' then min(transactionAmount) end as transactionAmountMin " +
-            "from uh_task " +
+            "from universityhelper.uh_task " +
             "group by type")
     List<Map<String, Object>> selectPriorityRelated();
 }

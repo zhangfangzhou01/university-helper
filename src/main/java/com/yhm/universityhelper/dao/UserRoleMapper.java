@@ -18,6 +18,6 @@ import java.util.List;
 
 @Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
-    @Select("select * from uh_user_role where userId = #{userId}")
+    @Select("select * from universityhelper.uh_user_role where userId = #{userId}")
     List<UserRole> listByUserId(Long userId);
 }
