@@ -113,16 +113,14 @@ public class UserValidator extends CustomValidator {
     public static void delete(String username) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
-                .map(u -> BeanUtils.getBean(UserMapper.class).selectByUsername(u))
-                .map(user -> Validator.validateNotNull(user, "用户名不存在"))
+                .map(u -> Validator.validateTrue(BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)), "用户名不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
     }
 
     public static void setRole(String username, String role) {
         Optional.ofNullable(username)
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
-                .map(u -> BeanUtils.getBean(UserMapper.class).selectByUsername(u))
-                .map(user -> Validator.validateNotNull(user, "用户名不存在"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
 
         Optional.ofNullable(role)

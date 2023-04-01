@@ -61,7 +61,7 @@ public class Task implements Serializable, Comparable {
     private String requireDescription;
 
     @TableField("maxNumOfPeopleTake")
-    private Integer maxNumOfPeopleTake;
+    private Integer maxNumOfPeopleTake = 1;
 
     @TableField("leftNumOfPeopleTake")
     private Integer leftNumOfPeopleTake;

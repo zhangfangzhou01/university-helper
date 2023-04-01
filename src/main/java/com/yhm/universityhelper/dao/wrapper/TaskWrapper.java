@@ -21,9 +21,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,7 +30,7 @@ import java.util.stream.StreamSupport;
 @Scope("prototype")
 public class TaskWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
-    private final static List<String> STOP_WORDS = Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n"));
+    private final static Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n")));
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
 
@@ -70,7 +68,7 @@ public class TaskWrapper {
                 "end) ");
     }
 
-    public static String fuzzyQueryString(String field, String keyword) {
+    public static String fuzzyQuery(String field, String keyword) {
         return StreamSupport
                 .stream(JIEBA.parse(keyword).spliterator(), true)
                 .map(Word::getText)
@@ -149,12 +147,12 @@ public class TaskWrapper {
     }
 
     public TaskWrapper arrivalLocation(String arrivalLocation) {
-        queryWrapper.orderByDesc(fuzzyQueryString("arrivalLocation", arrivalLocation));
+        queryWrapper.orderByDesc(fuzzyQuery("arrivalLocation", arrivalLocation));
         return this;
     }
 
     public TaskWrapper targetLocation(String targetLocation) {
-        queryWrapper.orderByDesc(fuzzyQueryString("targetLocation", targetLocation));
+        queryWrapper.orderByDesc(fuzzyQuery("targetLocation", targetLocation));
         return this;
     }
 
@@ -191,12 +189,12 @@ public class TaskWrapper {
     }
 
     public TaskWrapper title(String title) {
-        queryWrapper.orderByDesc(fuzzyQueryString("title", title));
+        queryWrapper.orderByDesc(fuzzyQuery("title", title));
         return this;
     }
 
     public TaskWrapper requireDescription(String requireDescription) {
-        queryWrapper.orderByDesc(fuzzyQueryString("requireDescription", requireDescription));
+        queryWrapper.orderByDesc(fuzzyQuery("requireDescription", requireDescription));
         return this;
     }
 
