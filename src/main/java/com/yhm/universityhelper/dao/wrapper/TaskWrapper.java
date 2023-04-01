@@ -33,11 +33,6 @@ public class TaskWrapper {
     private final static Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n")));
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-
-    public LambdaQueryWrapper<Task> getLambdaQueryWrapper() {
-        return queryWrapper.lambda();
-    }
-
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 
@@ -77,6 +72,9 @@ public class TaskWrapper {
                 .collect(Collectors.joining(" + "));
     }
 
+    public LambdaQueryWrapper<Task> getLambdaQueryWrapper() {
+        return queryWrapper.lambda();
+    }
 
     public TaskWrapper userRelease(Long userId) {
         queryWrapper.eq("userId", userId);
@@ -147,12 +145,18 @@ public class TaskWrapper {
     }
 
     public TaskWrapper arrivalLocation(String arrivalLocation) {
-        queryWrapper.orderByDesc(fuzzyQuery("arrivalLocation", arrivalLocation));
+        queryWrapper
+                .apply("(@arrivalLocationMatchingDegree:=" + fuzzyQuery("arrivalLocation", arrivalLocation) + ")")
+                .apply("@arrivalLocationMatchingDegree > 0")
+                .orderByDesc("@arrivalLocationMatchingDegree");
         return this;
     }
 
     public TaskWrapper targetLocation(String targetLocation) {
-        queryWrapper.orderByDesc(fuzzyQuery("targetLocation", targetLocation));
+        queryWrapper
+                .apply("(@targetLocationMatchingDegree:=" + fuzzyQuery("targetLocation", targetLocation) + ")")
+                .apply("@targetLocationMatchingDegree > 0")
+                .orderByDesc("@targetLocationMatchingDegree");
         return this;
     }
 
@@ -189,12 +193,18 @@ public class TaskWrapper {
     }
 
     public TaskWrapper title(String title) {
-        queryWrapper.orderByDesc(fuzzyQuery("title", title));
+        queryWrapper
+                .apply("(@titleMatchingDegree:=" + fuzzyQuery("title", title) + ")")
+                .apply("@titleMatchingDegree > 0")
+                .orderByDesc("@titleMatchingDegree");
         return this;
     }
 
     public TaskWrapper requireDescription(String requireDescription) {
-        queryWrapper.orderByDesc(fuzzyQuery("requireDescription", requireDescription));
+        queryWrapper
+                .apply("(@requireDescriptionMatchingDegree:=" + fuzzyQuery("requireDescription", requireDescription) + ")")
+                .apply("@requireDescriptionMatchingDegree > 0")
+                .orderByDesc("@requireDescriptionMatchingDegree");
         return this;
     }
 

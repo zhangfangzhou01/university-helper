@@ -38,7 +38,7 @@ spring:
       # 要启用PSCache，必须配置大于0，当大于0时， poolPreparedStatements自动触发修改为true，
       maxOpenPreparedStatements: 100
       # 连接池中的minIdle数量以内的连接，空闲时间超过minEvictableIdleTimeMillis，则会执行keepAlive操作
-      keepAlive: true
+      keepAlive: false
       # Spring 监控，利用aop 对指定接口的执行时间，jdbc数进行记录
       aop-patterns: "com.yhm.universityhelper.dao.*"
       #启用内置过滤器
