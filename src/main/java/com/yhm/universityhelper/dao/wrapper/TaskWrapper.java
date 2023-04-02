@@ -32,6 +32,7 @@ public class TaskWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
     private final static Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n")));
     private final static JiebaEngine JIEBA = new JiebaEngine();
+    private final static StringBuilder STRING_BUILDER = new StringBuilder();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
@@ -181,9 +182,18 @@ public class TaskWrapper {
     }
 
     public TaskWrapper tags(JSONArray tags) {
-        for (Object tag : tags) {
-            queryWrapper.like("tags", tag);
+        STRING_BUILDER.append("(@tagsMatchingDegree := ");
+        for (int i = 0; i < tags.size(); i++) {
+            STRING_BUILDER.append("(case when " + "tags" + " like \"%").append(tags.get(i)).append("%\" then 1 else 0 end)");
+            if (i != tags.size() - 1) {
+                STRING_BUILDER.append(" + ");
+            }
         }
+        STRING_BUILDER.append(")");
+        queryWrapper.apply(STRING_BUILDER.toString());
+        STRING_BUILDER.setLength(0);
+        queryWrapper.apply("@tagsMatchingDegree > 0")
+                .orderByDesc("@tagsMatchingDegree");
         return this;
     }
 
@@ -201,6 +211,7 @@ public class TaskWrapper {
     }
 
     public TaskWrapper requireDescription(String requireDescription) {
+        System.out.println(STOP_WORDS.contains(" "));
         queryWrapper
                 .apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")")
                 .apply("@requireDescriptionMatchingDegree > 0")

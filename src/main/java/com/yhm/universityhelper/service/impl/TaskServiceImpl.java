@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Service
-
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     @Autowired
     private TaskMapper taskMapper;

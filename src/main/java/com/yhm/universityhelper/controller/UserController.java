@@ -7,6 +7,7 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -84,7 +85,7 @@ public class UserController {
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
         UserValidator.update(json);
-        UserValidator.auth(json.getStr("username"), UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(json.getStr("username"), UserRole.USER_CAN_CHANGE_SELF);
         return userService.update(json)
                 ? ResponseResult.ok("个人信息修改成功")
                 : ResponseResult.fail("个人信息修改失败");
@@ -103,7 +104,7 @@ public class UserController {
     @PostMapping("/changePassword")
     public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         UserValidator.changePassword(username, oldPassword, newPassword);
-        UserValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
                 : ResponseResult.fail("修改失败");
@@ -124,7 +125,7 @@ public class UserController {
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam String username) {
         UserValidator.delete(username);
-        UserValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return userService.delete(username)
                 ? ResponseResult.ok("删除成功")
                 : ResponseResult.fail("删除失败");
@@ -135,7 +136,7 @@ public class UserController {
     @PostMapping("/ban")
     public ResponseResult<Object> ban(@RequestParam String username, @RequestParam boolean ban) {
         UserValidator.ban(username, ban);
-        UserValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
         return userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
@@ -146,7 +147,7 @@ public class UserController {
     @PostMapping("/setRole")
     public ResponseResult<Object> setRole(@RequestParam String username, @RequestParam String role) {
         UserValidator.setRole(username, role);
-        UserValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
         return userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");

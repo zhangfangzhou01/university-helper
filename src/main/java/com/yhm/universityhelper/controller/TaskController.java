@@ -10,6 +10,7 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
 import com.yhm.universityhelper.service.TaskService;
+import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -109,7 +110,7 @@ public class TaskController {
     @PostMapping("/update")
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
         TaskValidator.update(json);
-        TaskValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         return taskService.update(json)
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -201,7 +202,7 @@ public class TaskController {
     @PostMapping("/insert")
     public ResponseResult<Object> insert(@RequestBody JSONObject json, @RequestParam boolean isPublish) {
         TaskValidator.insert(json);
-        TaskValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         return taskService.insert(json, isPublish)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -293,7 +294,7 @@ public class TaskController {
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.delete(taskId, userId);
-        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId, userId);
         ResponseResult<Object> result = resAndUsernames.getKey()
                 ? ResponseResult.ok("删除任务信息成功")
@@ -308,7 +309,7 @@ public class TaskController {
     @PostMapping("/deleteTaskByTaker")
     public ResponseResult<Object> deleteTaskByTaker(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.deleteTaskByTaker(taskId, userId);
-        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return taskService.deleteTaskByTaker(taskId, userId)
                 ? ResponseResult.ok("撤销接单成功")
                 : ResponseResult.fail("撤销接单失败");
@@ -318,7 +319,7 @@ public class TaskController {
     @PostMapping("/take")
     public ResponseResult<Object> take(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.take(taskId, userId);
-        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return taskService.take(taskId, userId)
                 ? ResponseResult.ok("接单成功")
                 : ResponseResult.fail("接单失败");
@@ -328,7 +329,7 @@ public class TaskController {
     @PostMapping("/complete")
     public ResponseResult<Object> complete(@RequestParam Long taskId, @RequestParam Long userId, @RequestParam Integer score) {
         TaskValidator.complete(taskId, userId, score);
-        TaskValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return taskService.complete(taskId, userId, score)
                 ? ResponseResult.ok("完成任务成功")
                 : ResponseResult.fail("完成任务失败");

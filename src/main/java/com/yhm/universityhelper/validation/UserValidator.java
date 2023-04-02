@@ -30,10 +30,10 @@ public class UserValidator extends CustomValidator {
                 .map(avatar -> Validator.validateUrl(avatar, "头像地址应为URL"));
 
         Optional.ofNullable(user.getStr("description"))
-                .map(description -> UserValidator.validateBetween("description", description, 0, 255));
+                .map(description -> CustomValidator.validateBetween("description", description, 0, 255));
 
         Optional.ofNullable(user.getStr("location"))
-                .map(location -> UserValidator.validateBetween("location", location, 0, 255));
+                .map(location -> CustomValidator.validateBetween("location", location, 0, 255));
 
         Optional.ofNullable(user.getStr("phone"))
                 .map(phone -> Validator.validateMobile(phone, "手机号不合法"));
@@ -48,10 +48,10 @@ public class UserValidator extends CustomValidator {
                 .map(password -> Validator.validateNull(password, "禁止修改密码"));
 
         Optional.ofNullable(user.getStr("nickname"))
-                .map(nickname -> UserValidator.validateBetween("nickname", nickname, 0, 255));
+                .map(nickname -> CustomValidator.validateBetween("nickname", nickname, 0, 255));
 
         Optional.ofNullable(user.getStr("school"))
-                .map(school -> UserValidator.validateBetween("school", school, 0, 255));
+                .map(school -> CustomValidator.validateBetween("school", school, 0, 255));
 
         Optional.ofNullable(user.getInt("score"))
                 .map(score -> Validator.validateNull(score, "禁止修改积分"));
@@ -78,7 +78,7 @@ public class UserValidator extends CustomValidator {
 
         Optional.ofNullable(password)
                 .map(p -> Validator.validateNotEmpty(p, "密码不能为空"))
-                .map(p -> UserValidator.validateBetween("password", p, 6, 255))
+                .map(p -> CustomValidator.validateBetween("password", p, 6, 255))
                 .orElseThrow(() -> new ValidateException("必须提供密码"));
     }
 
@@ -91,13 +91,13 @@ public class UserValidator extends CustomValidator {
 
         Optional.ofNullable(oldPassword)
                 .map(p -> Validator.validateNotEmpty(p, "旧密码不能为空"))
-                .map(p -> UserValidator.validateBetween("oldPassword", p, 6, 255))
+                .map(p -> CustomValidator.validateBetween("oldPassword", p, 6, 255))
                 .orElseThrow(() -> new ValidateException("必须提供旧密码"));
 
         Optional.ofNullable(newPassword)
                 .map(p -> Validator.validateNotEmpty(p, "新密码不能为空"))
-                .map(p -> UserValidator.validateBetween("newPassword", p, 6, 255))
-                .map(p -> UserValidator.validateNotEqual(p, oldPassword, "新密码不能与旧密码相同"))
+                .map(p -> CustomValidator.validateBetween("newPassword", p, 6, 255))
+                .map(p -> CustomValidator.validateNotEqual(p, oldPassword, "新密码不能与旧密码相同"))
                 .map(p -> Validator.validateEqual(Boolean.TRUE, BeanUtils.getBean(BCryptPasswordEncoder.class).matches(oldPassword, BeanUtils.getBean(UserMapper.class).selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username)).getPassword()), "旧密码错误"))
                 .orElseThrow(() -> new ValidateException("必须提供新密码"));
     }
