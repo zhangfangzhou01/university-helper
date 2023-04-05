@@ -33,7 +33,7 @@ import java.time.ZoneOffset;
 @Accessors(chain = true)
 @TableName("uh_task")
 @ApiModel(value = "UhTask对象", description = "")
-public class Task implements Serializable, Comparable {
+public class Task implements Serializable, Comparable<Object> {
 
     final static public int NOT_PUBLISH = 0;
     final static public int NOT_TAKE = 1;

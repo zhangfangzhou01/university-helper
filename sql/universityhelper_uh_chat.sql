@@ -2,10 +2,10 @@ create table uh_chat
 (
     chatId       bigint auto_increment
         primary key,
-    fromUsername varchar(255) default '' not null,
-    toUsername   varchar(255) default '' not null,
-    content      varchar(255) default '' not null,
-    time         timestamp               not null
+    fromUsername varchar(255) default ''                    not null,
+    toUsername   varchar(255) default ''                    not null,
+    content      varchar(255) default ''                    not null,
+    time         timestamp    default '1970-01-02 00:00:00' not null
 );
 
 INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
@@ -82,3 +82,51 @@ INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content,
 VALUES (36, '2027405037', '2027405036', 'Type here...', '2023-03-27 14:34:20');
 INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
 VALUES (37, '2027405036', 'all', 'Type here...', '2023-03-27 14:34:29');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (38, '2027405037', '2027405036', 'Type here...', '2023-03-29 09:42:11');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (39, '2027405037', '2027405036', 'Type here...', '2023-03-29 09:43:40');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (40, '2027405037', '2027405036', '你好', '2023-03-29 09:47:46');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (41, '2027405037', '2027405036', '', '2023-03-29 09:49:35');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (42, '2027405037', '2027405036', 'asdasdasd', '2023-03-29 09:49:50');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (43, '2027405037', '2027405036', 'Type here...', '2023-03-29 09:50:21');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (44, '2027405037', '2027405036', 'Type here...', '2023-03-29 09:51:48');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (45, '2027405037', '2027405036', 'Type here...', '2023-03-29 09:52:06');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (46, '2027405037', '2027405036', 'Type here...', '2023-03-29 10:03:04');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (47, '2027405037', '2027405036', '你好', '2023-03-29 10:03:16');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (48, '2027405037', '2027405037', '你好', '2023-03-29 10:03:16');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (49, '2027405037', '2027405036', '', '2023-03-29 10:04:40');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (50, '2027405036', '2027405037', 'Type here...', '2023-03-29 10:06:10');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (51, '2027405037', 'all', 'Type here...', '2023-03-29 10:10:29');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (52, '2027405037', '2027405036', '', '2023-03-29 10:10:47');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (53, '2027405037', '2027405037', '', '2023-03-29 10:10:47');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (54, '2027405037', 'all', 'Type here...', '2023-03-29 10:19:20');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (55, '2027405037', '2027405037', 'Type here...', '2023-03-29 10:19:25');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (56, '2027405037', '2027405036', 'Type here...', '2023-03-29 10:19:36');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (57, '2027405037', '2027405036', 'Type here...', '2023-03-29 10:20:53');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (58, '2027405036', '2027405037', 'Type here...', '2023-03-29 10:21:37');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (59, '2027405037', '2027405036', 'Type here...', '2023-03-29 10:26:08');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (60, '2027405037', '2027405037', 'Type here...', '2023-03-29 10:26:08');
+INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time)
+VALUES (61, '2027405037', 'all', 'Type here...', '2023-03-29 10:26:16');

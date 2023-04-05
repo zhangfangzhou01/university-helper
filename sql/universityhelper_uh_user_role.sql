@@ -14,4 +14,4 @@ create index uh_user_role_uh_user_userid_fk
 INSERT INTO universityhelper.uh_user_role (userId, roleId, id)
 VALUES (10, 1, 3);
 INSERT INTO universityhelper.uh_user_role (userId, roleId, id)
-VALUES (11, 1, 1);
+VALUES (11, 2, 1);

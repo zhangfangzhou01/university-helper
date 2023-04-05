@@ -42,7 +42,7 @@ public class ResponseResult<T> implements Serializable {
     }
 
     public static <T> ResponseResult<T> fail(ResultEnum resultEnum) {
-        return new ResponseResult<T>(resultEnum.getCode(), resultEnum.getMsg(), null);
+        return new ResponseResult<>(resultEnum.getCode(), resultEnum.getMsg(), null);
     }
 
     public static <T> ResponseResult<T> fail(ResultEnum resultEnum, String msg) {

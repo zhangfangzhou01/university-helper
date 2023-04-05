@@ -182,18 +182,9 @@ public class TaskWrapper {
     }
 
     public TaskWrapper tags(JSONArray tags) {
-        STRING_BUILDER.append("(@tagsMatchingDegree := ");
-        for (int i = 0; i < tags.size(); i++) {
-            STRING_BUILDER.append("(case when " + "tags" + " like \"%").append(tags.get(i)).append("%\" then 1 else 0 end)");
-            if (i != tags.size() - 1) {
-                STRING_BUILDER.append(" + ");
-            }
+        for (Object tag : tags) {
+            queryWrapper.like("tags", tag.toString());
         }
-        STRING_BUILDER.append(")");
-        queryWrapper.apply(STRING_BUILDER.toString());
-        STRING_BUILDER.setLength(0);
-        queryWrapper.apply("@tagsMatchingDegree > 0")
-                .orderByDesc("@tagsMatchingDegree");
         return this;
     }
 
