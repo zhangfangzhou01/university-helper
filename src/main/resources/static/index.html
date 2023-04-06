@@ -56,6 +56,7 @@
   <button onclick="connect()">登陆客户端</button>
   <button onclick="send(document.getElementById('targetOne').value)">发送消息</button>
   <button onclick="disconnected()">断开连接</button>
+  <button onclick="testInterfaceFeasibility()">测试接口可用性</button>
 </div>
 
 <script>
@@ -128,6 +129,17 @@
         div.append($("<code>").text(m + ' ' + p));
         div.append($("<br>"));
         div.scrollTop = div.scrollTop + 10000;
+    }
+
+    function testInterfaceFeasibility() {
+        // 测试接口可用性
+        $.ajax({
+            url: "http://47.120.32.226:8080/login?password=123456&rememberMe=false&username=2027405037",
+            type: "post",
+            success: function (data) {
+                console.log(data);
+            }
+        });
     }
 
     input.focus();
