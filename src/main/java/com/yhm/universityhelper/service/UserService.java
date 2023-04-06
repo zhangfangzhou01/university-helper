@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yhm.universityhelper.entity.po.User;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,7 +22,7 @@ public interface UserService extends IService<User> {
 
     Map<String, Object> select(JSONArray json);
 
-    boolean delete(String username);
+    Map<Long, List<String>> delete(String username);
 
     boolean register(String username, String password);
 

@@ -108,11 +108,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jwtAuthenticationFilter(), JwtAuthenticationFilter.class)
 
                 .authorizeRequests()
+                // 角色控制， ADMIN 和 USER可以访问 /user/**
+                // 仅ADMIN可以访问 /admin/**
+                // 两个白名单的URL全部放行
                 .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .antMatchers(WEB_WHITELIST).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().authenticated() // 剩余所有请求者需要身份认证
 
                 .and()
                 .formLogin()  //开启登录
@@ -122,7 +125,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .rememberMe()
-                .rememberMeParameter("rememberMe")
+                .rememberMeParameter("rememberMe")  // 与前端绑定的标签名
                 .tokenValiditySeconds(60 * 60 * 24 * 7) // 7天
                 .userDetailsService(userDetailsService())
                 .tokenRepository(persistentTokenRepository())
@@ -142,6 +145,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .sessionManagement()
-                .maximumSessions(3);
+                .maximumSessions(3);  // 单用户最大会话数
     }
 }

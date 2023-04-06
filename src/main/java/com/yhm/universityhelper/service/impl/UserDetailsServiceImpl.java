@@ -43,7 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public List<GrantedAuthority> getUserAuthorities(Long userId) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        List<UserRole> userRoles = userRoleMapper.listByUserId(userId);
+        List<UserRole> userRoles = userRoleMapper.listByUserId(userId);  // 会出现一个用户既是用户也是管理员的情况
         for (UserRole userRole : userRoles) {
             Role role = roleMapper.selectById(userRole.getRoleId());
             authorities.add(new SimpleGrantedAuthority(role.getRolename()));

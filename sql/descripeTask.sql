@@ -8,7 +8,7 @@ create table uh_task
     userId              int                     not null,
 #   因为是select的时候排序，所以priority字段的数据胡存储没什么用，但是其po有用
     priority            int                     not null,
-#  type核心tag, 外卖， 交易，
+#  type 外卖， 交易， 招募
 #  tags:  " ["辣"] " 之类的
     type                varchar(255)            not null,
     tags                varchar(255)            not null,
@@ -39,6 +39,9 @@ create table uh_task
 
 #   for transaction
     transactionAmount   int                     not null,
+    # for bike only
+
+#   for 招募
 
 #   for taskHunter
     isHunter            int          default 0  not null

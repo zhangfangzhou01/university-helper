@@ -11,6 +11,7 @@ import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.*;
+import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -43,6 +45,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private TaskMapper taskMapper;
+
+    @Autowired
+    private TaskService taskService;
 
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
@@ -125,22 +130,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public boolean delete(String username) {
+    public Map<Long, List<String>> delete(String username) {
         Long userId = userMapper.selectByUsername(username).getUserId();
         boolean result = userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
         result &= userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId)) > 0;
-        result &= taskMapper.delete(new LambdaUpdateWrapper<Task>().eq(Task::getUserId, userId)) >= 0;
 
-        List<Usertaketask> usertaketasks = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId));
-        for (Usertaketask usertaketask : usertaketasks) {
-            usertaketask.setUserId(0L);
-            result &= usertaketaskMapper.updateById(usertaketask) > 0;
+        List<Long> taskIds = taskMapper.selectList(new LambdaQueryWrapper<Task>().eq(Task::getUserId, userId))
+                .stream()
+                .map(Task::getTaskId)
+                .collect(Collectors.toList());
+
+        // 删除用户发布的所有任务
+        Map<Long, List<String>> taskIdAndUsernames = new HashMap<>();
+        for (long taskId : taskIds) {
+            taskIdAndUsernames.put(taskId, taskService.delete(taskId).getValue());
         }
-
+        // 删除用户接取任务的记录
+        List<Long> taskIdsTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId))
+                .stream()
+                .map(Usertaketask::getTaskId)
+                .collect(Collectors.toList());
+        for (long taskId : taskIdsTake) {
+            taskService.deleteTaskByTaker(taskId);
+        }
         if (!result) {
             throw new RuntimeException("删除用户失败，事务回滚");
         }
-        return true;
+        return taskIdAndUsernames;
     }
 
     @Override

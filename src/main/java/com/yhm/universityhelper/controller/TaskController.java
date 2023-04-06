@@ -295,7 +295,7 @@ public class TaskController {
     public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.delete(taskId, userId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
-        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId, userId);
+        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId);
         ResponseResult<Object> result = resAndUsernames.getKey()
                 ? ResponseResult.ok("删除任务信息成功")
                 : ResponseResult.fail("删除任务信息失败");
@@ -310,7 +310,7 @@ public class TaskController {
     public ResponseResult<Object> deleteTaskByTaker(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.deleteTaskByTaker(taskId, userId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
-        return taskService.deleteTaskByTaker(taskId, userId)
+        return taskService.deleteTaskByTaker(taskId)
                 ? ResponseResult.ok("撤销接单成功")
                 : ResponseResult.fail("撤销接单失败");
     }

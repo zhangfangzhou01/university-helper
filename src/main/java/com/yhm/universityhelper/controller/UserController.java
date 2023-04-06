@@ -6,6 +6,8 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
+import com.yhm.universityhelper.service.ChatService;
+import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.UserValidator;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Api(tags = "用户管理")
@@ -23,6 +26,12 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
+    private ChatService chatService;
 
     // 修改个人信息
     @ApiOperation(value = "修改个人信息", notes = "修改个人信息")
@@ -126,9 +135,12 @@ public class UserController {
     public ResponseResult<Object> delete(@RequestParam String username) {
         UserValidator.delete(username);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
-        return userService.delete(username)
-                ? ResponseResult.ok("删除成功")
-                : ResponseResult.fail("删除失败");
+        Map<Long, List<String>> taskIdAndUsernames = userService.delete(username);
+
+        taskIdAndUsernames.forEach((taskId, usernames) -> {
+            chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
+        });
+        return ResponseResult.ok("删除成功");
     }
 
     // 封禁(解封)用户

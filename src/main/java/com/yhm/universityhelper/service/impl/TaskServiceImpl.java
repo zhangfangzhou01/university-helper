@@ -130,7 +130,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public Pair<Boolean, List<String>> delete(Long taskId, Long userId) {
+    public Pair<Boolean, List<String>> delete(Long taskId) {
         // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
         // 级联删除任务接取表里的相关记录
@@ -156,7 +156,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public boolean deleteTaskByTaker(Long taskId, Long userId) {
+    public boolean deleteTaskByTaker(Long taskId) {
         Task task = taskMapper.selectById(taskId);
         // 撤销任务接取，任务剩余可接取人数+1， 任务状态可能改变
         task.setLeftNumOfPeopleTake(task.getLeftNumOfPeopleTake() + 1);
@@ -165,8 +165,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
         boolean result = usertaketaskMapper
                 .delete(new LambdaUpdateWrapper<Usertaketask>()
-                        .eq(Usertaketask::getTaskId, taskId)
-                        .eq(Usertaketask::getUserId, userId)) > 0
+                        .eq(Usertaketask::getTaskId, taskId)) > 0
                 &&
                 taskMapper.updateById(task) > 0;
 

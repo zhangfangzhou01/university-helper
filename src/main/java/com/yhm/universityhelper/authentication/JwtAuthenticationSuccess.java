@@ -33,7 +33,7 @@ public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
         } else {
             jwtUtils.setExpiration(expire);
         }
-
+        // 除了new UsernamePasswordAuthenticationToken() 外，第二种生成 Token的方式
         String token = jwtUtils.generateToken(authentication.getName());
         response.setHeader(jwtUtils.getHeader(), token);
 
