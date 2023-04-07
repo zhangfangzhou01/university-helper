@@ -63,8 +63,8 @@ university-helper
 
 - 修改application.yml中的数据库配置
 - 启动项目
-- 访问http://localhost:8080/swagger-ui.html
-- 或访问http://localhost:8080/doc.html
+- 访问http://47.120.32.226:8080/swagger-ui.html
+- 或访问http://47.120.32.226:8080/doc.html
 - 登录账号：2027405037 密码：123
 
 ## 项目自带页面
