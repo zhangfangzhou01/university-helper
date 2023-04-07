@@ -67,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // 用户信息
     @Bean
+    @Override
     public UserDetailsService userDetailsService() {
         return new UserDetailsServiceImpl();
     }
