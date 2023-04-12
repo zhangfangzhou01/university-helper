@@ -14,7 +14,7 @@ import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.TaskTagsMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
-import com.yhm.universityhelper.dao.wrapper.TaskWrapper;
+import com.yhm.universityhelper.dao.wrapper.CustomTaskWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.TaskTags;
 import com.yhm.universityhelper.entity.po.User;
@@ -222,29 +222,29 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
-        TaskWrapper taskWrapper = BeanUtils.getBean(TaskWrapper.class);
+        CustomTaskWrapper customTaskWrapper = BeanUtils.getBean(CustomTaskWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            return taskWrapper.getLambdaQueryWrapper();
+            return customTaskWrapper.getLambdaQueryWrapper();
         }
 
         final Set<String> keys = json.keySet();
         for (String key : keys) {
             Object value = json.get(key);
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
-                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, Long.valueOf(value.toString()));
+                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
-                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, LocalDateTime.parse(time));
+                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, tags);
+                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, tags);
             } else {
-                ReflectUtils.call(taskWrapper, key, TaskWrapper.class, value);
+                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, value);
             }
         }
 
-        return taskWrapper.getLambdaQueryWrapper();
+        return customTaskWrapper.getLambdaQueryWrapper();
     }
 
     @Override
@@ -306,7 +306,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if ("attribute".equals(sortType)) {
             page.addOrder(sortWrapper(sortJson));
         } else if ("priority".equals(sortType)) {
-            page.addOrder(TaskWrapper.prioritySort());
+            page.addOrder(CustomTaskWrapper.prioritySort());
         }
 
         return taskMapper.selectPage(page, wrapper);
@@ -317,7 +317,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userTake(userId).getLambdaQueryWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(CustomTaskWrapper.class).userTake(userId).getLambdaQueryWrapper();
         return taskMapper.selectPage(page, wrapper);
     }
 
@@ -326,7 +326,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
         Page<Task> page = pageWrapper(pageJson);
-        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(TaskWrapper.class).userRelease(userId).getLambdaQueryWrapper();
+        LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(CustomTaskWrapper.class).userRelease(userId).getLambdaQueryWrapper();
 
         return taskMapper.selectPage(page, wrapper);
     }

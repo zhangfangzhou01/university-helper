@@ -27,4 +27,11 @@ public class ExceptionAdvice {
         log.error(e.getMessage());
         return ResponseResult.fail(ResultEnum.ERROR, e.getMessage());
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseResult<ResultEnum> handleException(Exception e) {
+        log.error(e.getMessage());
+        e.printStackTrace();
+        return ResponseResult.fail(ResultEnum.ERROR, e.getMessage());
+    }
 }

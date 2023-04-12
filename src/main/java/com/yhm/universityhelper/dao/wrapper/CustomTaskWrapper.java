@@ -1,6 +1,6 @@
 package com.yhm.universityhelper.dao.wrapper;
 
-import cn.hutool.core.io.file.FileReader;
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.extra.tokenizer.Word;
 import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
 import cn.hutool.json.JSONArray;
@@ -17,23 +17,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Data
 @Component
 @Scope("prototype")
-public class TaskWrapper {
+public class CustomTaskWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
-    private final static Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(new FileReader("static/stopwords.txt").readString().split("\n")));
+    private final static List<String> STOP_WORDS = new BufferedReader(new InputStreamReader(new ClassPathResource("static/stopwords.txt").getStream())).lines().collect(Collectors.toList());
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final static StringBuilder STRING_BUILDER = new StringBuilder();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
+    
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 
@@ -77,12 +81,12 @@ public class TaskWrapper {
         return queryWrapper.lambda();
     }
 
-    public TaskWrapper userRelease(Long userId) {
+    public CustomTaskWrapper userRelease(Long userId) {
         queryWrapper.eq("userId", userId);
         return this;
     }
 
-    public TaskWrapper userTake(Long userId) {
+    public CustomTaskWrapper userTake(Long userId) {
         final List<Long> taskIds = usertaketaskMapper.selectList(
                         new LambdaQueryWrapper<Usertaketask>()
                                 .eq(Usertaketask::getUserId, userId)
@@ -99,53 +103,53 @@ public class TaskWrapper {
         return this;
     }
 
-    public TaskWrapper type(String type) {
+    public CustomTaskWrapper type(String type) {
         queryWrapper.eq("type", type);
         return this;
     }
 
-    public TaskWrapper releaseTimeMax(LocalDateTime releaseTimeMax) {
+    public CustomTaskWrapper releaseTimeMax(LocalDateTime releaseTimeMax) {
         queryWrapper.le("releaseTime", releaseTimeMax);
         return this;
     }
 
-    public TaskWrapper releaseTimeMin(LocalDateTime releaseTimeMin) {
+    public CustomTaskWrapper releaseTimeMin(LocalDateTime releaseTimeMin) {
         queryWrapper.ge("releaseTime", releaseTimeMin);
         return this;
     }
 
-    public TaskWrapper releaseTime(LocalDateTime releaseTime) {
+    public CustomTaskWrapper releaseTime(LocalDateTime releaseTime) {
         queryWrapper.eq("releaseTime", releaseTime);
         return this;
     }
 
-    public TaskWrapper releaseDate(LocalDate releaseTime) {
+    public CustomTaskWrapper releaseDate(LocalDate releaseTime) {
         queryWrapper.ge("releaseTime", releaseTime.atStartOfDay())
                 .le("releaseTime", releaseTime.plusDays(1).atStartOfDay());
         return this;
     }
 
-    public TaskWrapper maxNumOfPeopleTake(Integer maxNumOfPeopleTake) {
+    public CustomTaskWrapper maxNumOfPeopleTake(Integer maxNumOfPeopleTake) {
         queryWrapper.le("maxNumOfPeopleTake", maxNumOfPeopleTake);
         return this;
     }
 
-    public TaskWrapper taskState(Integer taskState) {
+    public CustomTaskWrapper taskState(Integer taskState) {
         queryWrapper.eq("taskState", taskState);
         return this;
     }
 
-    public TaskWrapper arrivalTimeMax(LocalDateTime arrivalTimeMax) {
+    public CustomTaskWrapper arrivalTimeMax(LocalDateTime arrivalTimeMax) {
         queryWrapper.le("arrivalTime", arrivalTimeMax);
         return this;
     }
 
-    public TaskWrapper arrivalTimeMin(LocalDateTime arrivalTimeMin) {
+    public CustomTaskWrapper arrivalTimeMin(LocalDateTime arrivalTimeMin) {
         queryWrapper.ge("arrivalTime", arrivalTimeMin);
         return this;
     }
 
-    public TaskWrapper arrivalLocation(String arrivalLocation) {
+    public CustomTaskWrapper arrivalLocation(String arrivalLocation) {
         queryWrapper
                 .apply("(@arrivalLocationMatchingDegree := " + fuzzyQuery("arrivalLocation", arrivalLocation) + ")")
                 .apply("@arrivalLocationMatchingDegree > 0")
@@ -153,7 +157,7 @@ public class TaskWrapper {
         return this;
     }
 
-    public TaskWrapper targetLocation(String targetLocation) {
+    public CustomTaskWrapper targetLocation(String targetLocation) {
         queryWrapper
                 .apply("(@targetLocationMatchingDegree := " + fuzzyQuery("targetLocation", targetLocation) + ")")
                 .apply("@targetLocationMatchingDegree > 0")
@@ -161,39 +165,39 @@ public class TaskWrapper {
         return this;
     }
 
-    public TaskWrapper transactionAmountMax(Integer transactionAmountMax) {
+    public CustomTaskWrapper transactionAmountMax(Integer transactionAmountMax) {
         queryWrapper.le("transactionAmount", transactionAmountMax);
         return this;
     }
 
-    public TaskWrapper transactionAmountMin(Integer transactionAmountMin) {
+    public CustomTaskWrapper transactionAmountMin(Integer transactionAmountMin) {
         queryWrapper.ge("transactionAmount", transactionAmountMin);
         return this;
     }
 
-    public TaskWrapper taskId(Long taskId) {
+    public CustomTaskWrapper taskId(Long taskId) {
         queryWrapper.eq("taskId", taskId);
         return this;
     }
 
-    public TaskWrapper userId(Long userId) {
+    public CustomTaskWrapper userId(Long userId) {
         queryWrapper.eq("userId", userId);
         return this;
     }
 
-    public TaskWrapper tags(JSONArray tags) {
+    public CustomTaskWrapper tags(JSONArray tags) {
         for (Object tag : tags) {
             queryWrapper.like("tags", tag.toString());
         }
         return this;
     }
 
-    public TaskWrapper priority(Integer priority) {
+    public CustomTaskWrapper priority(Integer priority) {
         queryWrapper.eq("priority", priority);
         return this;
     }
 
-    public TaskWrapper title(String title) {
+    public CustomTaskWrapper title(String title) {
         queryWrapper
                 .apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")")
                 .apply("@titleMatchingDegree > 0")
@@ -201,8 +205,7 @@ public class TaskWrapper {
         return this;
     }
 
-    public TaskWrapper requireDescription(String requireDescription) {
-        System.out.println(STOP_WORDS.contains(" "));
+    public CustomTaskWrapper requireDescription(String requireDescription) {
         queryWrapper
                 .apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")")
                 .apply("@requireDescriptionMatchingDegree > 0")
@@ -210,53 +213,53 @@ public class TaskWrapper {
         return this;
     }
 
-    public TaskWrapper score(Integer score) {
+    public CustomTaskWrapper score(Integer score) {
         queryWrapper.eq("score", score);
         return this;
     }
 
 
-    public TaskWrapper takeoutId(Integer takeoutId) {
+    public CustomTaskWrapper takeoutId(Integer takeoutId) {
         queryWrapper.eq("takeoutId", takeoutId);
         return this;
     }
 
-    public TaskWrapper orderTime(LocalDateTime orderTime) {
+    public CustomTaskWrapper orderTime(LocalDateTime orderTime) {
         queryWrapper.eq("orderTime", orderTime);
         return this;
     }
 
-    public TaskWrapper arrivalTime(LocalDateTime arrivalTime) {
+    public CustomTaskWrapper arrivalTime(LocalDateTime arrivalTime) {
         queryWrapper.eq("arrivalTime", arrivalTime);
         return this;
     }
 
-    public TaskWrapper distance(Integer distance) {
+    public CustomTaskWrapper distance(Integer distance) {
         queryWrapper.eq("distance", distance);
         return this;
     }
 
-    public TaskWrapper phoneNumForNow(Integer phoneNumForNow) {
+    public CustomTaskWrapper phoneNumForNow(Integer phoneNumForNow) {
         queryWrapper.eq("phoneNumForNow", phoneNumForNow);
         return this;
     }
 
-    public TaskWrapper transactionAmount(Double transactionAmount) {
+    public CustomTaskWrapper transactionAmount(Double transactionAmount) {
         queryWrapper.eq("transactionAmount", transactionAmount);
         return this;
     }
 
-    public TaskWrapper expectedPeriod(Integer expectedPeriod) {
+    public CustomTaskWrapper expectedPeriod(Integer expectedPeriod) {
         queryWrapper.eq("expectedPeriod", expectedPeriod);
         return this;
     }
 
-    public TaskWrapper isHunter(Integer isHunter) {
+    public CustomTaskWrapper isHunter(Integer isHunter) {
         queryWrapper.eq("isHunter", isHunter);
         return this;
     }
 
-    public TaskWrapper leftNumOfPeopleTake(Integer leftNumOfPeopleTake) {
+    public CustomTaskWrapper leftNumOfPeopleTake(Integer leftNumOfPeopleTake) {
         queryWrapper.eq("leftNumOfPeopleTake", leftNumOfPeopleTake);
         return this;
     }
