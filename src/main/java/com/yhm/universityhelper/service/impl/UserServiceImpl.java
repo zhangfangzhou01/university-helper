@@ -55,6 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Override
     public boolean register(String username, String password) {
         String encodePassword = bCryptPasswordEncoder.encode(password);
         User user = new User();
@@ -72,6 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
+    @Override
     public boolean changePassword(String username, String oldPassword, String newPassword) {
         User user = userMapper.selectByUsername(username);
         String encodePassword = bCryptPasswordEncoder.encode(newPassword);
@@ -124,7 +126,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = userMapper.selectByUsername(username);
             if (ObjectUtils.isEmpty(user)) {
                 users.put(username, new HashMap<>());
-            } else users.put(username, user);
+            } else {
+                users.put(username, user);
+            }
         }
         return users;
     }

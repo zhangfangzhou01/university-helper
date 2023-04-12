@@ -16,6 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ChatMapper extends BaseMapper<Chat> {
+    @Override
     @Insert("insert into universityhelper.uh_chat (fromUsername, toUsername, content, time) values (#{fromUsername}, #{toUsername}, #{content}, #{time})")
     int insert(Chat chat);
 }

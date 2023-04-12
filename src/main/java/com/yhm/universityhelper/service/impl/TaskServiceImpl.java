@@ -58,20 +58,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Autowired
     private UserMapper userMapper;
 
+    @Override
     public boolean update(JSONObject json) {
         Long taskId = json.getLong("taskId");
         Task task = taskMapper.selectById(taskId);
 
         // TODO: 前端要针对类型，对某些字段设置为不可修改
         for (String key : json.keySet()) {
-            if (key.equals("taskId") || key.equals("userId") || key.equals("type")) {
+            if ("taskId".equals(key) || "userId".equals(key) || "type".equals(key)) {
                 continue;
             }
 
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(" ", "T");
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
-            } else if (key.equals("tags")) {
+            } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
                 for (Object tag : tags) {
@@ -92,6 +93,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         return true;
     }
 
+    @Override
     // TODO: distance不知道怎么算，感觉priority多余
     public boolean insert(JSONObject json, boolean isPublish) {
         final Long userId = json.getLong("userId");

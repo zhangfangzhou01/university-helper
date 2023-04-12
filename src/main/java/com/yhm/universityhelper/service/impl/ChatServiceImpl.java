@@ -56,6 +56,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     }
 */
 
+    @Override
     public void chat(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
@@ -74,6 +75,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         });
     }
 
+    @Override
     public void broadcast(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
@@ -87,10 +89,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         simpMessagingTemplate.convertAndSend("/topic/broadcast", chat);
     }
 
+    @Override
     public void notification(String msg) {
         simpMessagingTemplate.convertAndSend("/topic/notification", msg);
     }
 
+    @Override
     public void notification(List<String> usernames, String msg) {
         usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
     }

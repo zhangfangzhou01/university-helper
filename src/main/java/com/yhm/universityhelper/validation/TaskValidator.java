@@ -97,7 +97,7 @@ public class TaskValidator extends CustomValidator {
         Optional.ofNullable(task.getStr("expectedPeriod"))
                 .map(expectedPeriod -> Validator.validateNumber(expectedPeriod, "expectedPeriod不合法"));
 
-        if (task.getStr("type").equals("交易")) {
+        if ("交易".equals(task.getStr("type"))) {
             // 交易必须给的
             Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
                     .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
@@ -112,7 +112,7 @@ public class TaskValidator extends CustomValidator {
             Validator.validateNull(task.getStr("arrivalTime"), "交易任务不需要提供arrivalTime");
             Validator.validateNull(task.getStr("targetLocation"), "交易任务不需要提供targetLocation");
 
-        } else if (task.getStr("type").equals("外卖")) {
+        } else if ("外卖".equals(task.getStr("type"))) {
             // 外卖不能给的
             Validator.validateNull(task.getStr("maxNumOfPeopleTake"), "外卖任务默认只有一个接单人，不需要提供maxNumOfPeopleTake");
 
@@ -194,7 +194,7 @@ public class TaskValidator extends CustomValidator {
         Optional.ofNullable(task.getStr("expectedPeriod"))
                 .map(expectedPeriod -> Validator.validateNumber(expectedPeriod, "expectedPeriod不合法"));
 
-        if (task.getStr("type").equals("交易")) {
+        if ("交易".equals(task.getStr("type"))) {
             // 交易可以改的
             Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
                     .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
@@ -208,7 +208,7 @@ public class TaskValidator extends CustomValidator {
             Validator.validateNull(task.getStr("arrivalLocation"), "交易任务不能提供arrivalLocation");
             Validator.validateNull(task.getStr("targetLocation"), "交易任务不能提供targetLocation");
 
-        } else if (task.getStr("type").equals("外卖")) {
+        } else if ("外卖".equals(task.getStr("type"))) {
             // 外卖不能改的
             Validator.validateNull(task.getStr("maxNumOfPeopleTake"), "外卖任务默认只有一个接单人，不需要提供maxNumOfPeopleTake");
 
