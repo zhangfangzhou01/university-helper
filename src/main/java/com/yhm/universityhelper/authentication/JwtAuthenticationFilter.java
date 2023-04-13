@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
+import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -63,6 +64,10 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         // 构建UsernamePasswordAuthenticationToken,这里密码为null，是因为提供了正确的JWT,实现自动登录
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null, userDetailsService.getUserAuthorities(user.getUserId()));
         SecurityContextHolder.getContext().setAuthentication(token);
+
+        String region = IpUtils.getRegion(request);
+        user.setRegion(region);
+        userService.updateById(user);
 
         chain.doFilter(request, response);
     }

@@ -200,10 +200,10 @@ public class TaskController {
                     ),
             })
     @PostMapping("/insert")
-    public ResponseResult<Object> insert(@RequestBody JSONObject json, @RequestParam boolean isPublish) {
+    public ResponseResult<Object> insert(@RequestBody JSONObject json) {
         TaskValidator.insert(json);
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
-        return taskService.insert(json, isPublish)
+        return taskService.insert(json)
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
     }
