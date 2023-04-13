@@ -146,8 +146,18 @@
             <artifactId>reflectasm</artifactId>
             <version>1.11.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.lionsoul</groupId>
+            <artifactId>ip2region</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>
             <plugin>
@@ -160,6 +170,17 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>xdb</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>db</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
         </plugins>

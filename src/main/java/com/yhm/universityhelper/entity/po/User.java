@@ -80,4 +80,7 @@ public class User implements Serializable {
 
     @TableField("unlockTime")
     private LocalDateTime unlockTime;
+    
+    @TableField("region")
+    private String region;
 }

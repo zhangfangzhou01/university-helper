@@ -95,7 +95,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     // TODO: distance不知道怎么算，感觉priority多余
-    public boolean insert(JSONObject json, boolean isPublish) {
+    public boolean insert(JSONObject json) {
         final Long userId = json.getLong("userId");
         Task task = new Task();
         for (String key : json.keySet()) {
@@ -120,7 +120,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
         // 初始生成时，剩余可接取人数等于最大可接取人数
         task.setReleaseTime(LocalDateTime.now());
-        task.setTaskState(isPublish ? Task.NOT_TAKE : Task.NOT_PUBLISH);
         task.setPhoneNumForNow(userMapper.selectById(userId).getPhone());
         task.setLeftNumOfPeopleTake(task.getMaxNumOfPeopleTake());
         boolean result = taskMapper.insert(task) > 0;

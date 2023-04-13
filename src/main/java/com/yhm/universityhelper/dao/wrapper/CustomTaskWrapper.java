@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ import java.util.stream.StreamSupport;
 @Scope("prototype")
 public class CustomTaskWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
-    private final static List<String> STOP_WORDS = new BufferedReader(new InputStreamReader(new ClassPathResource("static/stopwords.txt").getStream())).lines().collect(Collectors.toList());
+    private final static List<String> STOP_WORDS = new BufferedReader(new InputStreamReader(new ClassPathResource("static/stopwords.txt").getStream(), StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
     private final static JiebaEngine JIEBA = new JiebaEngine();
     private final static StringBuilder STRING_BUILDER = new StringBuilder();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();

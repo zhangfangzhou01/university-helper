@@ -48,6 +48,14 @@ update(用户不能改的):
     和insert一样*/
 public class TaskValidator extends CustomValidator {
     public static void insert(JSONObject task) {
+        Optional.ofNullable(task.getInt("taskState"))
+                .map(taskState -> CustomValidator.validateBetween("任务状态", taskState, Task.NOT_PUBLISH, Task.NOT_TAKE))
+                .orElseThrow(() -> new ValidateException("必须提供taskState"));
+        
+        if (task.getInt("taskState") == Task.NOT_PUBLISH) {
+            return;
+        }
+        
         // 插入时必须给的
         Optional.ofNullable(task.getStr("userId"))
                 .map(userId -> Validator.validateNumber(userId, "用户ID不合法"))
@@ -79,12 +87,11 @@ public class TaskValidator extends CustomValidator {
                 .map(Double::parseDouble)
                 .map(transactionAmount -> CustomValidator.validateBetween("交易金额", transactionAmount, 0, Double.MAX_VALUE))
                 .orElseThrow(() -> new ValidateException("必须提供transactionAmount"));
-
+        
         // 插入时不能给的
         Validator.validateNull(task.getStr("taskId"), "taskId由系统自动填充");
         Validator.validateNull(task.getStr("priority"), "priority由系统自动填充");
         Validator.validateNull(task.getStr("releaseTime"), "releaseTime由系统自动填充");
-        Validator.validateNull(task.getStr("taskState"), "taskState在创建任务时默认为0");
         Validator.validateNull(task.getStr("distance"), "distance由系统自动算出");
         Validator.validateNull(task.getStr("phoneNumberForNow"), "phoneNumberForNow由系统自动填充");
         Validator.validateNull(task.getStr("leftNumOfPeopleTake"), "leftNumOfPeopleTake由系统算出");
