@@ -62,10 +62,16 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         }
 
         // 构建UsernamePasswordAuthenticationToken,这里密码为null，是因为提供了正确的JWT,实现自动登录
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null, userDetailsService.getUserAuthorities(user.getUserId()));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, userDetailsService.getUserAuthorities(user.getUserId()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String region = IpUtils.getRegion(request);
+        if (!region.equals(user.getRegion())) {
+            jwtUtils.setExpiration(0L);
+            String newToken = jwtUtils.generateToken(username);
+            response.setHeader(jwtUtils.getHeader(), newToken);
+        }
+        
         user.setRegion(region);
         userService.updateById(user);
 

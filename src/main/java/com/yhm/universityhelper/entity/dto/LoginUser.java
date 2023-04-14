@@ -1,6 +1,7 @@
 package com.yhm.universityhelper.entity.dto;
 
 import cn.hutool.core.lang.Assert;
+import com.yhm.universityhelper.util.IpUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,9 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Objects;
 
 @Slf4j
 @Data
@@ -32,9 +37,12 @@ public class LoginUser implements UserDetails {
     private boolean enabled;
     private int passwordErrorCount;
     private LocalDateTime unlockTime;
+    private String region;
 
     public LoginUser(Long userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(userId, username, password, true, true, true, true, authorities);
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        this.region = IpUtils.getRegion(request);
     }
 
     public LoginUser(Long userId, String username, String password, boolean banned, Collection<? extends GrantedAuthority> authorities) {
@@ -46,6 +54,8 @@ public class LoginUser implements UserDetails {
         this.credentialsNonExpired = true;
         this.accountNonLocked = this.isAccountNonLocked();
         this.authorities = authorities;
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        this.region = IpUtils.getRegion(request);
     }
 
     public LoginUser(Long userId, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
@@ -58,6 +68,8 @@ public class LoginUser implements UserDetails {
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.authorities = authorities;
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        this.region = IpUtils.getRegion(request);
     }
 
     @Override

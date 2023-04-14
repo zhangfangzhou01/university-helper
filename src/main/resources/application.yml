@@ -113,3 +113,5 @@ account:
   locked:
     max-failed-attempts: 5
     lock-time: 30
+    remote-login-lock-time: 600
+    

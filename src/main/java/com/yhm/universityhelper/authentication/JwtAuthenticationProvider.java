@@ -36,6 +36,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     @Value("${account.locked.lock-time}")
     private int lockTime;
+    
+    @Autowired
+    @Value("${account.locked.remote-login-lock-time}")
+    private int remoteLoginLockTime;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -66,7 +70,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         if (!checkPassword) {
             user.setPasswordErrorCount(user.getPasswordErrorCount() + 1);
             if (user.getPasswordErrorCount() >= maxFailedAttempts) {
-                user.setUnlockTime(LocalDateTime.now().plusSeconds(lockTime));
+                if (loginUser.getRegion().equals(user.getRegion())) {
+                    user.setUnlockTime(LocalDateTime.now().plusSeconds(lockTime));
+                } else {
+                    user.setUnlockTime(LocalDateTime.now().plusSeconds(remoteLoginLockTime));
+                    userService.updateById(user);
+                    throw new LockedException("疑似账号被盗，已被锁定" + remoteLoginLockTime / 60 + "分钟");
+                }
+
             }
             userService.updateById(user);
             throw new BadCredentialsException("密码错误，请重新输入");

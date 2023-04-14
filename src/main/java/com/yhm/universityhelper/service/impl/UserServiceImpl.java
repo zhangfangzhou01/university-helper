@@ -13,16 +13,21 @@ import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +67,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUsername(username);
         user.setPassword(encodePassword);
         user.setCreateTime(LocalDateTime.now());
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        user.setRegion(IpUtils.getRegion(request));
         boolean result = userMapper.insert(user) > 0;
 
         UserRole userRole = new UserRole(user.getUserId(), Role.USER);
