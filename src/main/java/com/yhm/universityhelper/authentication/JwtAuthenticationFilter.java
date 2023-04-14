@@ -66,12 +66,6 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String region = IpUtils.getRegion(request);
-        if (!region.equals(user.getRegion())) {
-            jwtUtils.setExpiration(0L);
-            String newToken = jwtUtils.generateToken(username);
-            response.setHeader(jwtUtils.getHeader(), newToken);
-        }
-        
         user.setRegion(region);
         userService.updateById(user);
 
