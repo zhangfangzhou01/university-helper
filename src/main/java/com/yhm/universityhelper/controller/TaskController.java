@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.controller;
 
-import cn.hutool.core.lang.Pair;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
@@ -223,7 +222,6 @@ public class TaskController {
      *             "targetLocation":
      *             "transactionMax":
      *             "transactionMin":
-     * @return
      */
     @ApiOperation(value = "获取任务信息", notes = "获取任务信息")
     @DynamicParameters(
@@ -295,13 +293,9 @@ public class TaskController {
     public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
         TaskValidator.delete(taskId, userId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
-        Pair<Boolean, List<String>> resAndUsernames = taskService.delete(taskId);
-        ResponseResult<Object> result = resAndUsernames.getKey()
-                ? ResponseResult.ok("删除任务信息成功")
-                : ResponseResult.fail("删除任务信息失败");
-        List<String> usernames = resAndUsernames.getValue();
+        List<String> usernames = taskService.delete(taskId);
         chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
-        return result;
+        return ResponseResult.ok("删除任务信息成功");
     }
 
     // deleteTaskByTaker

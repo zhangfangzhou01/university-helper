@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.service.impl;
 
-import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
@@ -30,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,7 +131,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public Pair<Boolean, List<String>> delete(Long taskId) {
+    public List<String> delete(Long taskId) {
         // 任务发布者删除自己发布的任务
         boolean result = taskMapper.deleteById(taskId) > 0;
         // 级联删除任务接取表里的相关记录
@@ -141,7 +141,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 .collect(Collectors.toList());
         if (userIds.isEmpty()) {
 //            throw new RuntimeException("任务接取表中没有该任务的接取记录");
-            return new Pair<>(true, new ArrayList<>());
+            return Collections.emptyList();
         }
 
         List<String> usernames = userMapper.selectBatchIds(userIds)
@@ -153,7 +153,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (!result) {
             throw new RuntimeException("删除任务失败，事务回滚");
         }
-        return new Pair<>(true, usernames);
+        return usernames;
     }
 
     @Override
