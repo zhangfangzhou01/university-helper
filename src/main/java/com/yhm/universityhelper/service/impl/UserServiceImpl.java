@@ -154,7 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 删除用户发布的所有任务
         Map<Long, List<String>> taskIdAndUsernames = new HashMap<>();
         for (long taskId : taskIds) {
-            taskIdAndUsernames.put(taskId, taskService.delete(taskId).getValue());
+            taskIdAndUsernames.put(taskId, taskService.delete(taskId));
         }
         // 删除用户接取任务的记录
         List<Long> taskIdsTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId))
