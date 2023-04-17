@@ -233,15 +233,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String key : keys) {
             Object value = json.get(key);
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
-                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, Long.valueOf(value.toString()));
+                ReflectUtils.call(customTaskWrapper, key, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(" ", "T");
-                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, LocalDateTime.parse(time));
+                ReflectUtils.call(customTaskWrapper, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, tags);
+                ReflectUtils.call(customTaskWrapper, key, tags);
             } else {
-                ReflectUtils.call(customTaskWrapper, key, CustomTaskWrapper.class, value);
+                ReflectUtils.call(customTaskWrapper, key, value);
             }
         }
 

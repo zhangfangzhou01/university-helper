@@ -27,6 +27,10 @@ public class ReflectUtils {
         int index = methodAccessMap.get(methodAccess).computeIfAbsent(fieldName, k -> methodAccess.getIndex("get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)));
         return methodAccess.invoke(obj, index);
     }
+    
+    public static <T> T get(Object obj, String fieldName, Class<T> clazz) {
+        return clazz.cast(get(obj, fieldName));
+    }
 
     public static void setBatch(Object obj, Map<String, Object> data) {
         Class<?> clazz = obj.getClass();
@@ -92,6 +96,19 @@ public class ReflectUtils {
             }
         }
         return data;
+    }
+    
+    public static void call(Object obj, String methodName, Object... args) {
+        Class<?> clazz = obj.getClass();
+        Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));
+        MethodAccess methodAccess = methodAccessMap.keySet().iterator().next();
+
+        Class<?>[] argTypes = new Class<?>[args.length];
+        for (int i = 0; i < args.length; i++) {
+            argTypes[i] = args[i].getClass();
+        }
+        int index = methodAccessMap.get(methodAccess).computeIfAbsent(methodName, k -> methodAccess.getIndex(methodName, argTypes));
+        methodAccess.invoke(obj, index, args);
     }
 
     public static <T> T call(Object obj, String methodName, Class<T> returnType, Object... args) {
