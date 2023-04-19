@@ -15,7 +15,7 @@ import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.dao.wrapper.CustomTaskWrapper;
 import com.yhm.universityhelper.entity.po.Task;
-import com.yhm.universityhelper.entity.po.TaskTags;
+import com.yhm.universityhelper.entity.po.TaskTag;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
@@ -76,9 +76,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
                 for (Object tag : tags) {
-                    final TaskTags taskTags = new TaskTags((String)tag);
-                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
-                        taskTagsMapper.insert(taskTags);
+                    final TaskTag taskTag = new TaskTag((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
+                        taskTagsMapper.insert(taskTag);
                     }
                 }
             } else {
@@ -109,9 +109,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
                 for (Object tag : tags) {
-                    final TaskTags taskTags = new TaskTags((String)tag);
-                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTags>().eq(TaskTags::getTag, taskTags.getTag()))) {
-                        taskTagsMapper.insert(taskTags);
+                    final TaskTag taskTag = new TaskTag((String)tag);
+                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
+                        taskTagsMapper.insert(taskTag);
                     }
                 }
             } else {

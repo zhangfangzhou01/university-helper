@@ -1,8 +1,6 @@
 package com.yhm.universityhelper.dao.wrapper;
 
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.extra.tokenizer.Word;
-import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,13 +27,10 @@ import java.util.stream.StreamSupport;
 @Data
 @Component
 @Scope("prototype")
-public class CustomTaskWrapper {
+public class CustomTaskWrapper extends CustomWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
-    private final static List<String> STOP_WORDS = new BufferedReader(new InputStreamReader(new ClassPathResource("static/stopwords.txt").getStream(), StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
-    private final static JiebaEngine JIEBA = new JiebaEngine();
-    private final static StringBuilder STRING_BUILDER = new StringBuilder();
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-    
+
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
 
@@ -57,25 +49,11 @@ public class CustomTaskWrapper {
         double transactionAmountMax = (double)maps.get(1).get("transactionAmountMax");
         double transactionAmountMin = (double)maps.get(1).get("transactionAmountMin");
 
-        return OrderItem.desc("(releaseTime - " + releaseTimeMin + ") / (" + releaseTimeMax + " - " + releaseTimeMin + " + 1) + " +
-                "(expectedPeriod - " + expectedPeriodMin + ") / (" + expectedPeriodMax + " - " + expectedPeriodMin + " + 1) + " +
-                "(leftNumOfPeopleTake - " + leftNumOfPeopleTakeMin + ") / (" + leftNumOfPeopleTakeMax + " - " + leftNumOfPeopleTakeMin + " + 1) " +
-                "+ " +
-                "(case type " +
-                "when '外卖' then " +
-                "(arrivalTime - " + arrivalTimeMin + ") / (" + arrivalTimeMax + " - " + arrivalTimeMin + " + 1) " +
-                "when '交易' then " +
-                "(transactionAmount - " + transactionAmountMin + ") / (" + transactionAmountMax + " - " + transactionAmountMin + " + 1) " +
-                "end) ");
+        return OrderItem.desc("(releaseTime - " + releaseTimeMin + ") / (" + releaseTimeMax + " - " + releaseTimeMin + " + 1) + " + "(expectedPeriod - " + expectedPeriodMin + ") / (" + expectedPeriodMax + " - " + expectedPeriodMin + " + 1) + " + "(leftNumOfPeopleTake - " + leftNumOfPeopleTakeMin + ") / (" + leftNumOfPeopleTakeMax + " - " + leftNumOfPeopleTakeMin + " + 1) " + "+ " + "(case type " + "when '外卖' then " + "(arrivalTime - " + arrivalTimeMin + ") / (" + arrivalTimeMax + " - " + arrivalTimeMin + " + 1) " + "when '交易' then " + "(transactionAmount - " + transactionAmountMin + ") / (" + transactionAmountMax + " - " + transactionAmountMin + " + 1) " + "end) ");
     }
 
     public static String fuzzyQuery(String field, String keyword) {
-        return StreamSupport
-                .stream(JIEBA.parse(keyword).spliterator(), true)
-                .map(Word::getText)
-                .filter(token -> !STOP_WORDS.contains(token))
-                .map(token -> "(case when " + field + " like \"%" + token + "%\" then 1 else 0 end)")
-                .collect(Collectors.joining(" + "));
+        return StreamSupport.stream(JIEBA.parse(keyword).spliterator(), true).map(Word::getText).filter(token -> !STOP_WORDS.contains(token)).map(token -> "(case when " + field + " like \"%" + token + "%\" then 1 else 0 end)").collect(Collectors.joining(" + "));
     }
 
     public LambdaQueryWrapper<Task> getLambdaQueryWrapper() {
@@ -88,13 +66,7 @@ public class CustomTaskWrapper {
     }
 
     public CustomTaskWrapper userTake(Long userId) {
-        final List<Long> taskIds = usertaketaskMapper.selectList(
-                        new LambdaQueryWrapper<Usertaketask>()
-                                .eq(Usertaketask::getUserId, userId)
-                )
-                .stream()
-                .map(Usertaketask::getTaskId)
-                .collect(Collectors.toList());
+        final List<Long> taskIds = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId)).stream().map(Usertaketask::getTaskId).collect(Collectors.toList());
 
         if (taskIds.isEmpty()) {
             queryWrapper.eq("taskId", -1);
@@ -125,8 +97,7 @@ public class CustomTaskWrapper {
     }
 
     public CustomTaskWrapper releaseDate(LocalDate releaseTime) {
-        queryWrapper.ge("releaseTime", releaseTime.atStartOfDay())
-                .le("releaseTime", releaseTime.plusDays(1).atStartOfDay());
+        queryWrapper.ge("releaseTime", releaseTime.atStartOfDay()).le("releaseTime", releaseTime.plusDays(1).atStartOfDay());
         return this;
     }
 
@@ -151,18 +122,12 @@ public class CustomTaskWrapper {
     }
 
     public CustomTaskWrapper arrivalLocation(String arrivalLocation) {
-        queryWrapper
-                .apply("(@arrivalLocationMatchingDegree := " + fuzzyQuery("arrivalLocation", arrivalLocation) + ")")
-                .apply("@arrivalLocationMatchingDegree > 0")
-                .orderByDesc("@arrivalLocationMatchingDegree");
+        queryWrapper.apply("(@arrivalLocationMatchingDegree := " + fuzzyQuery("arrivalLocation", arrivalLocation) + ")").apply("@arrivalLocationMatchingDegree > 0").orderByDesc("@arrivalLocationMatchingDegree");
         return this;
     }
 
     public CustomTaskWrapper targetLocation(String targetLocation) {
-        queryWrapper
-                .apply("(@targetLocationMatchingDegree := " + fuzzyQuery("targetLocation", targetLocation) + ")")
-                .apply("@targetLocationMatchingDegree > 0")
-                .orderByDesc("@targetLocationMatchingDegree");
+        queryWrapper.apply("(@targetLocationMatchingDegree := " + fuzzyQuery("targetLocation", targetLocation) + ")").apply("@targetLocationMatchingDegree > 0").orderByDesc("@targetLocationMatchingDegree");
         return this;
     }
 
@@ -199,18 +164,12 @@ public class CustomTaskWrapper {
     }
 
     public CustomTaskWrapper title(String title) {
-        queryWrapper
-                .apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")")
-                .apply("@titleMatchingDegree > 0")
-                .orderByDesc("@titleMatchingDegree");
+        queryWrapper.apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")").apply("@titleMatchingDegree > 0").orderByDesc("@titleMatchingDegree");
         return this;
     }
 
     public CustomTaskWrapper requireDescription(String requireDescription) {
-        queryWrapper
-                .apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")")
-                .apply("@requireDescriptionMatchingDegree > 0")
-                .orderByDesc("@requireDescriptionMatchingDegree");
+        queryWrapper.apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")").apply("@requireDescriptionMatchingDegree > 0").orderByDesc("@requireDescriptionMatchingDegree");
         return this;
     }
 

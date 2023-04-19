@@ -27,7 +27,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @TableName("uh_task_tags")
 @ApiModel(value = "UhTaskTags对象", description = "")
-public class TaskTags implements Serializable {
+public class TaskTag implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,7 +36,7 @@ public class TaskTags implements Serializable {
 
     private String tag;
 
-    public TaskTags(String tag) {
+    public TaskTag(String tag) {
         this.tag = tag;
     }
 }

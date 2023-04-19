@@ -24,7 +24,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @TableName("uh_post_tags")
 @ApiModel(value="UhPostTags对象", description="")
-public class PostTags implements Serializable {
+public class PostTag implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,4 +35,7 @@ public class PostTags implements Serializable {
     private String tag;
 
 
+    public PostTag(String tag) {
+        this.tag = tag;
+    }
 }

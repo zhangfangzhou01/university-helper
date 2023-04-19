@@ -34,11 +34,15 @@ public class Follow implements Serializable {
 
     @ApiModelProperty(value = "关注者 Id(粉丝)")
     @TableField("follower")
-    private Long follower;
+    private Long followerId;
 
     @ApiModelProperty(value = "被关注者")
     @TableField("followed")
-    private Long followed;
+    private Long followedId;
 
+    public Follow(Long followerId, Long followedId) {
+        this.followerId = followerId;
+        this.followedId = followedId;
+    }
 
 }

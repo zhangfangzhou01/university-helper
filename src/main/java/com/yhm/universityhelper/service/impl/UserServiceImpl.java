@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yhm.universityhelper.dao.TaskMapper;
-import com.yhm.universityhelper.dao.UserMapper;
-import com.yhm.universityhelper.dao.UserRoleMapper;
-import com.yhm.universityhelper.dao.UsertaketaskMapper;
+import com.yhm.universityhelper.dao.*;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
@@ -60,6 +57,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private FollowMapper followMapper;
+
+    @Autowired
+    private BlacklistMapper blacklistMapper;
+
     @Override
     public boolean register(String username, String password) {
         String encodePassword = bCryptPasswordEncoder.encode(password);
@@ -67,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUsername(username);
         user.setPassword(encodePassword);
         user.setCreateTime(LocalDateTime.now());
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         user.setRegion(IpUtils.getRegion(request));
         boolean result = userMapper.insert(user) > 0;
 
@@ -146,10 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean result = userMapper.delete(new LambdaUpdateWrapper<User>().eq(User::getUsername, username)) > 0;
         result &= userRoleMapper.delete(new LambdaUpdateWrapper<UserRole>().eq(UserRole::getUserId, userId)) > 0;
 
-        List<Long> taskIds = taskMapper.selectList(new LambdaQueryWrapper<Task>().eq(Task::getUserId, userId))
-                .stream()
-                .map(Task::getTaskId)
-                .collect(Collectors.toList());
+        List<Long> taskIds = taskMapper.selectList(new LambdaQueryWrapper<Task>().eq(Task::getUserId, userId)).stream().map(Task::getTaskId).collect(Collectors.toList());
 
         // 删除用户发布的所有任务
         Map<Long, List<String>> taskIdAndUsernames = new HashMap<>();
@@ -157,10 +157,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             taskIdAndUsernames.put(taskId, taskService.delete(taskId));
         }
         // 删除用户接取任务的记录
-        List<Long> taskIdsTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId))
-                .stream()
-                .map(Usertaketask::getTaskId)
-                .collect(Collectors.toList());
+        List<Long> taskIdsTake = usertaketaskMapper.selectList(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getUserId, userId)).stream().map(Usertaketask::getTaskId).collect(Collectors.toList());
         for (long taskId : taskIdsTake) {
             taskService.deleteTaskByTaker(taskId);
         }
@@ -187,5 +184,69 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new RuntimeException("修改用户角色失败，事务回滚");
         }
         return true;
+    }
+
+    @Override
+    public boolean follow(String follower, String followed) {
+        Long followerId = userMapper.selectUserIdByUsername(follower);
+        Long followedId = userMapper.selectUserIdByUsername(followed);
+
+        Follow follow = new Follow(followerId, followedId);
+        return followMapper.insert(follow) > 0;
+    }
+
+    @Override
+    public boolean unfollow(String follower, String followed) {
+        Long followerId = userMapper.selectUserIdByUsername(follower);
+        Long followedId = userMapper.selectUserIdByUsername(followed);
+
+        return followMapper.delete(new LambdaUpdateWrapper<Follow>().eq(Follow::getFollowerId, followerId).eq(Follow::getFollowedId, followedId)) > 0;
+    }
+
+    @Override
+    public List<String> getFollowList(String username) {
+        return followMapper.selectList(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username))).stream().map(follow -> userMapper.selectById(follow.getFollowedId()).getUsername()).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getFollowerList(String username) {
+        return followMapper.selectList(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowedId, userMapper.selectUserIdByUsername(username))).stream().map(follow -> userMapper.selectById(follow.getFollowerId()).getUsername()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getFollowCount(String username) {
+        return followMapper.selectCount(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username)));
+    }
+
+    @Override
+    public Long getFollowerCount(String username) {
+        return followMapper.selectCount(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowedId, userMapper.selectUserIdByUsername(username)));
+    }
+
+    @Override
+    public boolean block(String blacker, String blacked) {
+        Long blockerId = userMapper.selectUserIdByUsername(blacker);
+        Long blockedId = userMapper.selectUserIdByUsername(blacked);
+
+        Blacklist blacklist = new Blacklist(blockerId, blockedId);
+        return blacklistMapper.insert(blacklist) > 0;
+    }
+
+    @Override
+    public boolean unblock(String blacker, String blacked) {
+        Long blockerId = userMapper.selectUserIdByUsername(blacker);
+        Long blockedId = userMapper.selectUserIdByUsername(blacked);
+
+        return blacklistMapper.delete(new LambdaUpdateWrapper<Blacklist>().eq(Blacklist::getBlockerId, blockerId).eq(Blacklist::getBlockedId, blockedId)) > 0;
+    }
+
+    @Override
+    public List<String> getBlackList(String username) {
+        return blacklistMapper.selectList(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, userMapper.selectUserIdByUsername(username))).stream().map(blacklist -> userMapper.selectById(blacklist.getBlockedId()).getUsername()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getBlackCount(String username) {
+        return blacklistMapper.selectCount(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, userMapper.selectUserIdByUsername(username)));
     }
 }

@@ -1,7 +1,7 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yhm.universityhelper.entity.po.TaskTags;
+import com.yhm.universityhelper.entity.po.TaskTag;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -14,6 +14,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 @Mapper
-public interface TaskTagsMapper extends BaseMapper<TaskTags> {
+public interface TaskTagsMapper extends BaseMapper<TaskTag> {
 
 }

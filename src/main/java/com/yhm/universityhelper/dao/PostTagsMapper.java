@@ -1,7 +1,7 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yhm.universityhelper.entity.po.PostTags;
+import com.yhm.universityhelper.entity.po.PostTag;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.yhm.universityhelper.entity.po.PostTags;
  * @author author
  * @since 2023-04-19
  */
-public interface PostTagsMapper extends BaseMapper<PostTags> {
+public interface PostTagsMapper extends BaseMapper<PostTag> {
 
 }

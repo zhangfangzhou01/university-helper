@@ -31,4 +31,34 @@ public interface UserService extends IService<User> {
     boolean ban(String username, boolean ban);
 
     boolean setRole(String username, String role);
+    
+    // 关注
+    boolean follow(String follower, String followed);
+    
+    // 取消关注
+    boolean unfollow(String follower, String followed);
+    
+    // 获取关注列表
+    List<String> getFollowList(String username);
+    
+    // 获取粉丝列表
+    List<String> getFollowerList(String username);
+    
+    // 获取关注数
+    Long getFollowCount(String username);
+    
+    // 获取粉丝数
+    Long getFollowerCount(String username);
+    
+    // 拉黑
+    boolean block(String blacker, String blacked);
+    
+    // 取消拉黑
+    boolean unblock(String blacker, String blacked);
+    
+    // 获取黑名单
+    List<String> getBlackList(String username);
+    
+    // 获取黑名单数
+    Long getBlackCount(String username);
 }

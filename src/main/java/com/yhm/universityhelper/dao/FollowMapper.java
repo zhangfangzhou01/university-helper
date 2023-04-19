@@ -12,5 +12,5 @@ import com.yhm.universityhelper.entity.po.Follow;
  * @since 2023-04-19
  */
 public interface FollowMapper extends BaseMapper<Follow> {
-
+    
 }
