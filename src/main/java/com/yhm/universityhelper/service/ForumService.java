@@ -96,7 +96,7 @@ public interface ForumService extends IService<Post> {
     List<Post> selectStar(Long userId);
     
     // collect不能手动update，只能通过insert和delete
-    
+
     /*
      * 历史记录
      * */
@@ -104,6 +104,8 @@ public interface ForumService extends IService<Post> {
     boolean insertHistory(Long userId, Long postId);
 
     boolean deleteHistory(Long userId, Long postId);
-    
+
     List<Post> selectHistory(Long userId);
+
+    List<Comment> selectYourComment(Long userId);
 }

@@ -9,10 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yhm.universityhelper.dao.PostMapper;
-import com.yhm.universityhelper.dao.PostTagsMapper;
-import com.yhm.universityhelper.dao.StarMapper;
-import com.yhm.universityhelper.dao.VisitHistoryMapper;
+import com.yhm.universityhelper.dao.*;
 import com.yhm.universityhelper.dao.wrapper.CustomPostWrapper;
 import com.yhm.universityhelper.entity.po.Comment;
 import com.yhm.universityhelper.entity.po.Post;
@@ -53,6 +50,8 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     @Autowired
     private VisitHistoryMapper visitHistoryMapper;
 
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Override
     public boolean insertPost(JSONObject json) {
@@ -233,24 +232,42 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         final Long userId = json.getLong("userId");
         final Long postId = json.getLong("postId");
         final Long replyCommentId = json.getLong("replyCommentId");
-        
-        return false;
+        final String content = json.getStr("content");
+
+        Comment comment = new Comment();
+        comment.setUserId(userId);
+        comment.setPostId(postId);
+        comment.setReleaseTime(LocalDateTime.now());
+        comment.setReplayCommentId(replyCommentId);
+        comment.setContent(content);
+
+        return commentMapper.insert(comment) > 0;
     }
 
     @Override
     public boolean deleteComment(Long commentId) {
-        return false;
+        return commentMapper.deleteById(commentId) > 0;
     }
 
     @Override
     public boolean updateComment(JSONObject json) {
-        return false;
+        final Long commentId = json.getLong("commentId");
+        final String content = json.getStr("content");
+        Comment comment = commentMapper.selectById(commentId);
+        comment.setContent(content);
+        return commentMapper.updateById(comment) > 0;
     }
 
     @Override
     public Comment selectComment(Long commentId) {
-        return null;
+        return commentMapper.selectById(commentId);
     }
+
+    @Override
+    public List<Comment> selectYourComment(Long userId) {
+        return new ArrayList<Comment>();
+    }
+
 
     @Override
     public boolean insertReply(Comment comment, Long commentId) {

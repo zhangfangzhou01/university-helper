@@ -205,12 +205,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<String> getFollowList(String username) {
-        return followMapper.selectList(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username))).stream().map(follow -> userMapper.selectById(follow.getFollowedId()).getUsername()).collect(Collectors.toList());
+        return followMapper.selectList(new LambdaQueryWrapper<Follow>()
+                        .eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username)))
+                .stream().map(
+                        follow -> userMapper.selectById(follow.getFollowedId()).getUsername()
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> getFollowerList(String username) {
-        return followMapper.selectList(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowedId, userMapper.selectUserIdByUsername(username))).stream().map(follow -> userMapper.selectById(follow.getFollowerId()).getUsername()).collect(Collectors.toList());
+        return followMapper.selectList(new LambdaQueryWrapper<Follow>()
+                        .eq(Follow::getFollowedId, userMapper.selectUserIdByUsername(username)))
+                .stream().map(
+                        follow -> userMapper.selectById(follow.getFollowerId()).getUsername()
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
