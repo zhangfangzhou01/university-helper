@@ -66,8 +66,15 @@
     let stompClient = null;
     const sockjsUrl = '/ws';
     let yourId;
+    let connected = false;
 
     function connect() {
+        if (!connected) {
+            connected = true;
+        } else {
+            console.log("不要重复连接");
+            return;
+        }
         const sockjs = new SockJS(sockjsUrl);
         console.log("sockjs_url:" + sockjsUrl)
         stompClient = Stomp.over(sockjs);
@@ -90,6 +97,9 @@
                 console.log(msg.body);
                 print('系统提示：', msg.body);
             });
+            
+            // 给后端发一个消息告诉有一个人登录了
+            
         });
 
     }
@@ -118,9 +128,14 @@
     }
 
     function disconnected() {
+        if (!connected) {
+            console.log("不要重复断开连接");
+            return;
+        }
         if (stompClient != null) {
             stompClient.disconnect();
             stompClient = null;
+            connected = false;
             print('系统提示：', '已断开连接');
         }
     }

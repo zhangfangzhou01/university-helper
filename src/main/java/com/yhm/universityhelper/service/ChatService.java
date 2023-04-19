@@ -6,6 +6,7 @@ import com.yhm.universityhelper.entity.po.Chat;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -25,4 +26,7 @@ public interface ChatService extends IService<Chat> {
     void notification(String msg);
 
     void notification(List<String> usernames, String msg);
+    
+    Set<String> getOnlineUsers();
+    int getOnlineUsersCount();
 }

@@ -3,6 +3,7 @@ package com.yhm.universityhelper.service.impl;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yhm.universityhelper.config.AuthChannelInterceptor;
 import com.yhm.universityhelper.dao.ChatMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.entity.dto.ChatUser;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -61,7 +63,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-
+        
         List<String> destUsernames = msg.getJSONArray("to").toList(String.class);
         List<User> destUsers = userMapper.selectList(new LambdaQueryWrapper<User>().in(User::getUsername, destUsernames));
         List<ChatUser> destChatUsers = destUsers.stream().map(ChatUser::new).collect(Collectors.toList());
@@ -80,7 +82,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-
+        
         String message = msg.getStr("content");
 
         Chat chat = new Chat(srcChatUser, message);
@@ -97,5 +99,15 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Override
     public void notification(List<String> usernames, String msg) {
         usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+    }
+    
+    @Override
+    public Set<String> getOnlineUsers() {
+        return AuthChannelInterceptor.ONLINE_USERS;
+    }
+    
+    @Override
+    public int getOnlineUsersCount() {
+        return AuthChannelInterceptor.ONLINE_USERS.size();
     }
 }

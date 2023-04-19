@@ -1,12 +1,20 @@
 package com.yhm.universityhelper.controller;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Set;
 
 @Api(tags = "聊天管理")
 @Controller
@@ -23,5 +31,19 @@ public class ChatController {
     public void broadcast(Authentication authentication, JSONObject msg) {
         chatService.broadcast(authentication, msg);
     }
-
+    
+    @PostMapping("/onlineUsers")
+    @ResponseBody
+    @ApiOperation(value = "获取在线用户列表")
+    public ResponseResult<JSONArray> onlineUsers(Authentication authentication) {
+        Set<String> onlineUsers = chatService.getOnlineUsers();
+        return ResponseResult.ok(new JSONArray(onlineUsers), "获取在线用户列表成功");
+    }
+    
+    @GetMapping("/onlineUsersCount")
+    @ResponseBody
+    @ApiOperation(value = "获取在线用户数量")
+    public ResponseResult<Integer> onlineUsersCount(Authentication authentication) {
+        return ResponseResult.ok(chatService.getOnlineUsersCount(), "获取在线用户数量成功");
+    }
 }
