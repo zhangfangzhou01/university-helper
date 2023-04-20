@@ -2,6 +2,7 @@ package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.dfa.SensitiveUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +16,7 @@ import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.ForumService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.util.SensitiveUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,19 +60,28 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         for (String key : json.keySet()) {
             Object value = json.get(key);
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.set(post, key, LocalDateTime.parse(time));
             } else if ("userId".equals(key)) {
                 ReflectUtils.set(post, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(post, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagsMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
                         postTagsMapper.insert(postTag);
                     }
                 }
+                ReflectUtils.set(post, key, filteredTags);
+            } else if ("title".equals(key) || "content".equals(key)) {
+                ReflectUtils.set(post, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
+            } else {
+                ReflectUtils.set(post, key, value);
             }
         }
 
@@ -107,17 +118,24 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 continue;
             }
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+                String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(post, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(post, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagsMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
                         postTagsMapper.insert(postTag);
                     }
                 }
+                ReflectUtils.set(post, key, filteredTags);
+            } else if ("title".equals(key) || "content".equals(key)) {
+                ReflectUtils.set(post, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(post, key, json.get(key));
             }
@@ -147,11 +165,18 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
                 ReflectUtils.call(customPostWrapper, key, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.call(customPostWrapper, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.call(customPostWrapper, key, tags);
+                JSONArray filteredTags = new JSONArray();
+                for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
+                }
+                ReflectUtils.call(customPostWrapper, key, filteredTags);
             } else {
                 ReflectUtils.call(customPostWrapper, key, value);
             }
@@ -237,8 +262,10 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 continue;
             }
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+                String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(comment, key, LocalDateTime.parse(time));
+            } else if ("content".equals(key)) {
+                ReflectUtils.set(comment, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(comment, key, json.get(key));
             }
@@ -276,9 +303,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Override
     public Page<Comment> selectReplyByUserId(Long userId, int current, int size) {
-        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().in(Comment::getCommentId,
-                commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getUserId, userId)).stream()
-                        .map(Comment::getCommentId).collect(Collectors.toList())));
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().in(Comment::getCommentId, commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getUserId, userId)).stream().map(Comment::getCommentId).collect(Collectors.toList())));
     }
 
     @Override
@@ -308,9 +333,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Override
     public Page<Post> selectStar(Long userId, int current, int size) {
-        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId,
-                starMapper.selectList(new LambdaQueryWrapper<Star>().eq(Star::getUserId, userId)).stream()
-                        .map(Star::getPostId).collect(Collectors.toList())));
+        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId, starMapper.selectList(new LambdaQueryWrapper<Star>().eq(Star::getUserId, userId)).stream().map(Star::getPostId).collect(Collectors.toList())));
     }
 
     @Override
@@ -325,8 +348,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Override
     public Page<Post> selectHistory(Long userId, int current, int size) {
-        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId,
-                visitHistoryMapper.selectList(new LambdaQueryWrapper<VisitHistory>().eq(VisitHistory::getUserId, userId))
-                        .stream().map(VisitHistory::getPostId).collect(Collectors.toList())));
+        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId, visitHistoryMapper.selectList(new LambdaQueryWrapper<VisitHistory>().eq(VisitHistory::getUserId, userId)).stream().map(VisitHistory::getPostId).collect(Collectors.toList())));
     }
 }

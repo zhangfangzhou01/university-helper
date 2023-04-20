@@ -7,17 +7,26 @@ import com.yhm.universityhelper.util.BeanUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class CustomValidator {
-    protected static final String JSON_ARRAY_REGEX = "(\\[\\])|(^\\[(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\]$)";
-    protected static final String JSON_OBJECT_REGEX = "(\\{\\})|(^\\{\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\":\\s*(\\\"\\s*[\\u4e00-\\u9fa5_a-zA-Z0-9]+\\s*\\\"|\\d+))*\\}$)";
-    protected static final String DATE_TIME_REGEX = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
-
-
+    
+    protected static final String CHINESE_REGEX = "[\\u4e00-\\u9fa5]";
+    
+    protected static final String WORD_REGEX = "[\\u4e00-\\u9fa5_a-zA-Z0-9]";
+    
+    protected static final String LETTER_REGEX = "[\\u4e00-\\u9fa5a-zA-Z]";
+    protected static final String JSON_ARRAY_REGEX = "(\\[\\])|(^\\[(\\\"\\s*[" + LETTER_REGEX + "]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[" + LETTER_REGEX + "]+\\s*\\\"|\\d+))*\\]$)";
+    
+    protected static final String JSON_OBJECT_REGEX = "(\\{\\})|(^\\{\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\":\\s*(\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\":\\s*(\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\"|\\d+))*\\}$)";
+    
+    protected static final String DATE_TIME_REGEX = "^\\d{4}[\\-|\\/]\\d{2}[\\-|\\/]\\d{2}[ T]\\d{2}:\\d{2}:\\d{2}$";
+    
     protected static String validateBetween(String name, String value, long min, long max) {
         int length = value.length();
         if (length < min || length > max) {

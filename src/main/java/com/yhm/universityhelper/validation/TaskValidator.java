@@ -11,6 +11,7 @@ import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.util.BeanUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
@@ -46,6 +47,7 @@ update(用户能改的):
 
 update(用户不能改的):
     和insert一样*/
+@Component
 public class TaskValidator extends CustomValidator {
     public static void insert(JSONObject task) {
         Optional.ofNullable(task.getInt("taskState"))

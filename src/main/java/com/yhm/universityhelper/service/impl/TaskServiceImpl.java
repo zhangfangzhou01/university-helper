@@ -2,6 +2,7 @@ package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.dfa.SensitiveUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -21,6 +22,7 @@ import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.util.SensitiveUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,17 +71,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
 
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+                String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final TaskTag taskTag = new TaskTag((String)tag);
                     if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
                         taskTagsMapper.insert(taskTag);
                     }
                 }
+                ReflectUtils.set(task, key, filteredTags);
+            } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
+                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
@@ -99,19 +108,26 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String key : json.keySet()) {
             Object value = json.get(key);
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("userId".equals(key)) {
                 ReflectUtils.set(task, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final TaskTag taskTag = new TaskTag((String)tag);
                     if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
                         taskTagsMapper.insert(taskTag);
                     }
                 }
+                ReflectUtils.set(task, key, filteredTags);
+            } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
+                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, value);
             }
@@ -233,7 +249,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
                 ReflectUtils.call(customTaskWrapper, key, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.call(customTaskWrapper, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);

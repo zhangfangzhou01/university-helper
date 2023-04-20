@@ -15,9 +15,11 @@ import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.util.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+@Component
 public class UserValidator extends CustomValidator {
 
     public static void update(JSONObject user) {
