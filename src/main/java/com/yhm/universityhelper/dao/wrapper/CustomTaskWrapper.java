@@ -10,6 +10,7 @@ import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.util.BeanUtils;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Component
 @Scope("prototype")
 public class CustomTaskWrapper extends CustomWrapper {

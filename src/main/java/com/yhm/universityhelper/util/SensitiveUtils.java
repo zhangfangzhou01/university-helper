@@ -7,16 +7,44 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 public class SensitiveUtils {
     @PostConstruct
     private static void initResource() {
-        final List<String> sensitiveWords = new BufferedReader(new InputStreamReader(new ClassPathResource("static/sensitive_words.txt").getStream(), StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+        List<String> sensitiveWords = null;
+        InputStream inputStream = null;
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bufferedReader = null;
+        try {
+            inputStream = SensitiveUtils.class.getClassLoader().getResourceAsStream("static/sensitive_words.txt");
+            ClassPathResource classPathResource = new ClassPathResource("static/sensitive_words.txt");
+            inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8);
+            bufferedReader = new BufferedReader(inputStreamReader);
+            sensitiveWords = bufferedReader.lines().collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (inputStreamReader != null) {
+                    inputStreamReader.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         SensitiveUtil.init(sensitiveWords);
     }
 

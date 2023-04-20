@@ -3,7 +3,6 @@ package com.yhm.universityhelper.util;
 import com.alibaba.druid.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.lionsoul.ip2region.xdb.Searcher;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -117,12 +116,21 @@ public class IpUtils {
 
     @PostConstruct
     private static void initResource() {
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = new ClassPathResource("/static/ip2region.xdb").getInputStream();
+            inputStream = IpUtils.class.getClassLoader().getResourceAsStream("ip2region.xdb");
             byte[] dbBinStr = FileCopyUtils.copyToByteArray(inputStream);
             SEARCHER.set(Searcher.newWithBuffer(dbBinStr));
         } catch (Exception e) {
             log.info("failed to create content cached searcher: %s\n", e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (Exception e) {
+                    log.info("failed to close inputStream: %s\n", e);
+                }
+            }
         }
     }
 }
