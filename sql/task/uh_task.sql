@@ -24,7 +24,8 @@ create table uh_task
     constraint uh_task_pk
         unique (taskId)
 )
-    charset = utf8;
+    engine = InnoDB
+    charset = utf8mb4;
 
 INSERT INTO universityhelper.uh_task (taskId, userId, type, tags, releaseTime, title, requireDescription,
                                       maxNumOfPeopleTake, expectedPeriod, taskState, score, takeoutId, orderTime,

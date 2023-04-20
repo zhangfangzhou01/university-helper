@@ -4,5 +4,5 @@ create table uh_post_tags
         primary key,
     tag varchar(255) default '' not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 

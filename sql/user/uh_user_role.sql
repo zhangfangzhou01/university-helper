@@ -7,7 +7,7 @@ create table uh_user_role
     constraint roleid
         unique (roleId, userId)
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 create index uh_user_role_uh_user_userid_fk
     on uh_user_role (userId);

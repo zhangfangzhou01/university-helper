@@ -14,5 +14,5 @@ create table uh_post
 )
     comment '论坛表，存储论坛信息'
     engine = InnoDB
-    default charset = utf8;
+    default charset = utf8mb4;
 

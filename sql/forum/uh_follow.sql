@@ -11,5 +11,5 @@ create table uh_follow
 )
     comment 'follower 关注 followed'
     engine = InnoDB
-    default charset = utf8;
+    default charset = utf8mb4;
 

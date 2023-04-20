@@ -8,7 +8,7 @@ create table uh_chat
     time         timestamp    default '1970-01-02 00:00:00' not null,
     `read`       tinyint(1)   default 0                     not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 INSERT INTO universityhelper.uh_chat (chatId, fromUsername, toUsername, content, time, `read`)
 VALUES (1, '2027405037', 'all', 'Type here...', '2023-03-23 22:57:48', 0);

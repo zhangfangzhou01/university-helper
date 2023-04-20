@@ -21,7 +21,7 @@ create table uh_user
     constraint uh_user_username_uindex
         unique (username)
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 create index uh_user_uh_login_picture_pictureid_fk
     on uh_user (avatar);

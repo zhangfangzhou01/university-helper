@@ -4,7 +4,7 @@ create table uh_role
         primary key,
     rolename varchar(255) default 'ROLE_USER' not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 INSERT INTO universityhelper.uh_role (roleId, rolename)
 VALUES (1, 'ROLE_ADMIN');

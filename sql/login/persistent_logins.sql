@@ -6,7 +6,7 @@ create table persistent_logins
     token     varchar(64) not null,
     last_used timestamp   not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 INSERT INTO universityhelper.persistent_logins (username, series, token, last_used)
 VALUES ('2027405037', 'a6VmZNoT1f828+qzGZST/g==', 'rxLM9HkhLHKTuuocKCOqRw==', '2023-04-18 11:57:59');

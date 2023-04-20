@@ -7,7 +7,7 @@ create table uh_usertaketask
 )
     comment '任务与其接受者的表'
     engine = InnoDB
-    default charset = utf8;
+    default charset = utf8mb4;
 
 INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId)
 VALUES (8, 11, 17);

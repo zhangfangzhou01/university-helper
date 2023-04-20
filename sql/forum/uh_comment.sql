@@ -9,5 +9,5 @@ create table uh_comment
     likeNum         bigint       default 0                     not null,
     replayCommentId bigint       default 0                     not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 

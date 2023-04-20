@@ -4,7 +4,7 @@ create table uh_task_tags
         primary key,
     tag varchar(255) default '' not null
 ) engine = InnoDB
-  default charset = utf8;
+  default charset = utf8mb4;
 
 INSERT INTO universityhelper.uh_task_tags (id, tag)
 VALUES (1, '外卖');
