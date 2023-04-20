@@ -71,4 +71,5 @@ public interface TaskService extends IService<Task> {
      */
     Page<Task> selectYourPublish(JSONObject json);
 
+    List<String> selectAllTaskTags();
 }

@@ -321,4 +321,11 @@ public class ForumController {
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return ResponseResult.ok(forumService.selectHistory(userId, current, size), "获取历史记录成功");
     }
+    
+    @ApiOperation(value = "获取所有帖子标签", notes = "获取所有帖子标签")
+    @PostMapping("/selectAllPostTags")
+    public ResponseResult<Object> selectAllPostTags(Long userId) {
+        return ResponseResult.ok(forumService.selectAllPostTags(), "获取所有帖子标签成功");
+    }
+    
 }

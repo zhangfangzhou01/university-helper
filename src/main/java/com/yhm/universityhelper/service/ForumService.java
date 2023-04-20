@@ -82,4 +82,6 @@ public interface ForumService extends IService<Post> {
     boolean deleteHistory(Long postId);
 
     Page<Post> selectHistory(Long userId, int current, int size);
+    
+    List<String> selectAllPostTags();
 }

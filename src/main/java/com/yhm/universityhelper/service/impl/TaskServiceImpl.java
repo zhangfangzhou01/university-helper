@@ -2,6 +2,7 @@ package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.dfa.SensitiveUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -10,7 +11,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yhm.universityhelper.dao.TaskMapper;
-import com.yhm.universityhelper.dao.TaskTagsMapper;
+import com.yhm.universityhelper.dao.TaskTagMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.dao.wrapper.CustomTaskWrapper;
@@ -21,6 +22,7 @@ import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.util.SensitiveUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +51,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private TaskMapper taskMapper;
 
     @Autowired
-    private TaskTagsMapper taskTagsMapper;
+    private TaskTagMapper taskTagMapper;
 
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
@@ -69,17 +71,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
 
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(" ", "T");
+                String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final TaskTag taskTag = new TaskTag((String)tag);
-                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
-                        taskTagsMapper.insert(taskTag);
+                    if (!taskTagMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
+                        taskTagMapper.insert(taskTag);
                     }
                 }
+                ReflectUtils.set(task, key, filteredTags);
+            } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
+                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
@@ -99,19 +108,26 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String key : json.keySet()) {
             Object value = json.get(key);
             if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("userId".equals(key)) {
                 ReflectUtils.set(task, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
+                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
+                    if (SensitiveUtil.containsSensitive(tag.toString())) {
+                        continue;
+                    }
+                    filteredTags.add(tag);
                     final TaskTag taskTag = new TaskTag((String)tag);
-                    if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
-                        taskTagsMapper.insert(taskTag);
+                    if (!taskTagMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
+                        taskTagMapper.insert(taskTag);
                     }
                 }
+                ReflectUtils.set(task, key, filteredTags);
+            } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
+                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, value);
             }
@@ -233,7 +249,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
                 ReflectUtils.call(customTaskWrapper, key, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(" ", "T");
+                String time = value.toString().replace(' ', 'T');
                 ReflectUtils.call(customTaskWrapper, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
@@ -328,5 +344,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         LambdaQueryWrapper<Task> wrapper = BeanUtils.getBean(CustomTaskWrapper.class).userRelease(userId).getLambdaQueryWrapper();
 
         return taskMapper.selectPage(page, wrapper);
+    }
+    
+    @Override
+    public List<String> selectAllTaskTags() {
+        return taskTagMapper.selectList(null).stream().map(TaskTag::getTag).collect(Collectors.toList());
     }
 }

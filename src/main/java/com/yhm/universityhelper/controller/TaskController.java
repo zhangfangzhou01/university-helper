@@ -328,4 +328,10 @@ public class TaskController {
                 ? ResponseResult.ok("完成任务成功")
                 : ResponseResult.fail("完成任务失败");
     }
+    
+    @ApiOperation(value = "获取所有任务标签", notes = "获取所有任务标签")
+    @PostMapping("/selectAllTaskTags")
+    public ResponseResult<List<String>> selectAllTaskTags(Long userId) {
+        return ResponseResult.ok(taskService.selectAllTaskTags(), "获取所有任务标签成功");
+    }
 }

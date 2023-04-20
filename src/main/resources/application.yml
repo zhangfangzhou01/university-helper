@@ -10,7 +10,7 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver   # mysql8 的连接驱动
-    url: jdbc:mysql://localhost:3306/universityhelper?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/universityhelper?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true
     type: com.alibaba.druid.pool.DruidDataSource  # 指定数据源类型
     # 连接池配置
     druid:
@@ -85,6 +85,7 @@ spring:
         login-password: 123
         allow:         # 允许访问的地址，如果allow没有配置或者为空，则允许所有访问
         deny:        # 拒绝访问的地址，优先级高于allow
+      connection-init-sqls: set names utf8mb4 collate utf8mb4_general_ci
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

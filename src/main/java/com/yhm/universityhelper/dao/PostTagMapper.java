@@ -11,6 +11,6 @@ import com.yhm.universityhelper.entity.po.PostTag;
  * @author author
  * @since 2023-04-19
  */
-public interface PostTagsMapper extends BaseMapper<PostTag> {
+public interface PostTagMapper extends BaseMapper<PostTag> {
 
 }
