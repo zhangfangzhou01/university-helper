@@ -324,7 +324,7 @@ public class ForumController {
     
     @ApiOperation(value = "获取所有帖子标签", notes = "获取所有帖子标签")
     @PostMapping("/selectAllPostTags")
-    public ResponseResult<Object> selectAllPostTags(Long userId) {
+    public ResponseResult<Object> selectAllPostTags() {
         return ResponseResult.ok(forumService.selectAllPostTags(), "获取所有帖子标签成功");
     }
     

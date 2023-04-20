@@ -331,7 +331,7 @@ public class TaskController {
     
     @ApiOperation(value = "获取所有任务标签", notes = "获取所有任务标签")
     @PostMapping("/selectAllTaskTags")
-    public ResponseResult<List<String>> selectAllTaskTags(Long userId) {
+    public ResponseResult<List<String>> selectAllTaskTags() {
         return ResponseResult.ok(taskService.selectAllTaskTags(), "获取所有任务标签成功");
     }
 }
