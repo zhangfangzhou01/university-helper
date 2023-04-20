@@ -161,6 +161,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         for (long taskId : taskIdsTake) {
             taskService.deleteTaskByTaker(taskId);
         }
+
+        result &= followMapper.delete(new LambdaUpdateWrapper<Follow>().eq(Follow::getFollowerId, userId)) > 0;
+        result &= followMapper.delete(new LambdaUpdateWrapper<Follow>().eq(Follow::getFollowedId, userId)) > 0;
+        result &= blacklistMapper.delete(new LambdaUpdateWrapper<Blacklist>().eq(Blacklist::getBlockerId, userId)) > 0;
+        result &= blacklistMapper.delete(new LambdaUpdateWrapper<Blacklist>().eq(Blacklist::getBlockedId, userId)) > 0;
+
         if (!result) {
             throw new RuntimeException("删除用户失败，事务回滚");
         }
@@ -204,7 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public List<String> getFollowList(String username) {
+    public List<String> getFollowedList(String username) {
         return followMapper.selectList(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username))).stream().map(follow -> userMapper.selectById(follow.getFollowedId()).getUsername()).collect(Collectors.toList());
     }
 
@@ -214,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Long getFollowCount(String username) {
+    public Long getFollowedCount(String username) {
         return followMapper.selectCount(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, userMapper.selectUserIdByUsername(username)));
     }
 
@@ -241,12 +247,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public List<String> getBlackList(String username) {
+    public List<String> getBlockedList(String username) {
         return blacklistMapper.selectList(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, userMapper.selectUserIdByUsername(username))).stream().map(blacklist -> userMapper.selectById(blacklist.getBlockedId()).getUsername()).collect(Collectors.toList());
     }
 
     @Override
-    public Long getBlackCount(String username) {
+    public Long getBlockedCount(String username) {
         return blacklistMapper.selectCount(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, userMapper.selectUserIdByUsername(username)));
     }
 }

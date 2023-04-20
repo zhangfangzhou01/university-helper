@@ -5,8 +5,12 @@ import cn.hutool.core.lang.Validator;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.yhm.universityhelper.dao.BlacklistMapper;
+import com.yhm.universityhelper.dao.FollowMapper;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.dao.UserRoleMapper;
+import com.yhm.universityhelper.entity.po.Blacklist;
+import com.yhm.universityhelper.entity.po.Follow;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.util.BeanUtils;
@@ -130,9 +134,133 @@ public class UserValidator extends CustomValidator {
         Validator.validateTrue(BeanUtils.getBean(UserRoleMapper.class).exists(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(username))), "用户不存在该角色");
     }
 
-    public static void validateSelect(JSONArray usernames) {
+    public static void select(JSONArray usernames) {
         Optional.ofNullable(usernames)
                 .map(u -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, u.toString(), "用户名列表不合法"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名列表"));
+    }
+
+    public static void follow(String follower, String followed) {
+        Optional.ofNullable(follower)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Optional.ofNullable(followed)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Long followerId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(follower);
+        Long followedId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(followed);
+
+        Validator.validateFalse(BeanUtils.getBean(FollowMapper.class).exists(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, followerId).eq(Follow::getFollowedId, followedId)), "已经关注该用户");
+    }
+
+    public static void unfollow(String follower, String followed) {
+        Optional.ofNullable(follower)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Optional.ofNullable(followed)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Long followerId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(follower);
+        Long followedId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(followed);
+
+        Validator.validateTrue(BeanUtils.getBean(FollowMapper.class).exists(new LambdaQueryWrapper<Follow>().eq(Follow::getFollowerId, followerId).eq(Follow::getFollowedId, followedId)), "未关注该用户");
+    }
+
+    public static void getFollowedList(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getFollowerList(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getFollowedCount(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getFollowerCount(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void block(String blocker, String blocked) {
+        Optional.ofNullable(blocker)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Optional.ofNullable(blocked)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Long blockerId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(blocker);
+        Long blockedId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(blocked);
+
+        Validator.validateFalse(BeanUtils.getBean(BlacklistMapper.class).exists(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, blockerId).eq(Blacklist::getBlockedId, blockedId)), "已经屏蔽该用户");
+    }
+
+    public static void unblock(String blocker, String blocked) {
+        Optional.ofNullable(blocker)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Optional.ofNullable(blocked)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Long blockerId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(blocker);
+        Long blockedId = BeanUtils.getBean(UserMapper.class).selectUserIdByUsername(blocked);
+
+        Validator.validateTrue(BeanUtils.getBean(BlacklistMapper.class).exists(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, blockerId).eq(Blacklist::getBlockedId, blockedId)), "未屏蔽该用户");
+    }
+
+    public static void getBlockedList(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getBlockerList(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getBlockedCount(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void getBlockerCount(String username) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
     }
 }

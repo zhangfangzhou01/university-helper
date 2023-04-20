@@ -31,19 +31,19 @@ public class ChatController {
     public void broadcast(Authentication authentication, JSONObject msg) {
         chatService.broadcast(authentication, msg);
     }
-    
+
     @PostMapping("/onlineUsers")
     @ResponseBody
     @ApiOperation(value = "获取在线用户列表")
-    public ResponseResult<JSONArray> onlineUsers(Authentication authentication) {
+    public ResponseResult<JSONArray> onlineUsers() {
         Set<String> onlineUsers = chatService.getOnlineUsers();
         return ResponseResult.ok(new JSONArray(onlineUsers), "获取在线用户列表成功");
     }
-    
+
     @GetMapping("/onlineUsersCount")
     @ResponseBody
     @ApiOperation(value = "获取在线用户数量")
-    public ResponseResult<Integer> onlineUsersCount(Authentication authentication) {
+    public ResponseResult<Integer> onlineUsersCount() {
         return ResponseResult.ok(chatService.getOnlineUsersCount(), "获取在线用户数量成功");
     }
 }

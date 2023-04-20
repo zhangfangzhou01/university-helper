@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author author
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_comment")
-@ApiModel(value="UhComment对象", description="")
+@ApiModel(value = "UhComment对象", description = "")
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,11 +47,7 @@ public class Comment implements Serializable {
     @TableField("likeNum")
     private Long likeNum;
 
-    @TableField("dislikeNum")
-    private Long dislikeNum;
-
     @TableField("replayCommentId")
     private Long replayCommentId;
-
 
 }

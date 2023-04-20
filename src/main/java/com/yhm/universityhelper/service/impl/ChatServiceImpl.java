@@ -63,7 +63,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-        
+
         List<String> destUsernames = msg.getJSONArray("to").toList(String.class);
         List<User> destUsers = userMapper.selectList(new LambdaQueryWrapper<User>().in(User::getUsername, destUsernames));
         List<ChatUser> destChatUsers = destUsers.stream().map(ChatUser::new).collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
-        
+
         String message = msg.getStr("content");
 
         Chat chat = new Chat(srcChatUser, message);
@@ -100,12 +100,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     public void notification(List<String> usernames, String msg) {
         usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
     }
-    
+
     @Override
     public Set<String> getOnlineUsers() {
         return AuthChannelInterceptor.ONLINE_USERS;
     }
-    
+
     @Override
     public int getOnlineUsersCount() {
         return AuthChannelInterceptor.ONLINE_USERS.size();

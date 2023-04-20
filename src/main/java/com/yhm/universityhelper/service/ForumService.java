@@ -26,7 +26,7 @@ public interface ForumService extends IService<Post> {
      * */
     boolean insertPost(JSONObject json);
 
-    boolean deletePost(int postId);
+    boolean deletePost(Long postId);
 
     boolean updatePost(JSONObject json);
 
@@ -45,45 +45,21 @@ public interface ForumService extends IService<Post> {
 
     boolean deleteComment(Long commentId);
 
-    boolean updateComment(JSONObject json);
-
     Comment selectComment(Long commentId);
 
-    /*
-     * 回复评论
-     * */
+    // 看自己发表的评论
+    Page<Comment> selectCommentByUserId(Long userId, int current, int size);
 
-    boolean insertReply(Comment comment, Long commentId);
+    // 看别人对自己的帖子的评论
+    Page<Comment> selectCommentByPostId(Long postId, int current, int size);
 
-    boolean deleteReply(Long replyId);
+    // 看自己收到的对自己的评论的回复
+    Page<Comment> selectReplyByUserId(Long userId, int current, int size);
 
-    boolean updateReply(Comment comment);
+    boolean likeComment(Long commentId);
 
-    Comment selectReply(Long replyId);
+    boolean likePost(Long postId);
 
-    /*
-     * 点赞
-     * */
-    // 1:帖子 2:评论
-    boolean insertLike(Long id, int type);
-
-    boolean deleteLike(Long id, int type);
-
-    Long selectLike(Long id, int type);
-
-    // like不能手动update，只能通过insert和delete
-
-    /*
-     * 点踩
-     * */
-    // 1:帖子 2:评论
-    boolean insertDislike(Long id, int type);
-
-    boolean deleteDislike(Long id, int type);
-
-    Long selectDislike(Long id, int type);
-
-    // dislike不能手动update，只能通过insert和delete
 
     /*
      * 收藏
@@ -91,19 +67,19 @@ public interface ForumService extends IService<Post> {
 
     boolean insertStar(Long userId, Long postId);
 
-    boolean deleteStar(Long userId, Long postId);
+    boolean deleteStar(Long postId);
 
-    List<Post> selectStar(Long userId);
-    
+    Page<Post> selectStar(Long userId, int current, int size);
+
     // collect不能手动update，只能通过insert和delete
-    
+
     /*
      * 历史记录
      * */
 
     boolean insertHistory(Long userId, Long postId);
 
-    boolean deleteHistory(Long userId, Long postId);
-    
-    List<Post> selectHistory(Long userId);
+    boolean deleteHistory(Long postId);
+
+    Page<Post> selectHistory(Long userId, int current, int size);
 }

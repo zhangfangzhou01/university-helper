@@ -27,7 +27,7 @@ public class ReflectUtils {
         int index = methodAccessMap.get(methodAccess).computeIfAbsent(fieldName, k -> methodAccess.getIndex("get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)));
         return methodAccess.invoke(obj, index);
     }
-    
+
     public static <T> T get(Object obj, String fieldName, Class<T> clazz) {
         return clazz.cast(get(obj, fieldName));
     }
@@ -97,7 +97,7 @@ public class ReflectUtils {
         }
         return data;
     }
-    
+
     public static void call(Object obj, String methodName, Object... args) {
         Class<?> clazz = obj.getClass();
         Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));

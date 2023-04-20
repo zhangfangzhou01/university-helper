@@ -87,7 +87,7 @@ public class IpUtils {
         }
         return null;
     }
-    
+
     public static Map<String, Object> getCityInfo(HttpServletRequest request) {
         return getCityInfo(getIpAddr(request));
     }
@@ -110,7 +110,7 @@ public class IpUtils {
         }
         return cityInfo.toString();
     }
-    
+
     public static String getRegion(HttpServletRequest request) {
         return getRegion(getIpAddr(request));
     }

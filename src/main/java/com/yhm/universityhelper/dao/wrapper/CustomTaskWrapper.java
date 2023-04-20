@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.dao.wrapper;
 
-import cn.hutool.extra.tokenizer.Word;
 import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,7 +21,6 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Data
 @Component
@@ -44,16 +42,21 @@ public class CustomTaskWrapper extends CustomWrapper {
         int expectedPeriodMax = (int)maps.get(0).get("expectedPeriodMax");
         int expectedPeriodMin = (int)maps.get(0).get("expectedPeriodMin");
 
-        long arrivalTimeMax = ((Timestamp)maps.get(0).get("arrivalTimeMax")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
-        long arrivalTimeMin = ((Timestamp)maps.get(0).get("arrivalTimeMin")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
-        double transactionAmountMax = (double)maps.get(1).get("transactionAmountMax");
-        double transactionAmountMin = (double)maps.get(1).get("transactionAmountMin");
+        long arrivalTimeMax, arrivalTimeMin;
+        double transactionAmountMax, transactionAmountMin;
+        try {
+            arrivalTimeMax = ((Timestamp)maps.get(0).get("arrivalTimeMax")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+            arrivalTimeMin = ((Timestamp)maps.get(0).get("arrivalTimeMin")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+            transactionAmountMax = (double)maps.get(1).get("transactionAmountMax");
+            transactionAmountMin = (double)maps.get(1).get("transactionAmountMin");
+        } catch (NullPointerException e) {
+            arrivalTimeMax = ((Timestamp)maps.get(1).get("arrivalTimeMax")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+            arrivalTimeMin = ((Timestamp)maps.get(1).get("arrivalTimeMin")).toLocalDateTime().toEpochSecond(ZoneOffset.of("+8"));
+            transactionAmountMax = (double)maps.get(0).get("transactionAmountMax");
+            transactionAmountMin = (double)maps.get(0).get("transactionAmountMin");
+        }
 
         return OrderItem.desc("(releaseTime - " + releaseTimeMin + ") / (" + releaseTimeMax + " - " + releaseTimeMin + " + 1) + " + "(expectedPeriod - " + expectedPeriodMin + ") / (" + expectedPeriodMax + " - " + expectedPeriodMin + " + 1) + " + "(leftNumOfPeopleTake - " + leftNumOfPeopleTakeMin + ") / (" + leftNumOfPeopleTakeMax + " - " + leftNumOfPeopleTakeMin + " + 1) " + "+ " + "(case type " + "when '外卖' then " + "(arrivalTime - " + arrivalTimeMin + ") / (" + arrivalTimeMax + " - " + arrivalTimeMin + " + 1) " + "when '交易' then " + "(transactionAmount - " + transactionAmountMin + ") / (" + transactionAmountMax + " - " + transactionAmountMin + " + 1) " + "end) ");
-    }
-
-    public static String fuzzyQuery(String field, String keyword) {
-        return StreamSupport.stream(JIEBA.parse(keyword).spliterator(), true).map(Word::getText).filter(token -> !STOP_WORDS.contains(token)).map(token -> "(case when " + field + " like \"%" + token + "%\" then 1 else 0 end)").collect(Collectors.joining(" + "));
     }
 
     public LambdaQueryWrapper<Task> getLambdaQueryWrapper() {
@@ -155,11 +158,6 @@ public class CustomTaskWrapper extends CustomWrapper {
         for (Object tag : tags) {
             queryWrapper.like("tags", tag.toString());
         }
-        return this;
-    }
-
-    public CustomTaskWrapper priority(Integer priority) {
-        queryWrapper.eq("priority", priority);
         return this;
     }
 

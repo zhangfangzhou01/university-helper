@@ -24,7 +24,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_follow")
-@ApiModel(value="UhFollow对象", description="follower 关注 followed")
+@ApiModel(value = "UhFollow对象", description = "follower 关注 followed")
 public class Follow implements Serializable {
 
     private static final long serialVersionUID = 1L;

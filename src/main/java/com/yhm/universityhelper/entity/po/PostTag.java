@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author author
@@ -23,7 +23,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_post_tags")
-@ApiModel(value="UhPostTags对象", description="")
+@ApiModel(value = "UhPostTags对象", description = "")
 public class PostTag implements Serializable {
 
     private static final long serialVersionUID = 1L;

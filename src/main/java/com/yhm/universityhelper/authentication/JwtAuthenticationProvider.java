@@ -36,7 +36,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     @Value("${account.locked.lock-time}")
     private int lockTime;
-    
+
     @Autowired
     @Value("${account.locked.remote-login-lock-time}")
     private int remoteLoginLockTime;

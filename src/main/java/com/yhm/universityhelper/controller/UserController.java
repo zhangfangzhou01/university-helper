@@ -104,7 +104,7 @@ public class UserController {
     @ApiOperation(value = "获取个人信息", notes = "获取个人信息")
     @PostMapping("/select")
     public ResponseResult<Map<String, Object>> select(@Validated @RequestBody JSONArray json) {
-        UserValidator.validateSelect(json);
+        UserValidator.select(json);
         return ResponseResult.ok(userService.select(json), "获取个人信息成功");
     }
 
@@ -163,5 +163,95 @@ public class UserController {
         return userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");
+    }
+
+    // TODO: 关注和拉黑
+    @ApiOperation(value = "关注")
+    @PostMapping("/follow")
+    public ResponseResult<Object> follow(@RequestParam String follower, @RequestParam String followed) {
+        UserValidator.follow(follower, followed);
+        CustomValidator.auth(follower, UserRole.USER_CAN_CHANGE_SELF);
+        return userService.follow(follower, followed)
+                ? ResponseResult.ok("关注成功")
+                : ResponseResult.fail("关注失败");
+    }
+
+    @ApiOperation(value = "取消关注")
+    @PostMapping("/unfollow")
+    public ResponseResult<Object> unfollow(@RequestParam String follower, @RequestParam String followed) {
+        UserValidator.unfollow(follower, followed);
+        CustomValidator.auth(follower, UserRole.USER_CAN_CHANGE_SELF);
+        return userService.unfollow(follower, followed)
+                ? ResponseResult.ok("取消关注成功")
+                : ResponseResult.fail("取消关注失败");
+
+    }
+
+    @ApiOperation(value = "拉黑")
+    @PostMapping("/block")
+    public ResponseResult<Object> block(@RequestParam String blocker, @RequestParam String blocked) {
+        UserValidator.block(blocker, blocked);
+        CustomValidator.auth(blocker, UserRole.USER_CAN_CHANGE_SELF);
+        return userService.block(blocker, blocked)
+                ? ResponseResult.ok("拉黑成功")
+                : ResponseResult.fail("拉黑失败");
+    }
+
+    @ApiOperation(value = "取消拉黑")
+    @PostMapping("/unblock")
+    public ResponseResult<Object> unblock(@RequestParam String blocker, @RequestParam String blocked) {
+        UserValidator.unblock(blocker, blocked);
+        CustomValidator.auth(blocker, UserRole.USER_CAN_CHANGE_SELF);
+        return userService.unblock(blocker, blocked)
+                ? ResponseResult.ok("取消拉黑成功")
+                : ResponseResult.fail("取消拉黑失败");
+    }
+
+    @ApiOperation(value = "获取关注列表")
+    @PostMapping("/getFollowedList")
+    public ResponseResult<List<String>> getFollowedList(@RequestParam String username) {
+        UserValidator.getFollowedList(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getFollowedList(username), "获取关注列表成功");
+    }
+
+    @ApiOperation(value = "获取粉丝列表")
+    @PostMapping("/getFollowerList")
+    public ResponseResult<List<String>> getFollowerList(@RequestParam String username) {
+        UserValidator.getFollowerList(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getFollowerList(username), "获取粉丝列表成功");
+    }
+
+    @ApiOperation(value = "获取关注人数")
+    @PostMapping("/getFollowedCount")
+    public ResponseResult<Long> getFollowedCount(@RequestParam String username) {
+        UserValidator.getFollowedCount(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getFollowedCount(username), "获取关注人数成功");
+    }
+
+    @ApiOperation(value = "获取粉丝人数")
+    @PostMapping("/getFollowerCount")
+    public ResponseResult<Long> getFollowerCount(@RequestParam String username) {
+        UserValidator.getFollowerCount(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getFollowerCount(username), "获取粉丝人数成功");
+    }
+
+    @ApiOperation(value = "获取拉黑列表")
+    @PostMapping("/getBlockedList")
+    public ResponseResult<List<String>> getBlockedList(@RequestParam String username) {
+        UserValidator.getBlockedList(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getBlockedList(username), "获取拉黑列表成功");
+    }
+
+    @ApiOperation(value = "获取拉黑人数")
+    @PostMapping("/getBlockedCount")
+    public ResponseResult<Long> getBlockedCount(@RequestParam String username) {
+        UserValidator.getBlockedCount(username);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return ResponseResult.ok(userService.getBlockedCount(username), "获取拉黑人数成功");
     }
 }

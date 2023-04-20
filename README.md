@@ -63,15 +63,15 @@ university-helper
 
 - 修改application.yml中的数据库配置
 - 启动项目
-- 访问http://47.120.32.226:8080/swagger-ui.html
-- 或访问http://47.120.32.226:8080/doc.html
-- 登录账号：2027405037 密码：123
+- 访问 http://localhost:8080/swagger-ui.html
+- 或访问 http://localhost:8080/doc.html
+- 登录账号：2027405037 密码：123456
 
-## 项目自带页面
+## 项目演示页面
 
-- swagger: /swagger-ui.html
-- knife4j: /doc.html
-- druid: /druid/index.html
+- swagger: http://47.120.32.226:8080/swagger-ui.html
+- knife4j: http://47.120.32.226:8080/doc.html
+- druid: http://47.120.32.226:8080/druid/index.html
 
 ## 项目成员
 
@@ -81,7 +81,8 @@ university-helper
 ## 项目进度
 
 - [x] 项目初始化
-- [x] 用户模块
-- [ ] 任务模块
-- [x] 聊天模块
 - [x] 登录模块
+- [x] 用户模块
+- [x] 任务模块
+- [x] 论坛模块
+- [x] 聊天模块

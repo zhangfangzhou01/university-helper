@@ -13,7 +13,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author author
@@ -23,7 +23,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_star")
-@ApiModel(value="UhStar对象", description="")
+@ApiModel(value = "UhStar对象", description = "")
 public class Star implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,5 +37,8 @@ public class Star implements Serializable {
     @TableField("postId")
     private Long postId;
 
-
+    public Star(Long userId, Long postId) {
+        this.userId = userId;
+        this.postId = postId;
+    }
 }

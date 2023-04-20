@@ -26,7 +26,8 @@ public interface ChatService extends IService<Chat> {
     void notification(String msg);
 
     void notification(List<String> usernames, String msg);
-    
+
     Set<String> getOnlineUsers();
+
     int getOnlineUsersCount();
 }

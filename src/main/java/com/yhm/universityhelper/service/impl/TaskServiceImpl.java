@@ -20,7 +20,6 @@ import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
-import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                ReflectUtils.set(task, key, tags);
                 for (Object tag : tags) {
                     final TaskTag taskTag = new TaskTag((String)tag);
                     if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
@@ -94,7 +93,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    // TODO: distance不知道怎么算，感觉priority多余
     public boolean insert(JSONObject json) {
         final Long userId = json.getLong("userId");
         Task task = new Task();
@@ -107,7 +105,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, JsonUtils.jsonArrayToJson(tags));
+                ReflectUtils.set(task, key, tags);
                 for (Object tag : tags) {
                     final TaskTag taskTag = new TaskTag((String)tag);
                     if (!taskTagsMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {

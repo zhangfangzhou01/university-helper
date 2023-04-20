@@ -9,18 +9,11 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yhm.universityhelper.dao.PostMapper;
-import com.yhm.universityhelper.dao.PostTagsMapper;
-import com.yhm.universityhelper.dao.StarMapper;
-import com.yhm.universityhelper.dao.VisitHistoryMapper;
+import com.yhm.universityhelper.dao.*;
 import com.yhm.universityhelper.dao.wrapper.CustomPostWrapper;
-import com.yhm.universityhelper.entity.po.Comment;
-import com.yhm.universityhelper.entity.po.Post;
-import com.yhm.universityhelper.entity.po.PostTag;
-import com.yhm.universityhelper.entity.po.Star;
+import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.ForumService;
 import com.yhm.universityhelper.util.BeanUtils;
-import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -53,6 +47,9 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     @Autowired
     private VisitHistoryMapper visitHistoryMapper;
 
+    @Autowired
+    private CommentMapper commentMapper;
+
 
     @Override
     public boolean insertPost(JSONObject json) {
@@ -67,7 +64,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.set(post, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(post, key, JsonUtils.jsonArrayToJson(tags));
+                ReflectUtils.set(post, key, tags);
                 for (Object tag : tags) {
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagsMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
@@ -89,7 +86,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     }
 
     @Override
-    public boolean deletePost(int postId) {
+    public boolean deletePost(Long postId) {
         boolean result = postMapper.delete(new LambdaUpdateWrapper<Post>().eq(Post::getPostId, postId)) > 0;
         result &= starMapper.delete(new LambdaUpdateWrapper<Star>().eq(Star::getPostId, postId)) > 0;
 
@@ -114,7 +111,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.set(post, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(post, key, JsonUtils.jsonArrayToJson(tags));
+                ReflectUtils.set(post, key, tags);
                 for (Object tag : tags) {
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagsMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
@@ -233,102 +230,103 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         final Long userId = json.getLong("userId");
         final Long postId = json.getLong("postId");
         final Long replyCommentId = json.getLong("replyCommentId");
-        
+
+        Comment comment = new Comment();
+        for (String key : json.keySet()) {
+            if ("userId".equals(key) || "postId".equals(key) || "replyCommentId".equals(key)) {
+                continue;
+            }
+            if (StringUtils.containsIgnoreCase(key, "time")) {
+                String time = json.get(key).toString().replace(" ", "T");
+                ReflectUtils.set(comment, key, LocalDateTime.parse(time));
+            } else {
+                ReflectUtils.set(comment, key, json.get(key));
+            }
+        }
+
+        comment.setReleaseTime(LocalDateTime.now());
+
+        boolean result = commentMapper.insert(comment) > 0;
+        if (!result) {
+            throw new RuntimeException("插入评论失败，事务回滚");
+        }
+
         return false;
     }
 
     @Override
     public boolean deleteComment(Long commentId) {
-        return false;
-    }
-
-    @Override
-    public boolean updateComment(JSONObject json) {
-        return false;
+        return commentMapper.delete(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId)) > 0;
     }
 
     @Override
     public Comment selectComment(Long commentId) {
-        return null;
+        return commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId)).get(0);
     }
 
     @Override
-    public boolean insertReply(Comment comment, Long commentId) {
-        return false;
+    public Page<Comment> selectCommentByUserId(Long userId, int current, int size) {
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getUserId, userId));
     }
 
     @Override
-    public boolean deleteReply(Long replyId) {
-        return false;
+    public Page<Comment> selectCommentByPostId(Long postId, int current, int size) {
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId));
     }
 
     @Override
-    public boolean updateReply(Comment comment) {
-        return false;
+    public Page<Comment> selectReplyByUserId(Long userId, int current, int size) {
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().in(Comment::getCommentId,
+                commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getUserId, userId)).stream()
+                        .map(Comment::getCommentId).collect(Collectors.toList())));
     }
 
     @Override
-    public Comment selectReply(Long replyId) {
-        return null;
+    public boolean likeComment(Long commentId) {
+        Comment comment = commentMapper.selectOne(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId));
+        comment.setLikeNum(comment.getLikeNum() + 1);
+        return commentMapper.updateById(comment) > 0;
     }
 
     @Override
-    public boolean insertLike(Long id, int type) {
-        return false;
+    public boolean likePost(Long postId) {
+        Post post = postMapper.selectOne(new LambdaQueryWrapper<Post>().eq(Post::getPostId, postId));
+        post.setLikeNum(post.getLikeNum() + 1);
+        return postMapper.updateById(post) > 0;
     }
 
-    @Override
-    public boolean deleteLike(Long id, int type) {
-        return false;
-    }
-
-    @Override
-    public Long selectLike(Long id, int type) {
-        return null;
-    }
-
-    @Override
-    public boolean insertDislike(Long id, int type) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteDislike(Long id, int type) {
-        return false;
-    }
-
-    @Override
-    public Long selectDislike(Long id, int type) {
-        return null;
-    }
 
     @Override
     public boolean insertStar(Long userId, Long postId) {
-        return false;
+        return starMapper.insert(new Star(userId, postId)) > 0;
     }
 
     @Override
-    public boolean deleteStar(Long userId, Long postId) {
-        return false;
+    public boolean deleteStar(Long postId) {
+        return starMapper.delete(new LambdaQueryWrapper<Star>().eq(Star::getPostId, postId)) > 0;
     }
 
     @Override
-    public List<Post> selectStar(Long userId) {
-        return null;
+    public Page<Post> selectStar(Long userId, int current, int size) {
+        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId,
+                starMapper.selectList(new LambdaQueryWrapper<Star>().eq(Star::getUserId, userId)).stream()
+                        .map(Star::getPostId).collect(Collectors.toList())));
     }
 
     @Override
     public boolean insertHistory(Long userId, Long postId) {
-        return false;
+        return visitHistoryMapper.insert(new VisitHistory(userId, postId)) > 0;
     }
 
     @Override
-    public boolean deleteHistory(Long userId, Long postId) {
-        return false;
+    public boolean deleteHistory(Long postId) {
+        return visitHistoryMapper.delete(new LambdaQueryWrapper<VisitHistory>().eq(VisitHistory::getPostId, postId)) > 0;
     }
 
     @Override
-    public List<Post> selectHistory(Long userId) {
-        return null;
+    public Page<Post> selectHistory(Long userId, int current, int size) {
+        return postMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Post>().in(Post::getPostId,
+                visitHistoryMapper.selectList(new LambdaQueryWrapper<VisitHistory>().eq(VisitHistory::getUserId, userId))
+                        .stream().map(VisitHistory::getPostId).collect(Collectors.toList())));
     }
 }

@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author author
@@ -24,7 +24,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_blacklist")
-@ApiModel(value="UhBlacklist对象", description="")
+@ApiModel(value = "UhBlacklist对象", description = "")
 public class Blacklist implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class Blacklist implements Serializable {
     @ApiModelProperty(value = "被拉黑的人的userId")
     @TableField("blocked")
     private Long blockedId;
-    
+
     public Blacklist(Long blockerId, Long blockedId) {
         this.blockerId = blockerId;
         this.blockedId = blockedId;

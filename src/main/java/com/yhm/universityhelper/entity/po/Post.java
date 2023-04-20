@@ -1,9 +1,11 @@
 package com.yhm.universityhelper.entity.po;
 
+import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,8 +26,8 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("uh_post")
-@ApiModel(value="UhPost对象", description="论坛表，存储论坛信息")
+@TableName(value = "uh_post", autoResultMap = true)
+@ApiModel(value = "UhPost对象", description = "论坛表，存储论坛信息")
 public class Post implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -39,8 +41,8 @@ public class Post implements Serializable {
     @TableField("title")
     private String title;
 
-    @TableField("tags")
-    private String tags;
+    @TableField(value = "tags", typeHandler = JacksonTypeHandler.class)
+    private JSONArray tags;
 
     @ApiModelProperty(value = "帖子发布时间")
     @TableField("releaseTime")
@@ -55,14 +57,10 @@ public class Post implements Serializable {
     @TableField("likeNum")
     private Long likeNum;
 
-    @TableField("dislikeNum")
-    private Long dislikeNum;
-
     @TableField("starNum")
     private Long starNum;
 
     @TableField("commentNum")
     private Long commentNum;
-
 
 }

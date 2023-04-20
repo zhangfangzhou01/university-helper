@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("uh_visit_history")
-@ApiModel(value="UhVisitHistory对象", description="用户访问post的历史记录")
+@ApiModel(value = "UhVisitHistory对象", description = "用户访问post的历史记录")
 public class VisitHistory implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,5 +41,10 @@ public class VisitHistory implements Serializable {
     @TableField("visitTime")
     private LocalDateTime visitTime;
 
+    public VisitHistory(Long userId, Long postId) {
+        this.userId = userId;
+        this.postId = postId;
+        this.visitTime = LocalDateTime.now();
+    }
 
 }

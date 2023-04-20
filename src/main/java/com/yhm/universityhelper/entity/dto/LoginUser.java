@@ -41,7 +41,7 @@ public class LoginUser implements UserDetails {
 
     public LoginUser(Long userId, String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(userId, username, password, true, true, true, true, authorities);
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         this.region = IpUtils.getRegion(request);
     }
 
@@ -54,7 +54,7 @@ public class LoginUser implements UserDetails {
         this.credentialsNonExpired = true;
         this.accountNonLocked = this.isAccountNonLocked();
         this.authorities = authorities;
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         this.region = IpUtils.getRegion(request);
     }
 
@@ -68,7 +68,7 @@ public class LoginUser implements UserDetails {
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.authorities = authorities;
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         this.region = IpUtils.getRegion(request);
     }
 
