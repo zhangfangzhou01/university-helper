@@ -51,7 +51,7 @@ public class SensitiveUtils {
         }
         SensitiveUtil.init(sensitiveWords);
     }
-    
+
     @SneakyThrows
     public static String unsafeReplace(String content, char stopCharacter) {
         Field field = Unsafe.class.getDeclaredField("theUnsafe");
@@ -59,11 +59,11 @@ public class SensitiveUtils {
         Unsafe unsafe = (Unsafe)field.get(null);
         long offset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
         char[] value = (char[])unsafe.getObject(content, offset);
-        List<WordInfo> sensitiveWordInfos = SensitiveUtil.getFindedAllSensitiveWithPos(content);
+        List<WordInfo> sensitiveWordInfos = SensitiveUtil.getAllSensitiveWithPos(content);
         if (sensitiveWordInfos == null || sensitiveWordInfos.size() == 0) {
             return content;
         }
-        
+
         for (WordInfo sensitiveWordInfo : sensitiveWordInfos) {
             for (int i = 0; i < sensitiveWordInfo.getWord().length(); i++) {
                 value[sensitiveWordInfo.getStart() + i] = stopCharacter;
@@ -71,13 +71,10 @@ public class SensitiveUtils {
         }
         return content;
     }
-    
+
     public static String replace(String content, char stopCharacter) {
         StringBuilder sb = new StringBuilder(content);
-        List<String> sensitiveWords = SensitiveUtil.getFindedAllSensitive(content);
-        return sensitiveWords
-                .stream()
-                .reduce(sb, (builder, sensitiveWord) -> builder.replace(content.indexOf(sensitiveWord), content.indexOf(sensitiveWord) + sensitiveWord.length(), StrUtil.repeat(stopCharacter, sensitiveWord.length())), StringBuilder::append)
-                .toString();
+        List<String> sensitiveWords = SensitiveUtil.getAllSensitive(content);
+        return sensitiveWords.stream().reduce(sb, (builder, sensitiveWord) -> builder.replace(content.indexOf(sensitiveWord), content.indexOf(sensitiveWord) + sensitiveWord.length(), StrUtil.repeat(stopCharacter, sensitiveWord.length())), StringBuilder::append).toString();
     }
 }
