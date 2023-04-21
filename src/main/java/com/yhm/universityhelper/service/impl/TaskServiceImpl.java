@@ -88,7 +88,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 }
                 ReflectUtils.set(task, key, filteredTags);
             } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
-                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
+                ReflectUtils.set(task, key, SensitiveUtils.unsafeReplace(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
@@ -127,7 +127,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 }
                 ReflectUtils.set(task, key, filteredTags);
             } else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
-                ReflectUtils.set(task, key, SensitiveUtils.replaceSensitiveWords(json.get(key).toString(), '*'));
+                ReflectUtils.set(task, key, SensitiveUtils.unsafeReplace(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(task, key, value);
             }
