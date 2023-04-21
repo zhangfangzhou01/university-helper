@@ -2,8 +2,8 @@ package com.yhm.universityhelper.util;
 
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
-import com.yhm.universityhelper.util.dfa.SensitiveUtil;
 import com.yhm.universityhelper.util.dfa.WordInfo;
+import com.yhm.universityhelper.util.dfa.WordTree;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import sun.misc.Unsafe;
@@ -20,6 +20,20 @@ import java.util.stream.Collectors;
 
 @Component
 public class SensitiveUtils {
+    private static final WordTree SENSITIVE_TREE = new WordTree();
+
+    public static List<String> getAllSensitive(String text) {
+        return SENSITIVE_TREE.matchAll(text);
+    }
+
+    public static List<WordInfo> getAllSensitiveWithPos(String text) {
+        return SENSITIVE_TREE.matchAllWithPos(text);
+    }
+
+    public static boolean containsSensitive(String text) {
+        return !SENSITIVE_TREE.matchAllWithPos(text).isEmpty();
+    }
+
     @PostConstruct
     private static void initResource() {
         List<String> sensitiveWords = null;
@@ -49,17 +63,18 @@ public class SensitiveUtils {
                 e.printStackTrace();
             }
         }
-        SensitiveUtil.init(sensitiveWords);
+        SENSITIVE_TREE.clear();
+        SENSITIVE_TREE.addWords(sensitiveWords);
     }
 
     @SneakyThrows
-    public static String unsafeReplace(String content, char stopCharacter) {
+    public static String unsafeReplaceSensitive(String content, char stopCharacter) {
         Field field = Unsafe.class.getDeclaredField("theUnsafe");
         field.setAccessible(true);
         Unsafe unsafe = (Unsafe)field.get(null);
         long offset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
         char[] value = (char[])unsafe.getObject(content, offset);
-        List<WordInfo> sensitiveWordInfos = SensitiveUtil.getAllSensitiveWithPos(content);
+        List<WordInfo> sensitiveWordInfos = SensitiveUtils.getAllSensitiveWithPos(content);
         if (sensitiveWordInfos == null || sensitiveWordInfos.size() == 0) {
             return content;
         }
@@ -72,9 +87,9 @@ public class SensitiveUtils {
         return content;
     }
 
-    public static String replace(String content, char stopCharacter) {
+    public static String replaceSensitive(String content, char stopCharacter) {
         StringBuilder sb = new StringBuilder(content);
-        List<String> sensitiveWords = SensitiveUtil.getAllSensitive(content);
+        List<String> sensitiveWords = SensitiveUtils.getAllSensitive(content);
         return sensitiveWords.stream().reduce(sb, (builder, sensitiveWord) -> builder.replace(content.indexOf(sensitiveWord), content.indexOf(sensitiveWord) + sensitiveWord.length(), StrUtil.repeat(stopCharacter, sensitiveWord.length())), StringBuilder::append).toString();
     }
 }

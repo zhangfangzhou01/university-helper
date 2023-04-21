@@ -1,14 +1,11 @@
 package com.yhm.universityhelper.util.dfa;
 
 import cn.hutool.core.collection.CollUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-/**
- * 过滤词及一些简单处理
- * 
- * @author Looly
- */
+@Component
 public class StopChar {
 	/** 不需要处理的词，如标点符号、空格等 */
 	public static final Set<Character> STOP_WORD = CollUtil.newHashSet(' ', '\'', '、', '。', //

@@ -4,9 +4,11 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Filter;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class WordTree extends HashMap<Character, WordTree> {
     private final Set<Character> endCharacterSet = new HashSet<>();
     private final Filter<Character> charFilter = StopChar::isNotStopChar;
@@ -55,7 +57,7 @@ public class WordTree extends HashMap<Character, WordTree> {
         }
     }
     
-    List<WordInfo> matchAllWithPos(String text) {
+    public List<WordInfo> matchAllWithPos(String text) {
         if (null == text) {
             return null;
         }
@@ -103,7 +105,7 @@ public class WordTree extends HashMap<Character, WordTree> {
         return foundWords;
     }
     
-    List<String> matchAll(String text) {
+    public List<String> matchAll(String text) {
         if (null == text) {
             return null;
         }

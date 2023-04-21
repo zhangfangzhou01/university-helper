@@ -79,7 +79,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 }
                 ReflectUtils.set(post, key, filteredTags);
             } else if ("title".equals(key) || "content".equals(key)) {
-                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplace(json.get(key).toString(), '*'));
+                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(post, key, value);
             }
@@ -135,7 +135,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 }
                 ReflectUtils.set(post, key, filteredTags);
             } else if ("title".equals(key) || "content".equals(key)) {
-                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplace(json.get(key).toString(), '*'));
+                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(post, key, json.get(key));
             }
@@ -265,7 +265,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(comment, key, LocalDateTime.parse(time));
             } else if ("content".equals(key)) {
-                ReflectUtils.set(comment, key, SensitiveUtils.unsafeReplace(json.get(key).toString(), '*'));
+                ReflectUtils.set(comment, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
             } else {
                 ReflectUtils.set(comment, key, json.get(key));
             }

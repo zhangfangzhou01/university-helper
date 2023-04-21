@@ -1,12 +1,14 @@
 package com.yhm.universityhelper.util;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class ReflectUtils {
     private static final Map<Class<?>, Map<MethodAccess, Map<String, Integer>>> METHOD_ACCESS_CACHE = new HashMap<>();
 
