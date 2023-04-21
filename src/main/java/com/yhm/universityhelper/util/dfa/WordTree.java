@@ -150,6 +150,49 @@ public class WordTree extends HashMap<Character, WordTree> {
         }
         return foundWords;
     }
+    
+    public String matchFirst(String text) {
+        if (null == text) {
+            return null;
+        }
+
+        WordTree current = this;
+        int length = text.length();
+        final Filter<Character> charFilter = this.charFilter;
+        //存放查找到的字符缓存。完整出现一个词时加到foundWords中，否则清空
+        final StrBuilder wordBuffer = StrUtil.strBuilder();
+        char currentChar;
+        for (int i = 0; i < length; i++) {
+            wordBuffer.reset();
+            for (int j = i; j < length; j++) {
+                currentChar = text.charAt(j);
+                if (!charFilter.accept(currentChar)) {
+                    if (wordBuffer.length() > 0) {
+                        //作为关键词中间的停顿词被当作关键词的一部分被返回
+                        wordBuffer.append(currentChar);
+                    } else {
+                        //停顿词做为关键词的第一个字符时需要跳过
+                        i++;
+                    }
+                    continue;
+                } else if (!current.containsKey(currentChar)) {
+                    //非关键字符被整体略过，重新以下个字符开始检查
+                    break;
+                }
+                wordBuffer.append(currentChar);
+                if (current.isEnd(currentChar)) {
+                    //到达单词末尾，关键词成立，从此词的下一个位置开始查找
+                    return wordBuffer.toString();
+                }
+                current = current.get(currentChar);
+                if (null == current) {
+                    break;
+                }
+            }
+            current = this;
+        }
+        return null;
+    }
 
     private boolean isEnd(Character c) {
         return this.endCharacterSet.contains(c);

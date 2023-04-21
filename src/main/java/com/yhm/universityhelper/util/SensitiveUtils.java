@@ -22,18 +22,6 @@ import java.util.stream.Collectors;
 public class SensitiveUtils {
     private static final WordTree SENSITIVE_TREE = new WordTree();
 
-    public static List<String> getAllSensitive(String text) {
-        return SENSITIVE_TREE.matchAll(text);
-    }
-
-    public static List<WordInfo> getAllSensitiveWithPos(String text) {
-        return SENSITIVE_TREE.matchAllWithPos(text);
-    }
-
-    public static boolean containsSensitive(String text) {
-        return !SENSITIVE_TREE.matchAllWithPos(text).isEmpty();
-    }
-
     @PostConstruct
     private static void initResource() {
         List<String> sensitiveWords = null;
@@ -65,6 +53,18 @@ public class SensitiveUtils {
         }
         SENSITIVE_TREE.clear();
         SENSITIVE_TREE.addWords(sensitiveWords);
+    }
+
+    public static List<String> getAllSensitive(String text) {
+        return SENSITIVE_TREE.matchAll(text);
+    }
+
+    public static List<WordInfo> getAllSensitiveWithPos(String text) {
+        return SENSITIVE_TREE.matchAllWithPos(text);
+    }
+
+    public static boolean containsSensitive(String text) {
+        return SENSITIVE_TREE.matchFirst(text) != null;
     }
 
     @SneakyThrows

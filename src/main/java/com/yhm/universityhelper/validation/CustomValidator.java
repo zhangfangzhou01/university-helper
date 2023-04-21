@@ -112,5 +112,4 @@ public class CustomValidator {
                 throw new RuntimeException("用户没有权限这么做");
         }
     }
-
 }
