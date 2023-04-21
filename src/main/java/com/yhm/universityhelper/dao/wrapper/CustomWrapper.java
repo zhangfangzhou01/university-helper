@@ -25,7 +25,7 @@ public abstract class CustomWrapper {
     }
 
     @PostConstruct
-    public static void initResource() {
+    private static void initResource() {
         InputStream inputStream = null;
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;

@@ -18,6 +18,7 @@ import com.yhm.universityhelper.util.ReflectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * @author author
  * @since 2023-04-19
  */
+@Transactional
 @Service
 public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements ForumService {
     @Autowired
