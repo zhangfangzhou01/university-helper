@@ -1,10 +1,10 @@
 package com.yhm.universityhelper.util;
 
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.StrUtil;
 import com.yhm.universityhelper.util.dfa.WordInfo;
 import com.yhm.universityhelper.util.dfa.WordTree;
 import lombok.SneakyThrows;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import sun.misc.Unsafe;
 
@@ -22,18 +22,6 @@ import java.util.stream.Collectors;
 public class SensitiveUtils {
     private static final WordTree SENSITIVE_TREE = new WordTree();
 
-    public static List<String> getAllSensitive(String text) {
-        return SENSITIVE_TREE.matchAll(text);
-    }
-
-    public static List<WordInfo> getAllSensitiveWithPos(String text) {
-        return SENSITIVE_TREE.matchAllWithPos(text);
-    }
-
-    public static boolean containsSensitive(String text) {
-        return !SENSITIVE_TREE.matchAllWithPos(text).isEmpty();
-    }
-
     @PostConstruct
     private static void initResource() {
         List<String> sensitiveWords = null;
@@ -41,8 +29,7 @@ public class SensitiveUtils {
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;
         try {
-            inputStream = SensitiveUtils.class.getClassLoader().getResourceAsStream("static/sensitive_words.txt");
-            ClassPathResource classPathResource = new ClassPathResource("static/sensitive_words.txt");
+            inputStream = new ClassPathResource("/static/sensitive_words.txt").getInputStream();
             inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8);
             bufferedReader = new BufferedReader(inputStreamReader);
             sensitiveWords = bufferedReader.lines().collect(Collectors.toList());
@@ -65,6 +52,18 @@ public class SensitiveUtils {
         }
         SENSITIVE_TREE.clear();
         SENSITIVE_TREE.addWords(sensitiveWords);
+    }
+
+    public static List<String> getAllSensitive(String text) {
+        return SENSITIVE_TREE.matchAll(text);
+    }
+
+    public static List<WordInfo> getAllSensitiveWithPos(String text) {
+        return SENSITIVE_TREE.matchAllWithPos(text);
+    }
+
+    public static boolean containsSensitive(String text) {
+        return SENSITIVE_TREE.matchFirst(text) != null;
     }
 
     @SneakyThrows

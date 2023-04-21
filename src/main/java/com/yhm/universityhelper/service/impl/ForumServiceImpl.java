@@ -2,7 +2,6 @@ package com.yhm.universityhelper.service.impl;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.dfa.SensitiveUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -16,7 +15,6 @@ import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.ForumService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
-import com.yhm.universityhelper.util.SensitiveUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,21 +64,16 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.set(post, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
-                    if (SensitiveUtil.containsSensitive(tag.toString())) {
-                        continue;
-                    }
-                    filteredTags.add(tag);
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
                         postTagMapper.insert(postTag);
                     }
                 }
-                ReflectUtils.set(post, key, filteredTags);
-            } else if ("title".equals(key) || "content".equals(key)) {
+                ReflectUtils.set(post, key, tags);
+            }/* else if ("title".equals(key) || "content".equals(key)) {
                 ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            } else {
+            }*/ else {
                 ReflectUtils.set(post, key, value);
             }
         }
@@ -122,21 +115,16 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.set(post, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                JSONArray filteredTags = new JSONArray();
                 for (Object tag : tags) {
-                    if (SensitiveUtil.containsSensitive(tag.toString())) {
-                        continue;
-                    }
-                    filteredTags.add(tag);
                     final PostTag postTag = new PostTag((String)tag);
                     if (!postTagMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
                         postTagMapper.insert(postTag);
                     }
                 }
-                ReflectUtils.set(post, key, filteredTags);
-            } else if ("title".equals(key) || "content".equals(key)) {
+                ReflectUtils.set(post, key, tags);
+            }/* else if ("title".equals(key) || "content".equals(key)) {
                 ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            } else {
+            }*/ else {
                 ReflectUtils.set(post, key, json.get(key));
             }
         }
@@ -169,14 +157,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.call(customPostWrapper, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                JSONArray filteredTags = new JSONArray();
-                for (Object tag : tags) {
-                    if (SensitiveUtil.containsSensitive(tag.toString())) {
-                        continue;
-                    }
-                    filteredTags.add(tag);
-                }
-                ReflectUtils.call(customPostWrapper, key, filteredTags);
+                ReflectUtils.call(customPostWrapper, key, tags);
             } else {
                 ReflectUtils.call(customPostWrapper, key, value);
             }
@@ -264,9 +245,9 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(comment, key, LocalDateTime.parse(time));
-            } else if ("content".equals(key)) {
+            }/* else if ("content".equals(key)) {
                 ReflectUtils.set(comment, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            } else {
+            }*/ else {
                 ReflectUtils.set(comment, key, json.get(key));
             }
         }

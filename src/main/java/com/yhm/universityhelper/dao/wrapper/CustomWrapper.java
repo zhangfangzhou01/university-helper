@@ -2,6 +2,7 @@ package com.yhm.universityhelper.dao.wrapper;
 
 import cn.hutool.extra.tokenizer.Word;
 import cn.hutool.extra.tokenizer.engine.jieba.JiebaEngine;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +30,7 @@ public abstract class CustomWrapper {
         InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;
         try {
-            inputStream = CustomWrapper.class.getClassLoader().getResourceAsStream("static/stopwords.txt");
+            inputStream = new ClassPathResource("/static/stopwords.txt").getInputStream();
             inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8);
             bufferedReader = new BufferedReader(inputStreamReader);
             STOP_WORDS = bufferedReader.lines().collect(Collectors.toList());

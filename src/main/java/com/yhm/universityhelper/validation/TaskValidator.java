@@ -3,6 +3,7 @@ package com.yhm.universityhelper.validation;
 
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.lang.Validator;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.dao.TaskMapper;
@@ -11,6 +12,7 @@ import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.util.BeanUtils;
+import com.yhm.universityhelper.util.SensitiveUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -84,13 +86,18 @@ public class TaskValidator extends CustomValidator {
                 .map(isHunter -> Validator.validateMatchRegex("[01]", isHunter, "0:雇主，1:猎人"))
                 .orElseThrow(() -> new ValidateException("必须提供isHunter"));
 
-        Optional.ofNullable(task.getStr("tags"))
+        Optional.ofNullable(task.getJSONArray("tags"))
+                .map(JSONArray::toString)
                 .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是json数组"))
                 .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new ValidateException("必须提供tags"));
 
         Optional.ofNullable(task.getStr("title"))
                 .map(title -> Validator.validateMatchRegex(".{1,255}", title, "标题长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "title中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new ValidateException("必须提供title"));
 
         Optional.ofNullable(task.getStr("transactionAmount"))
@@ -101,7 +108,9 @@ public class TaskValidator extends CustomValidator {
 
         // 两种类型都可以给的
         Optional.ofNullable(task.getStr("requireDescription"))
-                .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"));
+                .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "requireDescription中包含敏感词：" + sensitiveWords));
 
         Optional.ofNullable(task.getStr("expectedPeriod"))
                 .map(expectedPeriod -> Validator.validateNumber(expectedPeriod, "expectedPeriod不合法"));
@@ -139,10 +148,14 @@ public class TaskValidator extends CustomValidator {
 
             Optional.ofNullable(task.getStr("arrivalLocation"))
                     .map(arrivalLocation -> Validator.validateMatchRegex(".{1,255}", arrivalLocation, "到达地点长度必须在1-255之间"))
+                    .map(SensitiveUtils::getAllSensitive)
+                    .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "arrivalLocation中包含敏感词：" + sensitiveWords))
                     .orElseThrow(() -> new ValidateException("必须提供arrivalLocation"));
 
             Optional.ofNullable(task.getStr("targetLocation"))
                     .map(targetLocation -> Validator.validateMatchRegex(".{1,255}", targetLocation, "目标地点长度必须在1-255之间"))
+                    .map(SensitiveUtils::getAllSensitive)
+                    .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "targetLocation中包含敏感词：" + sensitiveWords))
                     .orElseThrow(() -> new ValidateException("必须提供targetLocation"));
         }
     }
@@ -194,15 +207,22 @@ public class TaskValidator extends CustomValidator {
         }
 
         // 更新时两种类型都可以改的
-        Optional.ofNullable(task.getStr("tags"))
+        Optional.ofNullable(task.getJSONArray("tags"))
+                .map(JSONArray::toString)
                 .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是json数组"))
-                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"));
-
+                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords));
+                
         Optional.ofNullable(task.getStr("title"))
-                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"));
+                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "title中包含敏感词：" + sensitiveWords));
 
         Optional.ofNullable(task.getStr("requireDescription"))
-                .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"));
+                .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "requireDescription中包含敏感词：" + sensitiveWords));
 
         Optional.ofNullable(task.getStr("expectedPeriod"))
                 .map(expectedPeriod -> Validator.validateNumber(expectedPeriod, "expectedPeriod不合法"));
@@ -237,10 +257,14 @@ public class TaskValidator extends CustomValidator {
 
             Optional.ofNullable(task.getStr("arrivalLocation"))
                     // 必须在releaseTime之前
-                    .map(arrivalLocation -> Validator.validateMatchRegex(".{1,255}", arrivalLocation, "到达地点长度必须在1-255之间"));
+                    .map(arrivalLocation -> Validator.validateMatchRegex(".{1,255}", arrivalLocation, "arrivalLocation长度必须在1-255之间"))
+                    .map(SensitiveUtils::getAllSensitive)
+                    .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "arrivalLocation中包含敏感词：" + sensitiveWords));
 
             Optional.ofNullable(task.getStr("targetLocation"))
-                    .map(targetLocation -> Validator.validateMatchRegex(".{1,255}", targetLocation, "目标地点长度必须在1-255之间"));
+                    .map(targetLocation -> Validator.validateMatchRegex(".{1,255}", targetLocation, "targetLocation长度必须在1-255之间"))
+                    .map(SensitiveUtils::getAllSensitive)
+                    .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "targetLocation中包含敏感词：" + sensitiveWords));
         }
     }
 

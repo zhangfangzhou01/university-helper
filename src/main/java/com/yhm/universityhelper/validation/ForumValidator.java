@@ -1,7 +1,9 @@
 package com.yhm.universityhelper.validation;
 
 import cn.hutool.core.lang.Validator;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.yhm.universityhelper.util.SensitiveUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,16 +16,23 @@ public class ForumValidator extends CustomValidator {
                 .orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
 
         Optional.ofNullable(post.getStr("title"))
-                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "标题长度必须在1-255之间"))
+                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "title中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new IllegalArgumentException("必须指定title"));
 
-        Optional.ofNullable(post.getStr("tags"))
-                .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "标签必须是JSON数组"))
-                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "标签长度必须在1-255之间"))
+        Optional.ofNullable(post.getJSONArray("tags"))
+                .map(JSONArray::toString)
+                .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是JSON数组"))
+                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new IllegalArgumentException("必须指定tags"));
 
         Optional.ofNullable(post.getStr("content"))
-                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "内容长度必须在1-65535之间"))
+                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new IllegalArgumentException("必须指定content"));
 
         Validator.validateNull(post.get("postId"), "postId默认为自增，不需要指定");
@@ -47,14 +56,21 @@ public class ForumValidator extends CustomValidator {
                 .orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
 
         Optional.ofNullable(post.getStr("title"))
-                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "标题长度必须在1-255之间"));
+                .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "title中包含敏感词：" + sensitiveWords));
 
-        Optional.ofNullable(post.getStr("tags"))
-                .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "标签必须是JSON数组"))
-                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "标签长度必须在1-255之间"));
+        Optional.ofNullable(post.getJSONArray("tags"))
+                .map(JSONArray::toString)
+                .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是JSON数组"))
+                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "标签中包含敏感词：" + sensitiveWords));
 
         Optional.ofNullable(post.getStr("content"))
-                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "内容长度必须在1-65535之间"));
+                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords));
 
         Validator.validateNull(post.get("postId"), "postId默认为自增，不需要指定");
         Validator.validateNull(post.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
@@ -72,7 +88,9 @@ public class ForumValidator extends CustomValidator {
                 .orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
 
         Optional.ofNullable(comment.getStr("content"))
-                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "内容长度必须在1-65535之间"))
+                .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间"))
+                .map(SensitiveUtils::getAllSensitive)
+                .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new IllegalArgumentException("必须指定content"));
 
         Validator.validateNull(comment.get("commentId"), "commentId默认为自增，不需要指定");
