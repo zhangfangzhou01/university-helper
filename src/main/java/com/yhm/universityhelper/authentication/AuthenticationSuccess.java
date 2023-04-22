@@ -1,5 +1,7 @@
 package com.yhm.universityhelper.authentication;
 
+import cn.hutool.core.lang.Validator;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 @Component
-public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
+public class AuthenticationSuccess implements AuthenticationSuccessHandler {
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -43,7 +46,18 @@ public class JwtAuthenticationSuccess implements AuthenticationSuccessHandler {
             jwtUtils.setExpiration(expire);
         }
         // 除了new UsernamePasswordAuthenticationToken() 外，第二种生成 Token的方式
-        String token = jwtUtils.generateToken(authentication.getName());
+        String username;
+        String usernameOrEmail = authentication.getName();
+        if (Validator.isEmail(usernameOrEmail)) {
+            username = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getEmail, usernameOrEmail)).getUsername();
+            if (ObjectUtil.isEmpty(username)) {
+                throw new UsernameNotFoundException("用户名或邮箱不存在");
+            }
+        } else {
+            username = usernameOrEmail;
+        }
+
+        String token = jwtUtils.generateToken(username);
         response.setHeader(jwtUtils.getHeader(), token);
 
         ResponseResult<HashMap<String, Object>> responseResult = ResponseResult.ok(new HashMap<String, Object>() {{

@@ -5,6 +5,16 @@ server:
 spring:
   application:
     name: universityhelper
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+    lettuce:
+      pool:
+        max-active: 32
+        max-idle: 16
+        min-idle: 8
   datasource:
     name: druidDataSource
     username: root
@@ -89,6 +99,14 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  mail:
+    protocol: smtp
+    host: smtp.qq.com
+    port: 587
+    username: 2633915958@qq.com
+    password: fxgtrvkwnzcfebih
+    test-connection: false
+    default-encoding: UTF-8
 
 mybatis-plus:
   configuration:
@@ -109,6 +127,14 @@ authentication:
     header: Authorization
     expire: 604800
     secret: UniversityHelper
+  email:
+    request:
+      email-name: email
+      code-name: code
+    code:
+      length: 6
+      expire: 30
+    url: 2633915958@qq.com
 
 account:
   locked:

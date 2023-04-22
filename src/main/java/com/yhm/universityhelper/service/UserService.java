@@ -61,4 +61,6 @@ public interface UserService extends IService<User> {
 
     // 获取黑名单数
     Long getBlockedCount(String username);
+    
+    void sendEmailCode(String email);
 }

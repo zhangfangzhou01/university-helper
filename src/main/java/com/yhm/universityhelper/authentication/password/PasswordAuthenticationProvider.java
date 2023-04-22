@@ -1,5 +1,7 @@
-package com.yhm.universityhelper.authentication;
+package com.yhm.universityhelper.authentication.password;
 
+import cn.hutool.core.lang.Validator;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.dto.LoginUser;
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Component
-public class JwtAuthenticationProvider implements AuthenticationProvider {
+public class PasswordAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private UserServiceImpl userService;
 
@@ -43,7 +45,21 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
+        if (!supports(authentication.getClass())) {
+            return null;
+        }
+        
+        String username;
+        String usernameOrEmail = authentication.getName();
+        if (Validator.isEmail(usernameOrEmail)) {
+            username = userService.getOne(new LambdaUpdateWrapper<User>().eq(User::getEmail, usernameOrEmail)).getUsername();
+            if (ObjectUtil.isEmpty(username)) {
+                throw new UsernameNotFoundException("用户名或邮箱不存在");
+            }
+        } else {
+            username = usernameOrEmail;
+        }
+        
         String rawPassword = authentication.getCredentials().toString();
         LoginUser loginUser = userDetailsService.loadUserByUsername(username);
         User user = userService.getOne(new LambdaUpdateWrapper<User>().eq(User::getUsername, username));
@@ -90,6 +106,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return true;
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
