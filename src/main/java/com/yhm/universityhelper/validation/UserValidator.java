@@ -45,7 +45,9 @@ public class UserValidator extends CustomValidator {
                 .map(phone -> Validator.validateMobile(phone, "手机号不合法"));
 
         Optional.ofNullable(user.getStr("email"))
-                .map(email -> Validator.validateEmail(email, "邮箱不合法"));
+                .map(email -> Validator.validateEmail(email, "邮箱不合法"))
+                .map(email -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getEmail, email)))
+                .map(exists -> Validator.validateTrue(exists, "邮箱已被注册"));
 
         Optional.ofNullable(user.getStr("sex"))
                 .map(sex -> Validator.validateMatchRegex("[男女]", sex, "性别只能是男或女"));
@@ -264,5 +266,11 @@ public class UserValidator extends CustomValidator {
                 .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> Validator.validateNotNull(BeanUtils.getBean(UserMapper.class).selectByUsername(u), "用户名不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
+    }
+
+    public static void sendEmailCode(String email) {
+        Optional.ofNullable(email)
+                .map(e -> Validator.validateEmail(e, "邮箱不合法"))
+                .orElseThrow(() -> new ValidateException("必须提供邮箱"));
     }
 }

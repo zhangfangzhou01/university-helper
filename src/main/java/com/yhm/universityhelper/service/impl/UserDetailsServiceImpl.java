@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.dao.RoleMapper;
 import com.yhm.universityhelper.dao.UserMapper;
@@ -40,6 +41,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<GrantedAuthority> authorities = this.getUserAuthorities(user.getUserId());
         return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getBanned(), authorities);
     }
+    
+    public LoginUser loadUserByEmail(String email) throws UsernameNotFoundException {
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
+        if (ObjectUtils.isEmpty(user)) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
+        List<GrantedAuthority> authorities = this.getUserAuthorities(user.getUserId());
+        return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getBanned(), authorities);
+    } 
 
     public List<GrantedAuthority> getUserAuthorities(Long userId) {
         List<GrantedAuthority> authorities = new ArrayList<>();

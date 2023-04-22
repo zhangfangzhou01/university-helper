@@ -10,7 +10,9 @@ import com.yhm.universityhelper.dao.*;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.util.EmailUtils;
 import com.yhm.universityhelper.util.IpUtils;
+import com.yhm.universityhelper.util.RedisUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -62,6 +64,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private BlacklistMapper blacklistMapper;
+
+    @Autowired
+    private EmailUtils emailUtils;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public boolean register(String username, String password) {
@@ -254,5 +262,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Long getBlockedCount(String username) {
         return blacklistMapper.selectCount(new LambdaQueryWrapper<Blacklist>().eq(Blacklist::getBlockerId, userMapper.selectUserIdByUsername(username)));
+    }
+
+    @Override
+    public void sendEmailCode(String to) {
+        String from = emailUtils.getUrl();
+        String code = emailUtils.generateCode();
+        String subject = "UniversityHelper 邮箱验证码";
+        String content = "您的验证码为：" + code;
+        int expire = emailUtils.getExpire();
+        emailUtils.send(from, to, subject, content);
+        redisUtils.set(to, code, expire);
     }
 }

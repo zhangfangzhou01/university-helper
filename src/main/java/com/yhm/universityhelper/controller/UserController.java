@@ -165,7 +165,6 @@ public class UserController {
                 : ResponseResult.fail("设置失败");
     }
 
-    // TODO: 关注和拉黑
     @ApiOperation(value = "关注")
     @PostMapping("/follow")
     public ResponseResult<Object> follow(@RequestParam String follower, @RequestParam String followed) {

@@ -1,4 +1,4 @@
-package com.yhm.universityhelper.authentication;
+package com.yhm.universityhelper.authentication.token;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
+public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -33,10 +33,10 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
     private UserService userService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public TokenAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
-
+    
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwt = request.getHeader(jwtUtils.getHeader());

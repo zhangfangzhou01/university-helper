@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class JwtAuthenticationLogout implements LogoutSuccessHandler {
+public class AuthenticationLogout implements LogoutSuccessHandler {
     @Autowired
     private JwtUtils jwtUtils;
 
