@@ -1,7 +1,9 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yhm.universityhelper.config.MybatisRedisCache;
 import com.yhm.universityhelper.entity.po.Usertaketask;
+import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -13,6 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2023-03-04
  */
 
+@CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
 @Mapper
 public interface UsertaketaskMapper extends BaseMapper<Usertaketask> {
 }

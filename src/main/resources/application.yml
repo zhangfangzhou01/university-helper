@@ -8,6 +8,7 @@ spring:
   redis:
     host: localhost
     port: 6379
+    expire: 300
     password: 
     database: 0
     lettuce:
@@ -112,6 +113,8 @@ mybatis-plus:
   configuration:
     # mybatis-plus操作日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+    map-underscore-to-camel-case: true
   # Mapper文件
   mapper-locations: classpath*:mapper/*xml
   # 实体目录
