@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Chat;
 import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -15,7 +14,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2023-03-23
  */
 
-@Mapper
 public interface ChatMapper extends BaseMapper<Chat> {
     @Override
     @Insert("insert into universityhelper.uh_chat (fromUsername, toUsername, content, time) values (#{fromUsername}, #{toUsername}, #{content}, #{time})")

@@ -5,7 +5,6 @@ import com.yhm.universityhelper.config.MybatisRedisCache;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.po.UserRole;
 import org.apache.ibatis.annotations.CacheNamespace;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.List;
  */
 
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-@Mapper
 public interface UserMapper extends BaseMapper<User> {
     @Select("select * from universityhelper.uh_user where username = #{username}")
     User selectByUsername(String username);

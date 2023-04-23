@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.config.MybatisRedisCache;
 import com.yhm.universityhelper.entity.po.Task;
 import org.apache.ibatis.annotations.CacheNamespace;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.Map;
  */
 
 @CacheNamespace(implementation = MybatisRedisCache.class, eviction = MybatisRedisCache.class)
-@Mapper
 public interface TaskMapper extends BaseMapper<Task> {
     @Select("select userId from universityhelper.uh_task where taskId = #{taskId}")
     Long selectUserIdByTaskId(Long taskId);

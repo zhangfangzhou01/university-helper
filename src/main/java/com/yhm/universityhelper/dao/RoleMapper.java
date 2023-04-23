@@ -2,7 +2,6 @@ package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.Role;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -13,6 +12,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2023-02-26
  */
 
-@Mapper
 public interface RoleMapper extends BaseMapper<Role> {
 }

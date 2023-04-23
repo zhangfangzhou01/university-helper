@@ -2,7 +2,6 @@ package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.entity.po.UserRole;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.List;
  * @since 2023-02-26
  */
 
-@Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
     @Select("select * from universityhelper.uh_user_role where userId = #{userId}")
     List<UserRole> listByUserId(Long userId);
