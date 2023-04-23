@@ -1,19 +1,39 @@
 package com.yhm.universityhelper.util;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Data
 @Component
 public class RedisUtils {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    // 默认的过期时间，所有set进redis的数据都会在这个时间后过期
+    // 这样做的目的是防止内存占用一直不能被释放
+    @Value("${spring.redis.expire}")
+    private long defaultExpire;
+    
+    /**
+     * 执行RedisCallback
+     *
+     */
+    public Object execute(RedisCallback redisCallback) {
+        return redisTemplate.execute(redisCallback);
+        
+    }
+
     /**
      * 给一个指定的 key 值附加过期时间
      *
@@ -24,15 +44,27 @@ public class RedisUtils {
     public boolean setExpire(String key, long time) {
         return redisTemplate.expire(key, time, TimeUnit.SECONDS);
     }
+
     /**
      * 根据key 获取过期时间
      *
      * @param key
-     * @return
+     * @return long
      */
     public long getExpire(String key) {
         return redisTemplate.getExpire(key, TimeUnit.SECONDS);
     }
+
+    /**
+     * 根据defaultExpire生成一个随机的过期时间
+     * 目的是防止缓存雪崩，即大量的缓存同时过期
+     *
+     * @return long
+     */
+    public long getRandomExpire() {
+        return (long)(defaultExpire * (0.8 + Math.random() * 0.4));
+    }
+
     /**
      * 根据key 获取过期时间
      *
@@ -42,6 +74,7 @@ public class RedisUtils {
     public boolean hasKey(String key) {
         return redisTemplate.hasKey(key);
     }
+
     /**
      * 移除指定key 的过期时间
      *
@@ -80,6 +113,17 @@ public class RedisUtils {
      *
      * @param key   键
      * @param value 值
+     * @return true成功 false 失败
+     */
+    public void set(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    /**
+     * 将值放入缓存并设置时间
+     *
+     * @param key   键
+     * @param value 值
      * @param time  时间(秒) -1为无期限
      * @return true成功 false 失败
      */
@@ -90,15 +134,62 @@ public class RedisUtils {
             redisTemplate.opsForValue().set(key, value);
         }
     }
+
+    /**
+     * 将值放入缓存并设置时间
+     *
+     * @param key   键
+     * @param value 值
+     * @param time  时间(秒) -1为无期限
+     * @return true成功 false 失败
+     */
+    public void set(String key, Object value, long time) {
+        if (time > 0) {
+            redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+        } else {
+            redisTemplate.opsForValue().set(key, value);
+        }
+    }
+    
+    public void hset(String key, String hashKey, Object value) {
+        redisTemplate.opsForHash().put(key, hashKey, value);
+    }
+    
+    public void hset(String key, String hashKey, Object value, long time) {
+        redisTemplate.opsForHash().put(key, hashKey, value);
+        if (time > 0) {
+            redisTemplate.expire(key, time, TimeUnit.SECONDS);
+        }
+    }
+    
+    public Object hget(String key, String hashKey) {
+        return redisTemplate.opsForHash().get(key, hashKey);
+    }
+    
+    public void hdel(String key, String hashKey) {
+        redisTemplate.opsForHash().delete(key, hashKey);
+    }
+
+    /**
+     * 删除对应的value
+     *
+     * @param key 键
+     */
+    public void del(String key) {
+        redisTemplate.unlink(key);
+    }
+    
+    public void del(Collection<String> keys) {
+        redisTemplate.delete(keys);
+    }
     
     /**
-    * 删除对应的value
-    * 
-    * @param key 键
-    * 
-    * */
-    public void del(Object key) {
-        redisTemplate.unlink(key);
+     * 获得所有的key
+     *
+     * @param keys
+     */
+    public Set<String> keys(String keys) {
+        return redisTemplate.keys(keys);
     }
 
     /**
@@ -317,7 +408,7 @@ public class RedisUtils {
      * @return
      */
     public Integer getMapInt(String key, String key2) {
-        return (Integer) redisTemplate.opsForHash().get("map1", "key1");
+        return (Integer)redisTemplate.opsForHash().get("map1", "key1");
     }
 
     /**

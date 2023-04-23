@@ -130,7 +130,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest()
                 .authenticated() // 剩余所有请求者需要身份认证
-
+                
 
                 .and().rememberMe().rememberMeParameter("rememberMe")  // 与前端绑定的标签名
                 .tokenValiditySeconds(60 * 60 * 24 * 7) // 7天

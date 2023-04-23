@@ -277,5 +277,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String content = "您的验证码为：" + code;
         emailUtils.send(from, to, subject, content);
         redisUtils.set(to, code, expire);
+        redisUtils.set(to, new Task());
     }
 }
