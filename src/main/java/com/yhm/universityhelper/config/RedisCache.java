@@ -1,6 +1,6 @@
 package com.yhm.universityhelper.config;
 
-import com.yhm.universityhelper.util.ApplicationContextUtils;
+import com.yhm.universityhelper.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.Cache;
 import org.springframework.data.redis.connection.RedisServerCommands;
@@ -30,7 +30,7 @@ public class RedisCache implements Cache {
     
     public RedisTemplate<String, Object> getRedisTemplate() {
         if (redisTemplate == null) {
-            redisTemplate = (RedisTemplate<String, Object>) ApplicationContextUtils.getBean("redisTemplate");
+            redisTemplate = (RedisTemplate<String, Object>) BeanUtils.getBean("redisTemplate");
         }
         return redisTemplate;
     }
