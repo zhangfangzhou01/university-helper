@@ -13,14 +13,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Slf4j
-public class MybatisRedisCache implements Cache {
+public class RedisCache implements Cache {
     // 读写公平，锁整个Cache，读多写少时性能好，阻塞写，不阻塞读
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     private RedisTemplate<String, Object> redisTemplate;
 
     private final String id;
-    public MybatisRedisCache(String id) {
+    public RedisCache(String id) {
         if (id == null) {
             throw new IllegalArgumentException("Cache instances require an ID");
         }

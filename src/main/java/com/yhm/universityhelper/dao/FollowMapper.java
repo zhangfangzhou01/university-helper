@@ -1,7 +1,9 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.Follow;
+import org.apache.ibatis.annotations.CacheNamespace;
 
 /**
  * <p>
@@ -11,6 +13,8 @@ import com.yhm.universityhelper.entity.po.Follow;
  * @author author
  * @since 2023-04-19
  */
+
+@CacheNamespace(implementation = RedisCache.class, eviction = RedisCache.class)
 public interface FollowMapper extends BaseMapper<Follow> {
 
 }
