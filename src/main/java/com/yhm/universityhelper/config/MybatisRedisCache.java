@@ -2,7 +2,6 @@ package com.yhm.universityhelper.config;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.crypto.SecureUtil;
 import com.yhm.universityhelper.util.ApplicationContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.Cache;
@@ -31,10 +30,6 @@ public class MybatisRedisCache implements Cache {
         this.id = id;
     }
 
-    public String MD5encrypt(String key) {
-        return SecureUtil.md5(key);
-    }
-
     public int randomExpire() {
         return RandomUtil.randomInt(3600, 86400);
     }
@@ -54,7 +49,7 @@ public class MybatisRedisCache implements Cache {
     @Override
     public void putObject(Object key, Object value) {
         if (value != null) {
-            getRedisTemplate().opsForValue().set(MD5encrypt(key.toString()), value, randomExpire());
+            getRedisTemplate().opsForValue().set(key.toString(), value, randomExpire());
         }
     }
 
@@ -62,7 +57,7 @@ public class MybatisRedisCache implements Cache {
     public Object getObject(Object key) {
         try {
             if (key != null) {
-                return getRedisTemplate().opsForValue().get(MD5encrypt(key.toString()));
+                return getRedisTemplate().opsForValue().get(key.toString());
             }
         } catch (Exception e) {
             log.error("缓存出错");
