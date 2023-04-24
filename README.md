@@ -13,6 +13,9 @@ university-helper
 ├── main
 │   ├── java.com.universityhelper
 │   │   ├── authentication
+│   │   │   ├── token
+│   │   │   ├── password
+│   │   │   ├── email
 │   │   ├── config
 │   │   ├── controller
 │   │   ├── dao
@@ -27,10 +30,11 @@ university-helper
 │   │   ├── validation
 │   │   ├── UniversityhelperApplication.java
 │   ├── resources
+│   │   ├── static
 │   │   ├── application.yml
 ```
 
-## 项目涉及库
+## 项目涉及
 
 - SpringBoot
 - SpringSecurity
@@ -41,6 +45,7 @@ university-helper
 - Swagger
 - WebSocket
 - MySQL
+- Redis
 - Knife4j
 - Hutool
 - Lombok

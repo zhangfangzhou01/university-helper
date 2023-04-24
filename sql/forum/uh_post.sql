@@ -10,9 +10,8 @@ create table uh_post
     content        text                                       not null,
     likeNum        bigint       default 0                     not null,
     starNum        bigint       default 0                     not null,
-    commentNum     bigint       default 0                     not null
+    commentNum     bigint       default 0                     not null,
+    version        int          default 1                     not null
 )
-    comment '论坛表，存储论坛信息'
-    engine = InnoDB
-    default charset = utf8mb4;
+    comment '论坛表，存储论坛信息';
 

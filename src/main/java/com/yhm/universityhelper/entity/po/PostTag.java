@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,6 +31,9 @@ public class PostTag implements Serializable {
     @TableField("tag")
     private String tag;
 
+    @Version
+    @TableField("version")
+    private Integer version;
 
     public PostTag(String tag) {
         this.tag = tag;

@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,6 +37,10 @@ public class VisitHistory implements Serializable {
 
     @TableField("visitTime")
     private LocalDateTime visitTime;
+
+    @Version
+    @TableField("version")
+    private Integer version;
 
     public VisitHistory(Long userId, Long postId) {
         this.userId = userId;

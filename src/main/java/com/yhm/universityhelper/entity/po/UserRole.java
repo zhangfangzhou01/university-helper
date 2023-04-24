@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,6 +40,10 @@ public class UserRole implements Serializable {
 
     @TableField("roleId")
     private Long roleId;
+
+    @Version
+    @TableField("version")
+    private Integer version;
 
     public UserRole(Long userId, Long roleId) {
         this.userId = userId;

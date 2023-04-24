@@ -1,10 +1,7 @@
 package com.yhm.universityhelper.entity.po;
 
 import cn.hutool.json.JSONArray;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,4 +60,7 @@ public class Post implements Serializable {
     @TableField("commentNum")
     private Long commentNum;
 
+    @Version
+    @TableField("version")
+    private Integer version;
 }
