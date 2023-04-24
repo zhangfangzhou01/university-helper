@@ -24,14 +24,14 @@ public class RedisUtils {
     // 这样做的目的是防止内存占用一直不能被释放
     @Value("${spring.redis.expire}")
     private long defaultExpire;
-    
+
     /**
      * 执行RedisCallback
      *
      */
     public Object execute(RedisCallback redisCallback) {
         return redisTemplate.execute(redisCallback);
-        
+
     }
 
     /**
@@ -105,7 +105,7 @@ public class RedisUtils {
      * @return true成功 false 失败
      */
     public void set(String key, String value) {
-        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.opsForValue().set(key, value, getRandomExpire(), TimeUnit.SECONDS);
     }
 
     /**
@@ -116,7 +116,7 @@ public class RedisUtils {
      * @return true成功 false 失败
      */
     public void set(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.opsForValue().set(key, value, getRandomExpire(), TimeUnit.SECONDS);
     }
 
     /**
@@ -131,7 +131,7 @@ public class RedisUtils {
         if (time > 0) {
             redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
         } else {
-            redisTemplate.opsForValue().set(key, value);
+            redisTemplate.opsForValue().set(key, value, getRandomExpire(), TimeUnit.SECONDS);
         }
     }
 
@@ -147,25 +147,25 @@ public class RedisUtils {
         if (time > 0) {
             redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
         } else {
-            redisTemplate.opsForValue().set(key, value);
+            redisTemplate.opsForValue().set(key, value, getRandomExpire(), TimeUnit.SECONDS);
         }
     }
-    
+
     public void hset(String key, String hashKey, Object value) {
         redisTemplate.opsForHash().put(key, hashKey, value);
     }
-    
+
     public void hset(String key, String hashKey, Object value, long time) {
         redisTemplate.opsForHash().put(key, hashKey, value);
         if (time > 0) {
             redisTemplate.expire(key, time, TimeUnit.SECONDS);
         }
     }
-    
+
     public Object hget(String key, String hashKey) {
         return redisTemplate.opsForHash().get(key, hashKey);
     }
-    
+
     public void hdel(String key, String hashKey) {
         redisTemplate.opsForHash().delete(key, hashKey);
     }
@@ -178,11 +178,11 @@ public class RedisUtils {
     public void del(String key) {
         redisTemplate.unlink(key);
     }
-    
+
     public void del(Collection<String> keys) {
         redisTemplate.delete(keys);
     }
-    
+
     /**
      * 获得所有的key
      *
