@@ -1,10 +1,10 @@
 package com.yhm.universityhelper.config;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.yhm.universityhelper.util.ApplicationContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.Cache;
 import org.springframework.data.redis.connection.RedisServerCommands;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Objects;
@@ -42,6 +42,7 @@ public class RedisCache implements Cache {
 
     @Override
     public void putObject(Object key, Object value) {
+        log.debug("redis set: key=" + key + ",value=" + value);
         if (value != null) {
             getRedisTemplate().opsForValue().set(key.toString(), value);
         }
@@ -49,30 +50,37 @@ public class RedisCache implements Cache {
 
     @Override
     public Object getObject(Object key) {
+        log.debug("redis get: key=" + key);
         try {
             if (key != null) {
                 return getRedisTemplate().opsForValue().get(key.toString());
             }
         } catch (Exception e) {
-            log.error("缓存出错");
+            log.error("redis get error: key=" + key, e);
         }
         return null;
     }
 
     @Override
     public Object removeObject(Object key) {
+        log.debug("redis remove: key=" + key);
         if (key != null) {
-            getRedisTemplate().delete(key.toString());
+            getRedisTemplate().unlink(key.toString());
         }
         return null;
     }
 
     @Override
     public void clear() {
-        log.debug("清空缓存");
+        log.debug("redis clear");
         Set<String> keys = getRedisTemplate().keys("*:" + this.id + "*");
-        if (!CollectionUtil.isEmpty(keys)) {
-            getRedisTemplate().delete(keys);
+        if (keys != null && keys.size() > 0) {
+            getRedisTemplate().executePipelined((RedisCallback<Object>)connection -> {
+                for (String key : keys) {
+                    connection.unlink(key.getBytes());
+                }
+                return null;
+            });
         }
     }
 
