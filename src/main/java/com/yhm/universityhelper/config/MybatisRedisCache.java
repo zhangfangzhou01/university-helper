@@ -1,7 +1,6 @@
 package com.yhm.universityhelper.config;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.yhm.universityhelper.util.ApplicationContextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.Cache;
@@ -21,7 +20,6 @@ public class MybatisRedisCache implements Cache {
     private RedisTemplate<String, Object> redisTemplate;
 
     private final String id;
-
     public MybatisRedisCache(String id) {
         if (id == null) {
             throw new IllegalArgumentException("Cache instances require an ID");
@@ -29,18 +27,14 @@ public class MybatisRedisCache implements Cache {
         log.info("MybatisRedisCache:id=" + id);
         this.id = id;
     }
-
-    public int randomExpire() {
-        return RandomUtil.randomInt(3600, 86400);
-    }
-
+    
     public RedisTemplate<String, Object> getRedisTemplate() {
         if (redisTemplate == null) {
-            redisTemplate = (RedisTemplate<String, Object>)ApplicationContextUtils.getBean("redisTemplate");
+            redisTemplate = (RedisTemplate<String, Object>) ApplicationContextUtils.getBean("redisTemplate");
         }
         return redisTemplate;
     }
-
+    
     @Override
     public String getId() {
         return this.id;
@@ -49,7 +43,7 @@ public class MybatisRedisCache implements Cache {
     @Override
     public void putObject(Object key, Object value) {
         if (value != null) {
-            getRedisTemplate().opsForValue().set(key.toString(), value, randomExpire());
+            getRedisTemplate().opsForValue().set(key.toString(), value);
         }
     }
 
@@ -68,7 +62,7 @@ public class MybatisRedisCache implements Cache {
     @Override
     public Object removeObject(Object key) {
         if (key != null) {
-            getRedisTemplate().unlink(key.toString());
+            getRedisTemplate().delete(key.toString());
         }
         return null;
     }
@@ -78,7 +72,7 @@ public class MybatisRedisCache implements Cache {
         log.debug("清空缓存");
         Set<String> keys = getRedisTemplate().keys("*:" + this.id + "*");
         if (!CollectionUtil.isEmpty(keys)) {
-            getRedisTemplate().unlink(keys);
+            getRedisTemplate().delete(keys);
         }
     }
 
