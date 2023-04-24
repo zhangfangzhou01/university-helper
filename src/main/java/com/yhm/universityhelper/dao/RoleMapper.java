@@ -1,7 +1,9 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.Role;
+import org.apache.ibatis.annotations.CacheNamespace;
 
 /**
  * <p>
@@ -12,5 +14,6 @@ import com.yhm.universityhelper.entity.po.Role;
  * @since 2023-02-26
  */
 
+@CacheNamespace(implementation = RedisCache.class, eviction = RedisCache.class)
 public interface RoleMapper extends BaseMapper<Role> {
 }
