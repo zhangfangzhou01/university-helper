@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +38,10 @@ public class Usertaketask implements Serializable {
     @TableField("userId")
     private Long userId;
 
+    @Version
+    @TableField("version")
+    private Integer version;
+    
     public Usertaketask(Long taskId, Long userId) {
         this.taskId = taskId;
         this.userId = userId;

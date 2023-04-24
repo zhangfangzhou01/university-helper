@@ -7,7 +7,7 @@ create table uh_comment
     releaseTime     timestamp    default '1970-01-02 00:00:00' not null,
     content         varchar(510) default ''                    not null,
     likeNum         bigint       default 0                     not null,
-    replayCommentId bigint       default 0                     not null
-) engine = InnoDB
-  default charset = utf8mb4;
+    replayCommentId bigint       default 0                     not null,
+    version         int          default 1                     not null
+);
 

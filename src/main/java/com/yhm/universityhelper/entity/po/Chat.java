@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.yhm.universityhelper.entity.dto.ChatUser;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -41,6 +38,10 @@ public class Chat implements Serializable {
 
     @TableField("time")
     private LocalDateTime time;
+
+    @Version
+    @TableField("version")
+    private Integer version;
 
     public Chat(ChatUser from, String content) {
         this.from = from;

@@ -1,8 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,8 +32,12 @@ public class TaskTag implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("tag")
     private String tag;
 
+    @Version
+    @TableField("version")
+    private Integer version;
     public TaskTag(String tag) {
         this.tag = tag;
     }

@@ -1,9 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,6 +36,10 @@ public class Follow implements Serializable {
     @ApiModelProperty(value = "被关注者")
     @TableField("followed")
     private Long followedId;
+
+    @Version
+    @TableField("version")
+    private Integer version;
 
     public Follow(Long followerId, Long followedId) {
         this.followerId = followerId;
