@@ -38,8 +38,8 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     private UserMapper userMapper;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-
-/*
+    
+    @Override
     public void chat(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
@@ -56,10 +56,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
 
         simpMessagingTemplate.convertAndSendToUser(destUsername, "/queue/chat", chat);
     }
-*/
 
     @Override
-    public void chat(Authentication authentication, JSONObject msg) {
+    public void groupChat(Authentication authentication, JSONObject msg) {
         String srcUsername = authentication.getName();
         User srcUser = userMapper.selectByUsername(srcUsername);
         ChatUser srcChatUser = new ChatUser(srcUser);
@@ -109,5 +108,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Override
     public int getOnlineUsersCount() {
         return AuthChannelInterceptor.ONLINE_USERS.size();
+    }
+
+    @Override
+    public void read(String receiver, String sender) {
+        final List<Chat> chats = chatMapper.selectUnread(receiver, sender);
+        chats.forEach(chat -> chat.setIsRead(true));
+        this.updateBatchById(chats);
     }
 }

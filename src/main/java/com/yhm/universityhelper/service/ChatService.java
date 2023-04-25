@@ -21,6 +21,8 @@ public interface ChatService extends IService<Chat> {
 
     void chat(Authentication authentication, JSONObject msg);
 
+    void groupChat(Authentication authentication, JSONObject msg);
+
     void broadcast(Authentication authentication, JSONObject msg);
 
     void notification(String msg);
@@ -30,4 +32,6 @@ public interface ChatService extends IService<Chat> {
     Set<String> getOnlineUsers();
 
     int getOnlineUsersCount();
+    
+    void read(String receiver, String sender);
 }

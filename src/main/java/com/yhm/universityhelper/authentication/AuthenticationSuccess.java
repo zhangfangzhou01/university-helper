@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
-import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class AuthenticationSuccess implements AuthenticationSuccessHandler {
@@ -46,10 +46,14 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
             jwtUtils.setExpiration(expire);
         }
         // 除了new UsernamePasswordAuthenticationToken() 外，第二种生成 Token的方式
+        Map<String, Object> usernameAndRegion;
         String username;
+        String region = null;
         String usernameOrEmail = authentication.getName();
         if (Validator.isEmail(usernameOrEmail)) {
-            username = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getEmail, usernameOrEmail)).getUsername();
+            usernameAndRegion = userService.getMap(new LambdaQueryWrapper<User>().eq(User::getEmail, usernameOrEmail).select(User::getUsername, User::getRegion));
+            username = (String) usernameAndRegion.get("username");
+            region = (String) usernameAndRegion.get("region");
             if (ObjectUtil.isEmpty(username)) {
                 throw new UsernameNotFoundException("用户名或邮箱不存在");
             }
@@ -60,15 +64,10 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
         String token = jwtUtils.generateToken(username);
         response.setHeader(jwtUtils.getHeader(), token);
 
-        ResponseResult<HashMap<String, Object>> responseResult = ResponseResult.ok(new HashMap<String, Object>() {{
-            put("token", token);
-        }}, "登录成功");
-
-        User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, authentication.getName()));
-        String region = IpUtils.getRegion(request);
-        user.setRegion(region);
-        userService.updateById(user);
-        responseResult.getData().put("region", user.getRegion());
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", token);
+        data.put("region", region);
+        ResponseResult<Map<String, Object>> responseResult = ResponseResult.ok(data, "登录成功");
 
         JsonUtils.writeJson(response, responseResult);
     }

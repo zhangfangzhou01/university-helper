@@ -89,6 +89,10 @@
                 console.log(greeting.body);
                 print(JSON.parse(greeting.body).fromUsername + ": ", JSON.parse(greeting.body).content);
             });
+            stompClient.subscribe('/user/queue/groupChat', function (greeting) {
+                console.log(greeting.body);
+                print(JSON.parse(greeting.body).fromUsername + ": ", JSON.parse(greeting.body).content);
+            });
             stompClient.subscribe('/topic/notification', function (msg) {
                 console.log(msg.body);
                 print('系统提示：', msg.body);
@@ -118,12 +122,20 @@
                     'content': input.val()
                 }));
         } else {
-            let targets = targetStr.split(",");
-            stompClient.send("/app/chat", {},
-                JSON.stringify({
-                    'to': targets,
-                    'content': input.val()
-                }));
+            if (targetStr.indexOf(",") !== -1) {
+                let targets = targetStr.split(",");
+                stompClient.send("/app/groupChat", {},
+                    JSON.stringify({
+                        'to': targets,
+                        'content': input.val()
+                    }));
+            } else {
+                stompClient.send("/app/chat", {},
+                    JSON.stringify({
+                        'to': targetStr,
+                        'content': input.val()
+                    }));
+            }
         }
     }
 

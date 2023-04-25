@@ -27,6 +27,11 @@ public class ChatController {
         chatService.chat(authentication, msg);
     }
 
+    @MessageMapping("/groupChat")
+    public void groupChat(Authentication authentication, JSONObject msg) {
+        chatService.groupChat(authentication, msg);
+    }
+
     @MessageMapping("/broadcast")
     public void broadcast(Authentication authentication, JSONObject msg) {
         chatService.broadcast(authentication, msg);
@@ -45,5 +50,13 @@ public class ChatController {
     @ApiOperation(value = "获取在线用户数量")
     public ResponseResult<Integer> onlineUsersCount() {
         return ResponseResult.ok(chatService.getOnlineUsersCount(), "获取在线用户数量成功");
+    }
+    
+    @PostMapping("/read")
+    @ResponseBody
+    @ApiOperation(value = "标记消息为已读")
+    public ResponseResult<Void> read(String receiver, String sender) {
+        chatService.read(receiver, sender);
+        return ResponseResult.ok("标记消息为已读成功");
     }
 }

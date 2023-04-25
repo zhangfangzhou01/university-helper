@@ -20,8 +20,10 @@ import java.time.LocalDateTime;
 @TableName("uh_chat")
 @ApiModel(value = "Chat", description = "")
 public class Chat implements Serializable {
+    @TableField(exist = false)
     private ChatUser from;
 
+    @TableField(exist = false)
     private ChatUser to;
 
     @TableId(value = "chatId", type = IdType.AUTO)
@@ -38,6 +40,9 @@ public class Chat implements Serializable {
 
     @TableField("time")
     private LocalDateTime time;
+    
+    @TableField("isRead")
+    private Boolean isRead;
 
     @Version
     @TableField("version")
