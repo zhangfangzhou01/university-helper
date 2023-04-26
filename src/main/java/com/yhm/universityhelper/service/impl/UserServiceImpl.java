@@ -276,6 +276,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String subject = "UniversityHelper 邮箱验证码";
         String content = "您的验证码为：" + code + "，请在" + expire + "秒内使用";
         emailUtils.send(from, to, subject, content);
-        redisUtils.set(to, code);
+        redisUtils.set(to, code, expire);
     }
 }
