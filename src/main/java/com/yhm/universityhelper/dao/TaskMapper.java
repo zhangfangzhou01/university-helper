@@ -18,7 +18,7 @@ import java.util.Map;
  * @since 2023-03-04
  */
 
-@CacheNamespace(implementation = RedisCache.class, eviction = RedisCache.class)
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 263000)
 public interface TaskMapper extends BaseMapper<Task> {
     @Select("select userId from universityhelper.uh_task where taskId = #{taskId}")
     Long selectUserIdByTaskId(Long taskId);
