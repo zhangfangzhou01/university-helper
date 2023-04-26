@@ -25,31 +25,31 @@ public class ReflectUtils {
         Class<?> clazz = obj.getClass();
         Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));
         MethodAccess methodAccess = methodAccessMap.keySet().iterator().next();
-
+        
         int index = methodAccessMap.get(methodAccess).computeIfAbsent(fieldName, k -> methodAccess.getIndex("get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)));
         return methodAccess.invoke(obj, index);
     }
-
+    
     public static <T> T get(Object obj, String fieldName, Class<T> clazz) {
         return clazz.cast(get(obj, fieldName));
     }
-
+    
     public static void setBatch(Object obj, Map<String, Object> data) {
         Class<?> clazz = obj.getClass();
         Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));
         MethodAccess methodAccess = methodAccessMap.keySet().iterator().next();
-
+        
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             int index = methodAccessMap.get(methodAccess).computeIfAbsent(entry.getKey(), k -> methodAccess.getIndex("set" + entry.getKey().substring(0, 1).toUpperCase() + entry.getKey().substring(1), entry.getValue().getClass()));
             methodAccess.invoke(obj, index, entry.getValue());
         }
     }
-
+    
     public static Map<String, Object> getBatch(Object obj, String... fieldNames) {
         Class<?> clazz = obj.getClass();
         Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));
         MethodAccess methodAccess = methodAccessMap.keySet().iterator().next();
-
+        
         Map<String, Object> data = new HashMap<>();
         for (String fieldName : fieldNames) {
             int index = methodAccessMap.get(methodAccess).computeIfAbsent(fieldName, k -> methodAccess.getIndex("get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)));
@@ -57,12 +57,12 @@ public class ReflectUtils {
         }
         return data;
     }
-
+    
     public static void setBatchWithout(Object obj, Map<String, Object> data, String... fieldNames) {
         Class<?> clazz = obj.getClass();
         Map<MethodAccess, Map<String, Integer>> methodAccessMap = METHOD_ACCESS_CACHE.computeIfAbsent(clazz, k -> Collections.singletonMap(MethodAccess.get(clazz), new HashMap<>()));
         MethodAccess methodAccess = methodAccessMap.keySet().iterator().next();
-
+        
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             boolean flag = true;
             for (String fieldName : fieldNames) {

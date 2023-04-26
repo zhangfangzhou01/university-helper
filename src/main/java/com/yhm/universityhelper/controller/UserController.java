@@ -7,7 +7,6 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
-import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.UserValidator;
@@ -26,9 +25,6 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private TaskService taskService;
 
     @Autowired
     private ChatService chatService;
