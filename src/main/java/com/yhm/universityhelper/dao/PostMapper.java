@@ -14,7 +14,7 @@ import org.apache.ibatis.annotations.CacheNamespace;
  * @since 2023-04-19
  */
 
-@CacheNamespace(implementation = RedisCache.class, flushInterval = 291000)
+@CacheNamespace(implementation = RedisCache.class)
 public interface PostMapper extends BaseMapper<Post> {
 
 }
