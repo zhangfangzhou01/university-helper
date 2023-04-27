@@ -1,7 +1,9 @@
 package com.yhm.universityhelper.dao;
 
-import com.github.yulichang.base.MPJBaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.Task;
+import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -16,8 +18,8 @@ import java.util.Map;
  * @since 2023-03-04
  */
 
-//@CacheNamespace(implementation = RedisCache.class)
-public interface TaskMapper extends MPJBaseMapper<Task> {
+@CacheNamespace(implementation = RedisCache.class)
+public interface TaskMapper extends BaseMapper<Task> {
     @Select("select userId from universityhelper.uh_task where taskId = #{taskId}")
     Long selectUserIdByTaskId(Long taskId);
 

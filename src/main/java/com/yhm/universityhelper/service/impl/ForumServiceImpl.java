@@ -5,18 +5,17 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.yulichang.query.MPJQueryWrapper;
 import com.yhm.universityhelper.dao.*;
 import com.yhm.universityhelper.dao.wrapper.CustomPostWrapper;
 import com.yhm.universityhelper.entity.po.*;
 import com.yhm.universityhelper.service.ForumService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
-import com.yhm.universityhelper.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -144,11 +143,11 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     }
 
     @Override
-    public CustomPostWrapper searchWrapper(JSONObject json) {
+    public QueryWrapper<Post> searchWrapper(JSONObject json) {
         CustomPostWrapper customPostWrapper = BeanUtils.getBean(CustomPostWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            return customPostWrapper;
+            return customPostWrapper.getQueryWrapper();
         }
 
         final Set<String> keys = json.keySet();
@@ -167,7 +166,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
             }
         }
 
-        return customPostWrapper;
+        return customPostWrapper.getQueryWrapper();
     }
 
     @Override
@@ -218,7 +217,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         final JSONArray sortJson = json.get("sort", JSONArray.class);
         final String sortType = json.get("sortType", String.class);
 
-        CustomPostWrapper wrapper = searchWrapper(searchJson);
+        QueryWrapper<Post> wrapper = searchWrapper(searchJson);
         Page<Post> page = pageWrapper(pageJson);
 
         if (ObjectUtil.isNotNull(sortJson) && (!sortJson.isEmpty())) {
@@ -231,16 +230,8 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         } else if ("priority".equals(sortType)) {
             page.addOrder(CustomPostWrapper.prioritySort());
         }
-        
-        List<OrderItem> orderItems = wrapper.getOrderItems();
-        if (ObjectUtil.isNotEmpty(orderItems) && (!orderItems.isEmpty())) {
-            page.addOrder(orderItems);
-        }
 
-        return postMapper.selectJoinPage(page, Post.class, new MPJQueryWrapper<Post>()
-                .setAlias("p")
-                .selectAll(Post.class)
-                .innerJoin("(select postId from uh_post where " + SqlUtils.getSql(wrapper.getQueryWrapper()) + ") p1 on p1.postId = p.postId"));
+        return postMapper.selectPage(page, wrapper);
     }
 
     @Override

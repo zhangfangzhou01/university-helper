@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 public class CustomTaskWrapper extends CustomWrapper {
     public final static String[] FUZZY_SEARCH_COLUMNS = {"title", "requireDescription", "arrivalLocation", "targetLocation"};
     private final QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-    private final List<OrderItem> orderItems = new ArrayList<>();
 
     @Autowired
     private UsertaketaskMapper usertaketaskMapper;
@@ -67,14 +65,6 @@ public class CustomTaskWrapper extends CustomWrapper {
         return queryWrapper.lambda();
     }
     
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-    
-    public void clearOrderItems() {
-        orderItems.clear();
-    }
-
     public CustomTaskWrapper userRelease(Long userId) {
         queryWrapper.eq("userId", userId);
         return this;
@@ -138,13 +128,11 @@ public class CustomTaskWrapper extends CustomWrapper {
 
     public CustomTaskWrapper arrivalLocation(String arrivalLocation) {
         queryWrapper.apply("(@arrivalLocationMatchingDegree := " + fuzzyQuery("arrivalLocation", arrivalLocation) + ")").apply("@arrivalLocationMatchingDegree > 0");/*.orderByDesc("@arrivalLocationMatchingDegree");*/
-        orderItems.add(OrderItem.desc("@arrivalLocationMatchingDegree"));
         return this;
     }
 
     public CustomTaskWrapper targetLocation(String targetLocation) {
         queryWrapper.apply("(@targetLocationMatchingDegree := " + fuzzyQuery("targetLocation", targetLocation) + ")").apply("@targetLocationMatchingDegree > 0");/*.orderByDesc("@targetLocationMatchingDegree");*/
-        orderItems.add(OrderItem.desc("@targetLocationMatchingDegree"));
         return this;
     }
 
@@ -177,13 +165,11 @@ public class CustomTaskWrapper extends CustomWrapper {
 
     public CustomTaskWrapper title(String title) {
         queryWrapper.apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")").apply("@titleMatchingDegree > 0");/*.orderByDesc("@titleMatchingDegree");*/
-        orderItems.add(OrderItem.desc("@titleMatchingDegree"));
         return this;
     }
 
     public CustomTaskWrapper requireDescription(String requireDescription) {
         queryWrapper.apply("(@requireDescriptionMatchingDegree := " + fuzzyQuery("requireDescription", requireDescription) + ")").apply("@requireDescriptionMatchingDegree > 0");/*.orderByDesc("@requireDescriptionMatchingDegree");*/
-        orderItems.add(OrderItem.desc("@requireDescriptionMatchingDegree"));
         return this;
     }
 
