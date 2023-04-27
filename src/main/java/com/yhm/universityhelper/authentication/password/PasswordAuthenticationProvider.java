@@ -2,6 +2,7 @@ package com.yhm.universityhelper.authentication.password;
 
 import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.dto.LoginUser;
@@ -49,20 +50,18 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
         
-        String username;
-        String usernameOrEmail = authentication.getName();
-        if (Validator.isEmail(usernameOrEmail)) {
-            username = userService.getOne(new LambdaUpdateWrapper<User>().eq(User::getEmail, usernameOrEmail)).getUsername();
-            if (ObjectUtil.isEmpty(username)) {
+        User user;
+        if (Validator.isEmail(authentication.getName())) {
+            user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getEmail, authentication.getName()));
+            if (ObjectUtil.isEmpty(user)) {
                 throw new UsernameNotFoundException("用户名或邮箱不存在");
             }
         } else {
-            username = usernameOrEmail;
+            user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, authentication.getName()));
         }
         
         String rawPassword = authentication.getCredentials().toString();
-        LoginUser loginUser = userDetailsService.loadUserByUsername(username);
-        User user = userService.getOne(new LambdaUpdateWrapper<User>().eq(User::getUsername, username));
+        LoginUser loginUser = userDetailsService.loadUserByUser(user);
 
         if (ObjectUtils.isEmpty(loginUser)) {
             throw new UsernameNotFoundException("用户不存在");
@@ -78,7 +77,7 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
                 throw new LockedException("密码错误次数过多，用户已被锁定，请" + time + "秒后重试");
             } else {
                 user.setPasswordErrorCount(0);
-                userService.updateById(user);
+                userService.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, user.getUsername()).set(User::getPasswordErrorCount, 0));
             }
         }
 
@@ -90,7 +89,7 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
                     user.setUnlockTime(LocalDateTime.now().plusSeconds(lockTime));
                 } else {
                     user.setUnlockTime(LocalDateTime.now().plusSeconds(remoteLoginLockTime));
-                    userService.updateById(user);
+                    userService.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, user.getUsername()).set(User::getUnlockTime, LocalDateTime.now().plusSeconds(remoteLoginLockTime)));
                     throw new LockedException("疑似账号被盗，已被锁定" + remoteLoginLockTime / 60 + "分钟");
                 }
 
@@ -100,8 +99,8 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
         }
 
         user.setPasswordErrorCount(0);
-        userService.updateById(user);
-        return new UsernamePasswordAuthenticationToken(username, rawPassword, loginUser.getAuthorities());
+        userService.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, user.getUsername()).set(User::getPasswordErrorCount, 0));
+        return new UsernamePasswordAuthenticationToken(user.getUsername(), rawPassword, loginUser.getAuthorities());
     }
 
     @Override

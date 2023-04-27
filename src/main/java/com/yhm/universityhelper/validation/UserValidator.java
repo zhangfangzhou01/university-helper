@@ -75,6 +75,9 @@ public class UserValidator extends CustomValidator {
 
         Optional.ofNullable(user.getStr("createTime"))
                 .map(createTime -> Validator.validateNull(createTime, "禁止修改创建时间"));
+        
+        Optional.ofNullable(user.getStr("email"))
+                .map(emailCode -> Validator.validateNull(emailCode, "禁止修改邮箱"));
     }
 
     public static void register(String username, String password) {
@@ -88,6 +91,20 @@ public class UserValidator extends CustomValidator {
                 .map(p -> Validator.validateNotEmpty(p, "密码不能为空"))
                 .map(p -> CustomValidator.validateBetween("password", p, 6, 255))
                 .orElseThrow(() -> new ValidateException("必须提供密码"));
+    }
+    
+    public static void changeEmail(String username, String email) {
+        Optional.ofNullable(username)
+                .map(u -> Validator.validateNumber(u, "用户名不合法"))
+                .map(u -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
+                .map(exists -> Validator.validateTrue(exists, "用户名不存在"))
+                .orElseThrow(() -> new ValidateException("必须提供用户名"));
+
+        Optional.ofNullable(email)
+                .map(e -> Validator.validateEmail(e, "邮箱不合法"))
+                .map(e -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getEmail, e)))
+                .map(exists -> Validator.validateFalse(exists, "邮箱已被注册"))
+                .orElseThrow(() -> new ValidateException("必须提供邮箱"));
     }
 
     public static void changePassword(String username, String oldPassword, String newPassword) {

@@ -2,12 +2,14 @@ package com.yhm.universityhelper.authentication.token;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
 import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.RedisUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,16 @@ import java.io.IOException;
 public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
     private JwtUtils jwtUtils;
-
+    
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-
+    
     @Autowired
     private UserService userService;
-
+    
+    @Autowired
+    private RedisUtils redisUtils;
+    
     public TokenAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
@@ -44,7 +49,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             chain.doFilter(request, response);
             return;
         }
-
+        
         Claims claim = jwtUtils.getClaimsByToken(jwt);
         if (ObjectUtils.isEmpty(claim)) {
             throw new JwtException("token 异常");
@@ -52,23 +57,24 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
         if (jwtUtils.isTokenExpired(claim)) {
             throw new JwtException("token 已过期");
         }
-
+        
         String username = claim.getSubject();
         // 获取用户的权限等信息
-
+        
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
         if (ObjectUtils.isEmpty(user)) {
             throw new UsernameNotFoundException("用户不存在");
         }
-
+        
         // 构建UsernamePasswordAuthenticationToken,这里密码为null，是因为提供了正确的JWT,实现自动登录
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, userDetailsService.getUserAuthorities(user.getUserId()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        
         String region = IpUtils.getRegion(request);
         user.setRegion(region);
-        userService.updateById(user);
-
+        userService.update(null, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId()).set(User::getRegion, region));
+        redisUtils.set("user:region:" + user.getUsername(), region, 10);
+        
         chain.doFilter(request, response);
     }
 }

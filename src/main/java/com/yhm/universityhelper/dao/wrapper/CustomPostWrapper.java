@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 @Scope("prototype")
 public class CustomPostWrapper extends CustomWrapper {
     private final QueryWrapper<Post> queryWrapper = new QueryWrapper<>();
+    private final List<OrderItem> orderItems = new ArrayList<>();
 
     public static OrderItem prioritySort() {
         return OrderItem.desc("log10(5 * uh_post.commentNum + 5 * uh_post.likeNum + 2 * uh_post.starNum + 10) " +
@@ -28,6 +31,14 @@ public class CustomPostWrapper extends CustomWrapper {
         return queryWrapper.lambda();
     }
 
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void clearOrderItems() {
+        orderItems.clear();
+    }
+    
     public CustomPostWrapper postId(Long postId) {
         queryWrapper.eq("postId", postId);
         return this;
@@ -39,12 +50,14 @@ public class CustomPostWrapper extends CustomWrapper {
     }
 
     public CustomPostWrapper title(String title) {
-        queryWrapper.apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")").apply("@titleMatchingDegree > 0").orderByDesc("@titleMatchingDegree");
+        queryWrapper.apply("(@titleMatchingDegree := " + fuzzyQuery("title", title) + ")").apply("@titleMatchingDegree > 0");/*.orderByDesc("@titleMatchingDegree");*/
+        orderItems.add(OrderItem.desc("@titleMatchingDegree"));
         return this;
     }
 
     public CustomPostWrapper content(String content) {
-        queryWrapper.apply("(@contentMatchingDegree := " + fuzzyQuery("content", content) + ")").apply("@contentMatchingDegree > 0").orderByDesc("@contentMatchingDegree");
+        queryWrapper.apply("(@contentMatchingDegree := " + fuzzyQuery("content", content) + ")").apply("@contentMatchingDegree > 0");/*.orderByDesc("@contentMatchingDegree");*/
+        orderItems.add(OrderItem.desc("@contentMatchingDegree"));
         return this;
     }
 

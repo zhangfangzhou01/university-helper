@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.yulichang.query.MPJQueryWrapper;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.TaskTagMapper;
 import com.yhm.universityhelper.dao.UserMapper;
@@ -21,6 +22,7 @@ import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.service.TaskService;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.ReflectUtils;
+import com.yhm.universityhelper.util.SqlUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -224,11 +226,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     @Override
-    public LambdaQueryWrapper<Task> searchWrapper(JSONObject json) {
+    public CustomTaskWrapper searchWrapper(JSONObject json) {
         CustomTaskWrapper customTaskWrapper = BeanUtils.getBean(CustomTaskWrapper.class);
 
         if (ObjectUtil.isEmpty(json) || json.isEmpty()) {
-            return customTaskWrapper.getLambdaQueryWrapper();
+            return customTaskWrapper;
         }
 
         final Set<String> keys = json.keySet();
@@ -247,7 +249,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             }
         }
 
-        return customTaskWrapper.getLambdaQueryWrapper();
+        return customTaskWrapper;
     }
 
     @Override
@@ -297,22 +299,30 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final JSONObject pageJson = json.get("page", JSONObject.class);
         final JSONArray sortJson = json.get("sort", JSONArray.class);
         final String sortType = json.get("sortType", String.class);
-
-        LambdaQueryWrapper<Task> wrapper = searchWrapper(searchJson);
+        
+        CustomTaskWrapper wrapper = searchWrapper(searchJson);
         Page<Task> page = pageWrapper(pageJson);
-
+        
         if (ObjectUtil.isNotNull(sortJson) && (!sortJson.isEmpty())) {
             Validator.validateNotNull(sortType, "排序类型不能为空");
             Validator.validateMatchRegex("^(attribute|priority)$", sortType, "排序类型不正确，只能是attribute或者priority");
         }
-
+        
         if ("attribute".equals(sortType)) {
             page.addOrder(sortWrapper(sortJson));
         } else if ("priority".equals(sortType)) {
             page.addOrder(CustomTaskWrapper.prioritySort());
         }
-
-        return taskMapper.selectPage(page, wrapper);
+        
+        List<OrderItem> orders = wrapper.getOrderItems();
+        if (ObjectUtil.isNotEmpty(orders) && (!orders.isEmpty())) {
+            page.addOrder(orders);
+        }
+        
+        return taskMapper.selectJoinPage(page, Task.class, new MPJQueryWrapper<Task>()
+                .setAlias("t")
+                .selectAll(Task.class)
+                .innerJoin("(select taskId from uh_task where " + SqlUtils.getSql(wrapper.getQueryWrapper()) + ") t1 on t1.taskId = t.taskId"));
     }
 
     @Override
@@ -333,7 +343,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         return taskMapper.selectPage(page, wrapper);
     }
-    
+
     @Override
     public List<String> selectAllTaskTags() {
         return taskTagMapper.selectList(null).stream().map(TaskTag::getTag).collect(Collectors.toList());

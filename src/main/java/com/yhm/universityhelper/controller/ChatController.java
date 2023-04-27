@@ -4,6 +4,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
+import com.yhm.universityhelper.validation.ChatValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,13 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void chat(Authentication authentication, JSONObject msg) {
+        ChatValidator.chat(authentication, msg);
         chatService.chat(authentication, msg);
     }
 
     @MessageMapping("/groupChat")
     public void groupChat(Authentication authentication, JSONObject msg) {
+        ChatValidator.groupChat(authentication, msg);
         chatService.groupChat(authentication, msg);
     }
 

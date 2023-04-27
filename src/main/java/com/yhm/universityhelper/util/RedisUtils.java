@@ -180,7 +180,7 @@ public class RedisUtils {
     }
 
     public void del(Collection<String> keys) {
-        redisTemplate.delete(keys);
+        redisTemplate.unlink(keys);
     }
 
     /**

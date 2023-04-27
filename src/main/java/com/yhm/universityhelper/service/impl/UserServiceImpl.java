@@ -278,4 +278,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         emailUtils.send(from, to, subject, content);
         redisUtils.set(to, code, expire);
     }
+    
+    @Override
+    public boolean changeEmail(String username, String email) {
+        return userMapper.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, username).set(User::getEmail, email)) > 0;
+    }
 }

@@ -249,4 +249,14 @@ public class UserController {
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return ResponseResult.ok(userService.getBlockedCount(username), "获取拉黑人数成功");
     }
+    
+    @ApiOperation(value = "修改邮箱")
+    @PostMapping("/changeEmail")
+    public ResponseResult<Object> changeEmail(@RequestParam String username, @RequestParam String email) {
+        UserValidator.changeEmail(username, email);
+        CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
+        return userService.changeEmail(username, email)
+                ? ResponseResult.ok("修改邮箱成功")
+                : ResponseResult.fail("修改邮箱失败");
+    }
 }

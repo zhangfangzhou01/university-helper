@@ -1,10 +1,8 @@
 package com.yhm.universityhelper.authentication.email;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.authentication.AuthenticationFailure;
 import com.yhm.universityhelper.authentication.AuthenticationSuccess;
-import com.yhm.universityhelper.entity.po.User;
-import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
 import com.yhm.universityhelper.util.EmailUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private UserService userService;
+    private UserMapper userMapper;
 
     @Autowired
     @Override
@@ -63,7 +61,7 @@ public class EmailAuthenticationFilter extends AbstractAuthenticationProcessingF
         String email = emailUtils.getEmail(request);
         String code = emailUtils.getCode(request);
 
-        Long userId = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getEmail, email)).getUserId();
+        Long userId = userMapper.selectUserIdByEmail(email);
         if (userId == null || userId == 0) {
             throw new IllegalStateException("该邮箱未注册");
         }

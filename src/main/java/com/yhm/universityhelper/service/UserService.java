@@ -19,6 +19,8 @@ import java.util.Map;
 
 public interface UserService extends IService<User> {
     boolean update(JSONObject json);
+    
+    boolean changeEmail(String username, String email);
 
     Map<String, Object> select(JSONArray json);
 

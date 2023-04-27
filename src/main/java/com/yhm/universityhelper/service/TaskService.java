@@ -2,10 +2,10 @@ package com.yhm.universityhelper.service;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yhm.universityhelper.dao.wrapper.CustomTaskWrapper;
 import com.yhm.universityhelper.entity.po.Task;
 
 import java.util.List;
@@ -51,7 +51,7 @@ public interface TaskService extends IService<Task> {
      */
     boolean complete(Long taskId, Long userId, Integer score);
 
-    LambdaQueryWrapper<Task> searchWrapper(JSONObject json);
+    CustomTaskWrapper searchWrapper(JSONObject json);
 
     List<OrderItem> sortWrapper(JSONArray json);
 

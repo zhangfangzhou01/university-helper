@@ -2,10 +2,10 @@ package com.yhm.universityhelper.service;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yhm.universityhelper.dao.wrapper.CustomPostWrapper;
 import com.yhm.universityhelper.entity.po.Comment;
 import com.yhm.universityhelper.entity.po.Post;
 
@@ -30,7 +30,7 @@ public interface ForumService extends IService<Post> {
 
     boolean updatePost(JSONObject json);
 
-    LambdaQueryWrapper<Post> searchWrapper(JSONObject json);
+    CustomPostWrapper searchWrapper(JSONObject json);
 
     List<OrderItem> sortWrapper(JSONArray json);
 

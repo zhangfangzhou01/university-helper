@@ -49,7 +49,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         List<GrantedAuthority> authorities = this.getUserAuthorities(user.getUserId());
         return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getBanned(), authorities);
-    } 
+    }
+    
+    public LoginUser loadUserByUser(User user) throws UsernameNotFoundException {
+        if (ObjectUtils.isEmpty(user)) {
+            throw new UsernameNotFoundException("用户不存在");
+        }
+        List<GrantedAuthority> authorities = this.getUserAuthorities(user.getUserId());
+        return new LoginUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getBanned(), authorities);
+    }
 
     public List<GrantedAuthority> getUserAuthorities(Long userId) {
         List<GrantedAuthority> authorities = new ArrayList<>();
