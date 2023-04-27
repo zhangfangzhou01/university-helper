@@ -1,6 +1,6 @@
 package com.yhm.universityhelper.dao;
 
-import com.github.yulichang.base.MPJBaseMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.Post;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -15,6 +15,6 @@ import org.apache.ibatis.annotations.CacheNamespace;
  */
 
 @CacheNamespace(implementation = RedisCache.class)
-public interface PostMapper extends MPJBaseMapper<Post> {
+public interface PostMapper extends BaseMapper<Post> {
 
 }
