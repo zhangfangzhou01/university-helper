@@ -15,6 +15,6 @@ import org.apache.ibatis.annotations.CacheNamespace;
  */
 
 
-@CacheNamespace(implementation = RedisCache.class)
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface UsertaketaskMapper extends BaseMapper<Usertaketask> {
 }

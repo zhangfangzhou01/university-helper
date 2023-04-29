@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.CacheNamespace;
  * @since 2023-03-26
  */
 
-@CacheNamespace(implementation = RedisCache.class)
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface TaskTagMapper extends BaseMapper<TaskTag> {
     void insertBatch(JSONArray taskTags);
 }

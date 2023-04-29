@@ -14,7 +14,8 @@ import org.apache.ibatis.annotations.CacheNamespace;
  * @since 2023-04-19
  */
 
-@CacheNamespace(implementation = RedisCache.class)
+// 一天后过期
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface BlacklistMapper extends BaseMapper<Blacklist> {
 
 }
