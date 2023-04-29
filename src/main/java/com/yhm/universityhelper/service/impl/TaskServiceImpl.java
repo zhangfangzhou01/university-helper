@@ -59,7 +59,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private UserMapper userMapper;
 
     @Override
-    public boolean update(JSONObject json) {
+    public Long update(JSONObject json) {
         Long taskId = json.getLong("taskId");
         Task task = taskMapper.selectById(taskId);
 
@@ -92,11 +92,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (!result) {
             throw new RuntimeException("更新任务失败，事务回滚");
         }
-        return true;
+        return task.getTaskId();
     }
 
     @Override
-    public boolean insert(JSONObject json) {
+    public Long insert(JSONObject json) {
         final Long userId = json.getLong("userId");
         Task task = new Task();
         for (String key : json.keySet()) {
@@ -130,7 +130,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         if (!result) {
             throw new RuntimeException("发布任务失败，事务回滚");
         }
-        return true;
+        return task.getTaskId();
     }
 
     @Override

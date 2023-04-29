@@ -8,9 +8,10 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.dao.UserMapper;
-import com.yhm.universityhelper.dao.UserRoleMapper;
 import com.yhm.universityhelper.dao.UsertaketaskMapper;
-import com.yhm.universityhelper.entity.po.*;
+import com.yhm.universityhelper.entity.po.Task;
+import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.Usertaketask;
 import com.yhm.universityhelper.util.BeanUtils;
 import com.yhm.universityhelper.util.SensitiveUtils;
 import org.springframework.stereotype.Component;
@@ -195,6 +196,21 @@ public class TaskValidator extends CustomValidator {
                                 .eq(Task::getUserId, task.getLong("userId"))),
                 "任务库内不存在该任务");
 
+        Integer formerTaskState = BeanUtils.getBean(TaskMapper.class).selectTaskStateByTaskId(task.getLong("taskId"));
+        Integer currentTaskState = task.getInt("taskState");
+        
+        if (formerTaskState > Task.NOT_TAKE || currentTaskState > Task.NOT_TAKE) {
+            throw new ValidateException("禁止修改任务状态为已完成或已接单");
+        }
+        
+        if (formerTaskState == Task.NOT_TAKE && currentTaskState == Task.NOT_PUBLISH) {
+            throw new ValidateException("禁止将已发布的任务修改为草稿");
+        }
+        
+        if (formerTaskState == Task.NOT_TAKE && currentTaskState == Task.NOT_TAKE) {
+            throw new ValidateException("禁止修改已经发布的任务");
+        }
+        
         // 更新时不能改的
         Validator.validateNull(task.getStr("isHunter"), "禁止修改任务的isHunter");
         Validator.validateNull(task.getStr("transactionAmount"), "禁止修改任务的交易金额");
@@ -272,25 +288,12 @@ public class TaskValidator extends CustomValidator {
     }
 
     // userId是发布者的userId，taskId是任务的taskId
-    public static void delete(Long taskId, Long userId) {
+    public static void delete(Long taskId) {
         Optional.ofNullable(taskId)
                 .map(id -> CustomValidator.validateBetween("任务ID", id, 1, Long.MAX_VALUE))
                 .map(id -> BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, id)))
                 .map(exists -> Validator.validateTrue(exists, "任务ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供任务ID"));
-
-        Optional.ofNullable(userId)
-                .map(id -> CustomValidator.validateBetween("用户ID", id, 1, Long.MAX_VALUE))
-                .map(id -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUserId, id)))
-                .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
-                .orElseThrow(() -> new ValidateException("必须提供用户ID"));
-
-        final Long role = BeanUtils.getBean(UserRoleMapper.class).selectOne(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId)).getRoleId();
-        if (role == Role.USER) {
-            Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId).eq(Task::getUserId, userId)), "用户" + userId + "不是任务" + taskId + "的发布者");
-        } else {
-            Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId)), "任务" + taskId + "不存在");
-        }
     }
 
     // userId是接单者的userId，taskId是任务ID

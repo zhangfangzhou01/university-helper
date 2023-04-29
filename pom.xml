@@ -14,8 +14,7 @@
     <name>universityhelper</name>
     <description>universityhelper</description>
     <properties>
-        <java.version>1.8</java.version>
-        <kotlin.version>1.8.10</kotlin.version>
+        <java.version>19</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -185,6 +184,8 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <arguments>--enable-preview</arguments>
+                    <jvmArguments>--enable-preview</jvmArguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -196,6 +197,14 @@
                         <nonFilteredFileExtension>xdb</nonFilteredFileExtension>
                         <nonFilteredFileExtension>db</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>19</release>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

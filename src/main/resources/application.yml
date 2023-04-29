@@ -144,3 +144,6 @@ account:
     max-failed-attempts: 5
     lock-time: 30
     remote-login-lock-time: 600
+
+task:
+  expire-time: 3600

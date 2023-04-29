@@ -3,16 +3,13 @@ package com.yhm.universityhelper.util;
 import cn.hutool.core.util.StrUtil;
 import com.yhm.universityhelper.util.dfa.WordInfo;
 import com.yhm.universityhelper.util.dfa.WordTree;
-import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import sun.misc.Unsafe;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -64,26 +61,6 @@ public class SensitiveUtils {
 
     public static boolean containsSensitive(String text) {
         return SENSITIVE_TREE.matchFirst(text) != null;
-    }
-
-    @SneakyThrows
-    public static String unsafeReplaceSensitive(String content, char stopCharacter) {
-        Field field = Unsafe.class.getDeclaredField("theUnsafe");
-        field.setAccessible(true);
-        Unsafe unsafe = (Unsafe)field.get(null);
-        long offset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
-        char[] value = (char[])unsafe.getObject(content, offset);
-        List<WordInfo> sensitiveWordInfos = SensitiveUtils.getAllSensitiveWithPos(content);
-        if (sensitiveWordInfos == null || sensitiveWordInfos.size() == 0) {
-            return content;
-        }
-
-        for (WordInfo sensitiveWordInfo : sensitiveWordInfos) {
-            for (int i = 0; i < sensitiveWordInfo.getWord().length(); i++) {
-                value[sensitiveWordInfo.getStart() + i] = stopCharacter;
-            }
-        }
-        return content;
     }
 
     public static String replaceSensitive(String content, char stopCharacter) {

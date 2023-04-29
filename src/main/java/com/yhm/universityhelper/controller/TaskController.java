@@ -1,9 +1,11 @@
 package com.yhm.universityhelper.controller;
 
 import cn.hutool.json.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
+import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
@@ -14,6 +16,7 @@ import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +31,12 @@ public class TaskController {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private TaskMapper taskMapper;
+
+    @Value("${task.expire-time}")
+    private Integer expireTime;
 
     /**
      * taskId    不可改
@@ -110,7 +119,26 @@ public class TaskController {
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
         TaskValidator.update(json);
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
-        return taskService.update(json)
+//        return taskService.update(json)
+//                ? ResponseResult.ok("任务信息修改成功")
+//                : ResponseResult.fail("任务信息修改失败");
+        final Long taskId = taskService.update(json);
+        final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
+        if (formerTaskState.equals(Task.NOT_TAKE) && "外卖".equals(json.getStr("type"))) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    Thread.sleep(1000L * expireTime);
+                    final Integer currentTaskState = taskMapper.selectTaskStateByTaskId(taskId);
+                    if (currentTaskState.equals(Task.NOT_TAKE)) {
+                        taskService.delete(taskId);
+                        chatService.notificationByUserId(json.getLong("userId"), "任务" + expireTime / 60 + "分钟未被接取, 已自动删除");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
     }
@@ -202,7 +230,23 @@ public class TaskController {
     public ResponseResult<Object> insert(@RequestBody JSONObject json) {
         TaskValidator.insert(json);
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
-        return taskService.insert(json)
+        final Long taskId = taskService.insert(json);
+        final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
+        if (formerTaskState.equals(Task.NOT_TAKE) && "外卖".equals(json.getStr("type"))) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    Thread.sleep(1000L * expireTime);
+                    final Integer currentTaskState = taskMapper.selectTaskStateByTaskId(taskId);
+                    if (currentTaskState.equals(Task.NOT_TAKE)) {
+                        taskService.delete(taskId);
+                        chatService.notificationByUserId(json.getLong("userId"), "任务" + expireTime / 60 + "分钟未被接取, 已自动删除");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
     }
@@ -291,10 +335,12 @@ public class TaskController {
     @ApiOperation(value = "删除任务信息", notes = "根据任务Id删除任务信息")
     @PostMapping("/delete")
     public ResponseResult<Object> delete(@RequestParam Long taskId, @RequestParam Long userId) {
-        TaskValidator.delete(taskId, userId);
+        TaskValidator.delete(taskId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         List<String> usernames = taskService.delete(taskId);
-        chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
+        Thread.startVirtualThread(() ->
+                chatService.notificationByUsernames(usernames, "任务" + taskId + "已被任务发布者删除")
+        );
         return ResponseResult.ok("删除任务信息成功");
     }
 
@@ -328,7 +374,7 @@ public class TaskController {
                 ? ResponseResult.ok("完成任务成功")
                 : ResponseResult.fail("完成任务失败");
     }
-    
+
     @ApiOperation(value = "获取所有任务标签", notes = "获取所有任务标签")
     @PostMapping("/selectAllTaskTags")
     public ResponseResult<List<String>> selectAllTaskTags() {

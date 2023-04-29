@@ -37,4 +37,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "from universityhelper.uh_task " +
             "group by type")
     List<Map<String, Object>> selectPriorityRelated();
+    
+    @Select("select taskState from universityhelper.uh_task where taskId = #{taskId}")
+    Integer selectTaskStateByTaskId(Long taskId);
 }
