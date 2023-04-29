@@ -270,15 +270,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (redisUtils.hasKey(to)) {
             throw new RuntimeException("请在" + redisUtils.getExpire(to) + "秒后再次尝试");
         }
-        
+
         String from = emailUtils.getUrl();
         String code = emailUtils.generateCode();
         String subject = "UniversityHelper 邮箱验证码";
         String content = "您的验证码为：" + code + "，请在" + expire + "秒内使用";
-        emailUtils.send(from, to, subject, content);
+
+        try {
+            emailUtils.send(from, to, subject, content);
+        } catch (Exception e) {
+            throw new RuntimeException("发送邮件失败");
+        }
+        
         redisUtils.set(to, code, expire);
     }
-    
+
     @Override
     public boolean changeEmail(String username, String email) {
         return userMapper.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, username).set(User::getEmail, email)) > 0;

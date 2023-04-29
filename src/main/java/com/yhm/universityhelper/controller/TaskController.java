@@ -119,9 +119,6 @@ public class TaskController {
     public ResponseResult<Object> update(@RequestBody JSONObject json) {
         TaskValidator.update(json);
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
-//        return taskService.update(json)
-//                ? ResponseResult.ok("任务信息修改成功")
-//                : ResponseResult.fail("任务信息修改失败");
         final Long taskId = taskService.update(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
         if (formerTaskState.equals(Task.NOT_TAKE) && "外卖".equals(json.getStr("type"))) {

@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.dao;
 
+import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.TaskTag;
@@ -16,5 +17,5 @@ import org.apache.ibatis.annotations.CacheNamespace;
 
 @CacheNamespace(implementation = RedisCache.class)
 public interface TaskTagMapper extends BaseMapper<TaskTag> {
-
+    void insertBatch(JSONArray taskTags);
 }
