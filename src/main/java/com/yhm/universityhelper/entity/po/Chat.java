@@ -42,7 +42,7 @@ public class Chat implements Serializable {
     private LocalDateTime time;
     
     @TableField("isRead")
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     @Version
     @TableField("version")

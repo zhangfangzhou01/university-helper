@@ -18,10 +18,13 @@ public class ChatValidator extends CustomValidator {
 
     public static boolean isBlacklisted(String srcUsername, String destUsername) {
         List<Map<String, Object>> userIds = BeanUtils.getBean(UserMapper.class).selectMaps(new LambdaQueryWrapper<User>().select(User::getUserId).in(User::getUsername, srcUsername, destUsername));
+        if (userIds.size() == 1) {
+            userIds.add(userIds.get(0));
+        }
+        
         Long srcUserId;
         Long destUserId;
         try {
-            System.out.println(userIds);
             srcUserId = (Long) userIds.get(0).get("userId");
             destUserId = (Long) userIds.get(1).get("userId");
         } catch (Exception ignored) {

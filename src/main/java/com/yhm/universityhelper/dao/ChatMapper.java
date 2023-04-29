@@ -33,4 +33,6 @@ public interface ChatMapper extends BaseMapper<Chat> {
     
     @Select("select * from universityhelper.uh_chat where toUsername = #{receiver} and fromUsername = #{sender} and `isRead` = false order by time desc limit 1")
     Chat selectLastUnread(String receiver, String sender);
+    
+    void insertBatch(List<Chat> chats);
 }

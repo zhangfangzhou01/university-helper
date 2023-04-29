@@ -69,11 +69,11 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
 
         String message = msg.getStr("content");
 
-        destChatUsers.forEach(destChatUser -> {
-            final Chat chat = new Chat(srcChatUser, destChatUser, message);
-            chatMapper.insert(chat);
-            simpMessagingTemplate.convertAndSendToUser(destChatUser.getUsername(), "/queue/chat", chat);
-        });
+        List<Chat> chats = destChatUsers.parallelStream().map(destChatUser -> new Chat(srcChatUser, destChatUser, message)).toList();
+        Thread.startVirtualThread(() -> chatMapper.insertBatch(chats));
+        for (Chat chat : chats) {
+            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(chat.getToUsername(), "/queue/chat", chat));
+        }
     }
 
     @Override
@@ -102,7 +102,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
 
     @Override
     public void notificationByUsernames(List<String> usernames, String msg) {
-        usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+        for (String username : usernames) {
+            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+        }
     }
     
     @Override
@@ -114,7 +116,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Override
     public void notificationByUserIds(List<Long> userIds, String msg) {
         final List<String> usernames = userMapper.selectBatchUsernameByBatchUserId(userIds);
-        usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+        for (String username : usernames) {
+            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+        }
     }
 
     @Override
