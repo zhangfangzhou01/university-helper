@@ -94,9 +94,26 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     public void notification(String msg) {
         simpMessagingTemplate.convertAndSend("/topic/notification", msg);
     }
+    
+    @Override
+    public void notificationByUsername(String username, String msg) {
+        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
+    }
 
     @Override
-    public void notification(List<String> usernames, String msg) {
+    public void notificationByUsernames(List<String> usernames, String msg) {
+        usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+    }
+    
+    @Override
+    public void notificationByUserId(Long userId, String msg) {
+        final String username = userMapper.selectUsernameByUserId(userId);
+        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
+    }
+    
+    @Override
+    public void notificationByUserIds(List<Long> userIds, String msg) {
+        final List<String> usernames = userMapper.selectBatchUsernameByBatchUserId(userIds);
         usernames.forEach(username -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
     }
 

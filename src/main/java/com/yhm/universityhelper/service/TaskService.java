@@ -23,7 +23,7 @@ public interface TaskService extends IService<Task> {
     // 参数超过6个用json方便传
     boolean update(JSONObject json);
 
-    boolean insert(JSONObject json);
+    Long insert(JSONObject json);
 
     /**
      * @param taskId 用于任务发布者删除自己发布的任务，并且任务接取表会级联删除相关记录

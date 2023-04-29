@@ -44,21 +44,6 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
             jwtUtils.setExpiration(expire);
         }
         
-        // 除了new UsernamePasswordAuthenticationToken() 外，第二种生成 Token的方式
-//        Map<String, Object> usernameAndRegion;
-//        String username;
-//        String region = null;
-//        String usernameOrEmail = authentication.getName();
-//        if (Validator.isEmail(usernameOrEmail)) {
-//            usernameAndRegion = userService.getMap(new LambdaQueryWrapper<User>().eq(User::getEmail, usernameOrEmail).select(User::getUsername, User::getRegion));
-//            username = (String) usernameAndRegion.get("username");
-//            region = (String) usernameAndRegion.get("region");
-//            if (ObjectUtil.isEmpty(username)) {
-//                throw new UsernameNotFoundException("用户名或邮箱不存在");
-//            }
-//        } else {
-//            username = usernameOrEmail;
-//        }
         String username = authentication.getName();
         String token = jwtUtils.generateToken(username);
         response.setHeader(jwtUtils.getHeader(), token);

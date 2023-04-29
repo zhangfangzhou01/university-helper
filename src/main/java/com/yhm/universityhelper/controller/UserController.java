@@ -132,10 +132,11 @@ public class UserController {
         UserValidator.delete(username);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         Map<Long, List<String>> taskIdAndUsernames = userService.delete(username);
-
-        taskIdAndUsernames.forEach((taskId, usernames) -> {
-            chatService.notification(usernames, "任务" + taskId + "已被任务发布者删除");
-        });
+        Thread.startVirtualThread(() ->
+                taskIdAndUsernames.forEach((taskId, usernames) -> {
+                    chatService.notificationByUsernames(usernames, "任务" + taskId + "已被任务发布者删除");
+                })
+        );
         return ResponseResult.ok("删除成功");
     }
 
@@ -249,7 +250,7 @@ public class UserController {
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
         return ResponseResult.ok(userService.getBlockedCount(username), "获取拉黑人数成功");
     }
-    
+
     @ApiOperation(value = "修改邮箱")
     @PostMapping("/changeEmail")
     public ResponseResult<Object> changeEmail(@RequestParam String username, @RequestParam String email) {

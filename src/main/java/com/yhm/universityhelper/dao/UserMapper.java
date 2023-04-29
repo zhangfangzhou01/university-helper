@@ -29,6 +29,9 @@ public interface UserMapper extends BaseMapper<User> {
     // 由于username和userId是唯一的，所以可以用username或者userId来查询
     @Select("select username from universityhelper.uh_user where userId = #{userId}")
     String selectUsernameByUserId(Long userId);
+    
+    @Select("select username from universityhelper.uh_user where userId in (#{userIdList})")
+    List<String> selectBatchUsernameByBatchUserId(List<Long> userIdList);
 
     @Select("select userId from universityhelper.uh_user where username = #{username}")
     Long selectUserIdByUsername(String username);

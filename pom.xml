@@ -14,8 +14,7 @@
     <name>universityhelper</name>
     <description>universityhelper</description>
     <properties>
-        <java.version>1.8</java.version>
-        <kotlin.version>1.8.10</kotlin.version>
+        <java.version>19</java.version>
     </properties>
     <dependencies>
         <dependency>
