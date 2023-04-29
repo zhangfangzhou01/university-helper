@@ -1,13 +1,19 @@
 package com.yhm.universityhelper.authentication;
 
+import cn.hutool.core.util.ArrayUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.yhm.universityhelper.config.SecurityConfig;
+import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
-import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.JwtUtils;
 import com.yhm.universityhelper.util.RedisUtils;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -24,26 +30,38 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Lazy
     @Autowired
-    private UserService userService;
+    private UserMapper userMapper;
 
     @Autowired
     @Value("${authentication.jwt.expire}")
     private long expire;
-    
+
     @Autowired
     private RedisUtils redisUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        // 这种情况是指，用户没有token或token过期，但是访问登录等接口
+        // 如果有token一定会更新region，这里需要判断一下，避免重复更新，造成浪费
+        String formerToken = request.getHeader(jwtUtils.getHeader());
+        Claims claim = jwtUtils.getClaimsByToken(formerToken);
+        if (ObjectUtils.isEmpty(claim)) {
+            String uri = request.getRequestURI();
+            if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
+                String region = IpUtils.getRegion(request);
+                redisUtils.set("user:region:" + authentication.getName(), region);
+                Thread.startVirtualThread(() -> userMapper.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, authentication.getName()).set(User::getRegion, region)));
+            }
+        }
+
         boolean rememberMe = Boolean.parseBoolean(request.getParameter("rememberMe"));
         if (!rememberMe) {
             jwtUtils.setExpiration(0L);
         } else {
             jwtUtils.setExpiration(expire);
         }
-        
+
         String username = authentication.getName();
         String token = jwtUtils.generateToken(username);
         response.setHeader(jwtUtils.getHeader(), token);

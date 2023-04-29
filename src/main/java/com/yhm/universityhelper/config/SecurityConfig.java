@@ -30,8 +30,8 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final String[] AUTH_WHITELIST = {"/", "/index", "/homepage", "/home", "/login", "/logout", "/register", "/email/login", "/sendEmailCode"};
-    private static final String[] WEB_WHITELIST = {"/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.ico", "/error", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/doc.html", "/druid/**"};
+    public static final String[] AUTH_WHITELIST = {"/", "/index", "/homepage", "/home", "/login", "/logout", "/register", "/email/login", "/sendEmailCode"};
+    public static final String[] WEB_WHITELIST = {"/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.ico", "/error", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/doc.html", "/druid/**"};
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
@@ -113,9 +113,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .cors().and().csrf().disable()
-
                 .formLogin().disable()
-
                 // 角色控制， ADMIN 和 USER可以访问 /user/**
                 // 仅ADMIN可以访问 /admin/**
                 // 两个白名单的URL全部放行
@@ -131,7 +129,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated() // 剩余所有请求者需要身份认证
                 
-
                 .and().rememberMe().rememberMeParameter("rememberMe")  // 与前端绑定的标签名
                 .tokenValiditySeconds(60 * 60 * 24 * 7) // 7天
                 .userDetailsService(userDetailsService())
