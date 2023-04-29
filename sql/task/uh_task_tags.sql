@@ -3,7 +3,11 @@ create table uh_task_tags
     id      bigint auto_increment
         primary key,
     tag     varchar(255) default '' not null,
-    version int          default 1  not null
+    version int          default 1  not null,
+    constraint tag
+        unique (tag),
+    constraint uh_task_tags_tag_uindex
+        unique (tag)
 );
 
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (1, '外卖', 1);
@@ -21,7 +25,4 @@ INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (13, '原神
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (14, '开放世界', 1);
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (15, 'helloworld', 1);
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (19, '哈哈a', 1);
-INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (20, '骚逼', 1);
-INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (21, '脑残', 1);
-INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (22, '傻逼', 1);
-INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (24, '辣椒', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (26, '辣椒', 1);

@@ -74,13 +74,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                for (Object tag : tags) {
-                    final TaskTag taskTag = new TaskTag((String)tag);
-                    if (!taskTagMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
-                        taskTagMapper.insert(taskTag);
-                    }
-                }
                 ReflectUtils.set(task, key, tags);
+                Thread.startVirtualThread(() -> {
+                    if (!tags.isEmpty()) {
+                        taskTagMapper.insertBatch(tags);
+                    }
+                });
             }/* else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
                 ReflectUtils.set(task, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
             }*/ else {
@@ -108,13 +107,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                 ReflectUtils.set(task, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                for (Object tag : tags) {
-                    final TaskTag taskTag = new TaskTag((String)tag);
-                    if (!taskTagMapper.exists(new LambdaUpdateWrapper<TaskTag>().eq(TaskTag::getTag, taskTag.getTag()))) {
-                        taskTagMapper.insert(taskTag);
-                    }
-                }
                 ReflectUtils.set(task, key, tags);
+                Thread.startVirtualThread(() -> {
+                    if (!tags.isEmpty()) {
+                        taskTagMapper.insertBatch(tags);
+                    }
+                });
             }/* else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
                 ReflectUtils.set(task, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
             }*/ else {
@@ -298,21 +296,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final JSONObject pageJson = json.get("page", JSONObject.class);
         final JSONArray sortJson = json.get("sort", JSONArray.class);
         final String sortType = json.get("sortType", String.class);
-        
+
         QueryWrapper<Task> wrapper = searchWrapper(searchJson);
         Page<Task> page = pageWrapper(pageJson);
-        
+
         if (ObjectUtil.isNotNull(sortJson) && (!sortJson.isEmpty())) {
             Validator.validateNotNull(sortType, "排序类型不能为空");
             Validator.validateMatchRegex("^(attribute|priority)$", sortType, "排序类型不正确，只能是attribute或者priority");
         }
-        
+
         if ("attribute".equals(sortType)) {
             page.addOrder(sortWrapper(sortJson));
         } else if ("priority".equals(sortType)) {
             page.addOrder(CustomTaskWrapper.prioritySort());
         }
-        
+
         return taskMapper.selectPage(page, wrapper);
     }
 

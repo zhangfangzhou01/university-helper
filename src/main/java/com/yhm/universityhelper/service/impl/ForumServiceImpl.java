@@ -60,23 +60,17 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         Post post = new Post();
         for (String key : json.keySet()) {
             Object value = json.get(key);
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(' ', 'T');
-                ReflectUtils.set(post, key, LocalDateTime.parse(time));
-            } else if ("userId".equals(key)) {
+            if ("userId".equals(key)) {
                 ReflectUtils.set(post, "userId", userId);
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                for (Object tag : tags) {
-                    final PostTag postTag = new PostTag((String)tag);
-                    if (!postTagMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
-                        postTagMapper.insert(postTag);
-                    }
-                }
                 ReflectUtils.set(post, key, tags);
-            }/* else if ("title".equals(key) || "content".equals(key)) {
-                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            }*/ else {
+                Thread.startVirtualThread(() -> {
+                    if (!tags.isEmpty()) {
+                        postTagMapper.insertBatch(tags);
+                    }
+                });
+            } else {
                 ReflectUtils.set(post, key, value);
             }
         }
@@ -112,22 +106,15 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         for (String key : json.keySet()) {
             if ("postId".equals(key) || "userId".equals(key)) {
                 continue;
-            }
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(' ', 'T');
-                ReflectUtils.set(post, key, LocalDateTime.parse(time));
             } else if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
-                for (Object tag : tags) {
-                    final PostTag postTag = new PostTag((String)tag);
-                    if (!postTagMapper.exists(new LambdaUpdateWrapper<PostTag>().eq(PostTag::getTag, postTag.getTag()))) {
-                        postTagMapper.insert(postTag);
-                    }
-                }
                 ReflectUtils.set(post, key, tags);
-            }/* else if ("title".equals(key) || "content".equals(key)) {
-                ReflectUtils.set(post, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            }*/ else {
+                Thread.startVirtualThread(() -> {
+                    if (!tags.isEmpty()) {
+                        postTagMapper.insertBatch(tags);
+                    }
+                });
+            } else {
                 ReflectUtils.set(post, key, json.get(key));
             }
         }
@@ -153,7 +140,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         final Set<String> keys = json.keySet();
         for (String key : keys) {
             Object value = json.get(key);
-            if ("userRelease".equals(key) || "userTake".equals(key) || StringUtils.containsIgnoreCase(key, "id")) {
+            if ("postId".equals(key) || "userId".equals(key) || StringUtils.containsIgnoreCase(key, "id") || "likeNum".equals(key) || "commentNum".equals(key) || "starNum".equals(key)) {
                 ReflectUtils.call(customPostWrapper, key, Long.valueOf(value.toString()));
             } else if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(' ', 'T');
@@ -238,21 +225,22 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     public boolean insertComment(JSONObject json) {
         final Long userId = json.getLong("userId");
         final Long postId = json.getLong("postId");
-        final Long replyCommentId = json.getLong("replyCommentId");
+        Long replyCommentId = json.getLong("replyCommentId");
+        
+        if (ObjectUtil.isNull(replyCommentId)) {
+            replyCommentId = 0L;
+        }
 
         Comment comment = new Comment();
         for (String key : json.keySet()) {
-            if ("userId".equals(key) || "postId".equals(key) || "replyCommentId".equals(key)) {
+            if ("commentId".equals(key)) {
                 continue;
+            } else if ("userId".equals(key) || "postId".equals(key)) {
+                ReflectUtils.set(comment, key, Long.valueOf(json.get(key).toString())); 
+            } else if ("replyCommentId".equals(key)) {
+                ReflectUtils.set(comment, key, replyCommentId);
             }
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(' ', 'T');
-                ReflectUtils.set(comment, key, LocalDateTime.parse(time));
-            }/* else if ("content".equals(key)) {
-                ReflectUtils.set(comment, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            }*/ else {
-                ReflectUtils.set(comment, key, json.get(key));
-            }
+            ReflectUtils.set(comment, key, json.get(key));
         }
 
         comment.setReleaseTime(LocalDateTime.now());

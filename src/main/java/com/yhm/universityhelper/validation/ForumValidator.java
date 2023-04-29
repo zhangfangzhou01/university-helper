@@ -54,6 +54,9 @@ public class ForumValidator extends CustomValidator {
     public static void updatePost(JSONObject post) {
         Optional.ofNullable(post.getLong("userId"))
                 .orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
+        
+        Optional.ofNullable(post.getLong("postId"))
+                .orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
 
         Optional.ofNullable(post.getStr("title"))
                 .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))
@@ -71,8 +74,7 @@ public class ForumValidator extends CustomValidator {
                 .map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间"))
                 .map(SensitiveUtils::getAllSensitive)
                 .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords));
-
-        Validator.validateNull(post.get("postId"), "postId默认为自增，不需要指定");
+        
         Validator.validateNull(post.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
         Validator.validateNull(post.get("lastModifyTime"), "lastModifyTime默认为当前时间，不需要指定");
         Validator.validateNull(post.get("likeNum"), "likeNum不能修改，不需要指定");
@@ -96,7 +98,7 @@ public class ForumValidator extends CustomValidator {
         Validator.validateNull(comment.get("commentId"), "commentId默认为自增，不需要指定");
         Validator.validateNull(comment.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
         Validator.validateNull(comment.get("likeNum"), "likeNum默认为0，不需要指定");
-        Validator.validateNull(comment.get("replayCommentId"), "replayCommentId默认为0，不需要指定");
+//        Validator.validateNull(comment.get("replayCommentId"), "replayCommentId默认为0，不需要指定");
     }
 
     public static void deleteComment(Long userId, Long commentId) {
