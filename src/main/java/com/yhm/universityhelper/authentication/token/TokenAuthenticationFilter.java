@@ -1,9 +1,11 @@
 package com.yhm.universityhelper.authentication.token;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.yhm.universityhelper.config.SecurityConfig;
 import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
@@ -52,10 +54,12 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
         Claims claim = jwtUtils.getClaimsByToken(jwt);
         if (ObjectUtils.isEmpty(claim)) {
-            throw new JwtException("token 异常");
-        }
-        if (jwtUtils.isTokenExpired(claim)) {
-            throw new JwtException("token 已过期");
+            String uri = request.getRequestURI();
+            if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
+                chain.doFilter(request, response);
+                return;
+            }
+            throw new JwtException("token已过期");
         }
 
         String username = claim.getSubject();

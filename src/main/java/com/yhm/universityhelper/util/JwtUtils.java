@@ -4,12 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+@Slf4j
 @Data
 @Component
 @ConfigurationProperties(prefix = "authentication.jwt")
@@ -44,13 +46,10 @@ public class JwtUtils {
                     .parseClaimsJws(jwt)
                     .getBody();
         } catch (Exception e) {
-            return null;
+            System.out.println(e.getMessage());
+            log.debug(e.getMessage());
         }
-    }
-
-    // 判断JWT是否过期
-    public boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
+        return null;
     }
 
     public void setExpiration(long expiration) {
