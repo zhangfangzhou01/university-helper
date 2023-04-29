@@ -80,9 +80,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                         taskTagMapper.insertBatch(tags);
                     }
                 });
-            }/* else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
-                ReflectUtils.set(task, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            }*/ else {
+            } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
         }
@@ -113,9 +111,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                         taskTagMapper.insertBatch(tags);
                     }
                 });
-            }/* else if ("title".equals(key) || "requireDescription".equals(key) || "arrivalLocation".equals(key) || "targetLocation".equals(key)) {
-                ReflectUtils.set(task, key, SensitiveUtils.unsafeReplaceSensitive(json.get(key).toString(), '*'));
-            }*/ else {
+            } else {
                 ReflectUtils.set(task, key, value);
             }
         }

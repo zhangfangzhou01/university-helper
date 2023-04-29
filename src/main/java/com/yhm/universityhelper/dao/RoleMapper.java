@@ -14,6 +14,6 @@ import org.apache.ibatis.annotations.CacheNamespace;
  * @since 2023-02-26
  */
 
-@CacheNamespace(implementation = RedisCache.class)
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface RoleMapper extends BaseMapper<Role> {
 }

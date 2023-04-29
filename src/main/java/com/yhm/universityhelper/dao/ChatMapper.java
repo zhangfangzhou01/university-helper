@@ -17,7 +17,7 @@ import java.util.List;
  * @since 2023-03-23
  */
 
-@CacheNamespace(implementation = RedisCache.class)
+@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface ChatMapper extends BaseMapper<Chat> {
     @Select("select count(*) from universityhelper.uh_chat where toUsername = #{receiver} and fromUsername = #{sender} and `isRead` = false")
     long selectUnreadCount(String receiver, String sender);
