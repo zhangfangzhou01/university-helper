@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.controller;
 
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
@@ -43,9 +42,8 @@ public class ChatController {
     @PostMapping("/onlineUsers")
     @ResponseBody
     @ApiOperation(value = "获取在线用户列表")
-    public ResponseResult<JSONArray> onlineUsers() {
-        Set<String> onlineUsers = chatService.getOnlineUsers();
-        return ResponseResult.ok(new JSONArray(onlineUsers), "获取在线用户列表成功");
+    public ResponseResult<Set<String>> onlineUsers() {
+        return ResponseResult.ok(chatService.getOnlineUsers(), "获取在线用户列表成功");
     }
 
     @GetMapping("/onlineUsersCount")
@@ -58,7 +56,7 @@ public class ChatController {
     @PostMapping("/read")
     @ResponseBody
     @ApiOperation(value = "标记消息为已读")
-    public ResponseResult<Void> read(String receiver, String sender) {
+    public ResponseResult<Object> read(String receiver, String sender) {
         chatService.read(receiver, sender);
         return ResponseResult.ok("标记消息为已读成功");
     }
