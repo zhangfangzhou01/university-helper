@@ -55,7 +55,7 @@ university-helper
 
 ### 1.环境准备
 
-- JDK 1.8
+- JDK 19
 - MySQL 8.0.28
 - Maven 3.6.3
 
