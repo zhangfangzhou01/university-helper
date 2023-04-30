@@ -3,9 +3,10 @@ package com.yhm.universityhelper.config;
 import com.yhm.universityhelper.authentication.*;
 import com.yhm.universityhelper.authentication.email.EmailAuthenticationFilter;
 import com.yhm.universityhelper.authentication.email.EmailAuthenticationProvider;
-import com.yhm.universityhelper.authentication.token.TokenAuthenticationFilter;
 import com.yhm.universityhelper.authentication.password.PasswordAuthenticationFilter;
 import com.yhm.universityhelper.authentication.password.PasswordAuthenticationProvider;
+import com.yhm.universityhelper.authentication.token.TokenAuthenticationFilter;
+import com.yhm.universityhelper.exception.FilterChainExceptionHandler;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -62,6 +63,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+    
+    @Bean
+    public FilterChainExceptionHandler filterChainExceptionHandler() {
+        return new FilterChainExceptionHandler();
     }
 
     @Bean
@@ -152,6 +158,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .maximumSessions(3);  // 单用户最大会话数
 
         http
+                .addFilterBefore(filterChainExceptionHandler(), TokenAuthenticationFilter.class)
                 .addFilterBefore(tokenAuthenticationFilter(), TokenAuthenticationFilter.class)
                 .addFilterAfter(passwordAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(passwordAuthenticationProvider)
                 .addFilterAfter(emailAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(emailAuthenticationProvider);
