@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
+import com.yhm.universityhelper.config.RabbitConfig;
 import com.yhm.universityhelper.dao.TaskMapper;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.UserRole;
@@ -15,8 +16,8 @@ import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.TaskValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -35,8 +36,8 @@ public class TaskController {
     @Autowired
     private TaskMapper taskMapper;
 
-    @Value("${task.expire-time}")
-    private Integer expireTime;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * taskId    不可改
@@ -121,20 +122,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.update(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        if (formerTaskState.equals(Task.NOT_TAKE) && "外卖".equals(json.getStr("type"))) {
-            Thread.startVirtualThread(() -> {
-                try {
-                    Thread.sleep(1000L * expireTime);
-                    final Integer currentTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-                    if (currentTaskState.equals(Task.NOT_TAKE)) {
-                        taskService.delete(taskId);
-                        chatService.notificationByUserId(json.getLong("userId"), "任务" + expireTime / 60 + "分钟未被接取, 已自动删除");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+        rabbitTemplate.convertAndSend(RabbitConfig.NORMAL_EXCHANGE_NAME, RabbitConfig.NORMAL_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -229,20 +217,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.insert(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        if (formerTaskState.equals(Task.NOT_TAKE) && "外卖".equals(json.getStr("type"))) {
-            Thread.startVirtualThread(() -> {
-                try {
-                    Thread.sleep(1000L * expireTime);
-                    final Integer currentTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-                    if (currentTaskState.equals(Task.NOT_TAKE)) {
-                        taskService.delete(taskId);
-                        chatService.notificationByUserId(json.getLong("userId"), "任务" + expireTime / 60 + "分钟未被接取, 已自动删除");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+        rabbitTemplate.convertAndSend(RabbitConfig.NORMAL_EXCHANGE_NAME, RabbitConfig.NORMAL_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");

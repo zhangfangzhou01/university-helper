@@ -44,6 +44,7 @@ university-helper
 - JWT
 - Swagger
 - WebSocket
+- RabbitMQ
 - MySQL
 - Redis
 - Knife4j
@@ -76,7 +77,7 @@ university-helper
 
 - swagger: http://47.120.32.226:8080/swagger-ui.html
 - knife4j: http://47.120.32.226:8080/doc.html
-- druid: http://47.120.32.226:8080/druid/index.html
+- druid: http://47.120.32.226:8080/druid/index.html (账号：admin 密码：123456)
 
 ## 项目成员
 
