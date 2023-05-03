@@ -54,7 +54,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
         Claims claim = jwtUtils.getClaimsByToken(jwt);
         if (ObjectUtils.isEmpty(claim)) {
-            String uri = request.getRequestURI();
+            String uri = request.getServletPath();
             if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
                 chain.doFilter(request, response);
                 return;
