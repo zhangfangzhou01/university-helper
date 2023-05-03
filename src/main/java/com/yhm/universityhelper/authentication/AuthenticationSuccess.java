@@ -2,7 +2,6 @@ package com.yhm.universityhelper.authentication;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.config.SecurityConfig;
 import com.yhm.universityhelper.dao.UserMapper;
 import com.yhm.universityhelper.entity.po.User;
@@ -11,7 +10,8 @@ import com.yhm.universityhelper.util.IpUtils;
 import com.yhm.universityhelper.util.JsonUtils;
 import com.yhm.universityhelper.util.JwtUtils;
 import com.yhm.universityhelper.util.RedisUtils;
-import io.jsonwebtoken.Claims;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -42,11 +42,9 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        // 这种情况是指，用户没有token或token过期，但是访问登录等接口
-        // 如果有token一定会更新region，这里需要判断一下，避免重复更新，造成浪费
         String formerToken = request.getHeader(jwtUtils.getHeader());
-        Claims claim = jwtUtils.getClaimsByToken(formerToken);
-        if (ObjectUtils.isEmpty(claim)) {
+        System.out.println(formerToken);
+        if (StringUtils.isEmpty(formerToken) || ObjectUtils.isEmpty(jwtUtils.getClaimsByToken(formerToken))) {
             String uri = request.getRequestURI();
             if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
                 String region = IpUtils.getRegion(request);
