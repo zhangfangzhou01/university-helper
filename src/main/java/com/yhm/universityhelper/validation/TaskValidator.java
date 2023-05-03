@@ -166,7 +166,7 @@ public class TaskValidator extends CustomValidator {
         Optional.ofNullable(task.getInt("taskState"))
                 .map(taskState -> CustomValidator.validateBetween("任务状态", taskState, Task.NOT_PUBLISH, Task.NOT_TAKE))
                 .orElseThrow(() -> new ValidateException("必须提供taskState"));
-        
+
         Optional.ofNullable(task.getStr("taskId"))
                 .map(taskId -> Validator.validateNumber(taskId, "任务ID不合法"))
                 .map(Long::parseLong)
@@ -198,19 +198,19 @@ public class TaskValidator extends CustomValidator {
 
         Integer formerTaskState = BeanUtils.getBean(TaskMapper.class).selectTaskStateByTaskId(task.getLong("taskId"));
         Integer currentTaskState = task.getInt("taskState");
-        
+
         if (formerTaskState > Task.NOT_TAKE || currentTaskState > Task.NOT_TAKE) {
             throw new ValidateException("禁止修改任务状态为已完成或已接单");
         }
-        
+
         if (formerTaskState == Task.NOT_TAKE && currentTaskState == Task.NOT_PUBLISH) {
             throw new ValidateException("禁止将已发布的任务修改为草稿");
         }
-        
+
         if (formerTaskState == Task.NOT_TAKE && currentTaskState == Task.NOT_TAKE) {
             throw new ValidateException("禁止修改已经发布的任务");
         }
-        
+
         // 更新时不能改的
         Validator.validateNull(task.getStr("isHunter"), "禁止修改任务的isHunter");
         Validator.validateNull(task.getStr("transactionAmount"), "禁止修改任务的交易金额");
@@ -232,7 +232,7 @@ public class TaskValidator extends CustomValidator {
                 .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
                 .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords));
-                
+
         Optional.ofNullable(task.getStr("title"))
                 .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
@@ -331,6 +331,7 @@ public class TaskValidator extends CustomValidator {
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
+        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.NOT_PUBLISH, "任务" + taskId + "为草稿，无法接取");
         Validator.validateFalse(BeanUtils.getBean(UsertaketaskMapper.class).exists(new LambdaQueryWrapper<Usertaketask>().eq(Usertaketask::getTaskId, taskId).eq(Usertaketask::getUserId, userId)), "用户" + userId + "已经接过任务" + taskId);
         Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId + "已经完成，无法接取");
     }
@@ -352,6 +353,7 @@ public class TaskValidator extends CustomValidator {
                 .map(s -> CustomValidator.validateBetween("评分", s, 1, 5))
                 .orElseThrow(() -> new ValidateException("必须提供评分"));
 
+        Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.NOT_PUBLISH, "任务" + taskId + "为草稿，无法接取");
         Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(new LambdaQueryWrapper<Task>().eq(Task::getTaskId, taskId).eq(Task::getUserId, userId)), "用户" + userId + "没有发布任务" + taskId);
         Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).selectById(taskId).getTaskState() != Task.COMPLETED, "任务" + taskId + "已经完成，无法重复完成");
     }
