@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -46,7 +45,7 @@ public class ChatController {
         return ResponseResult.ok(chatService.getOnlineUsers(), "获取在线用户列表成功");
     }
 
-    @GetMapping("/onlineUsersCount")
+    @PostMapping("/onlineUsersCount")
     @ResponseBody
     @ApiOperation(value = "获取在线用户数量")
     public ResponseResult<Integer> onlineUsersCount() {

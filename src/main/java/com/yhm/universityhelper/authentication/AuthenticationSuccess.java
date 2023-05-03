@@ -43,9 +43,8 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String formerToken = request.getHeader(jwtUtils.getHeader());
-        System.out.println(formerToken);
         if (StringUtils.isEmpty(formerToken) || ObjectUtils.isEmpty(jwtUtils.getClaimsByToken(formerToken))) {
-            String uri = request.getRequestURI();
+            String uri = request.getServletPath();
             if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
                 String region = IpUtils.getRegion(request);
                 redisUtils.set("user:region:" + authentication.getName(), region);
