@@ -42,7 +42,7 @@ public class LoginController {
             @ApiResponse(code = 1014, message = "Token令牌验证失败")
     })
     @PostMapping("/login")
-    public void login(@RequestParam String username, @RequestParam String password, @RequestParam Boolean rememberMe) {
+    public void login(@RequestParam String username, @RequestParam String password) {
     }
 
     @ApiOperation(value = "邮箱验证码登录")
@@ -68,7 +68,7 @@ public class LoginController {
             @ApiResponse(code = 1014, message = "Token令牌验证失败")
     })
     @PostMapping("/email/login")
-    public void emailLogin(@RequestParam String email, @RequestParam String code, @RequestParam Boolean rememberMe) {
+    public void emailLogin(@RequestParam String email, @RequestParam String code) {
     }
 
     @ApiOperation(value = "发送邮箱验证码")

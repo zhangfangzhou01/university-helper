@@ -25,7 +25,6 @@ public class JwtUtils {
 
     // 生成JWT
     public String generateToken(String username) {
-
         Date nowDate = new Date();
         Date expireDate = new Date(nowDate.getTime() + 1000 * expire);
 

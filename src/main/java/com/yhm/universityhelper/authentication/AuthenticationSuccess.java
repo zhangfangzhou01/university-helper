@@ -13,7 +13,6 @@ import com.yhm.universityhelper.util.RedisUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -34,10 +33,6 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
     private UserMapper userMapper;
 
     @Autowired
-    @Value("${authentication.jwt.expire}")
-    private long expire;
-
-    @Autowired
     private RedisUtils redisUtils;
 
     @Override
@@ -50,13 +45,6 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
                 redisUtils.set("user:region:" + authentication.getName(), region);
                 Thread.startVirtualThread(() -> userMapper.update(null, new LambdaUpdateWrapper<User>().eq(User::getUsername, authentication.getName()).set(User::getRegion, region)));
             }
-        }
-
-        boolean rememberMe = Boolean.parseBoolean(request.getParameter("rememberMe"));
-        if (!rememberMe) {
-            jwtUtils.setExpiration(0L);
-        } else {
-            jwtUtils.setExpiration(expire);
         }
 
         String username = authentication.getName();
