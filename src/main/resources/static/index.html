@@ -65,8 +65,82 @@
     const div = $('#first div');
     let stompClient = null;
     const sockjsUrl = '/api/ws';
-    let yourId;
+    let username;
     let connected = false;
+
+    function print(m, p) {
+        p = (p === undefined) ? '' : p;
+        div.append($("<code>").text(m + ' ' + p));
+        div.append($("<br>"));
+        div.scrollTop = div.scrollTop + 10000;
+    }
+    
+    function send(targetStr) {
+        if (stompClient == null) {
+            print('系统提示：', '请先点击客户端登陆');
+            return false;
+        }
+
+        print(username + ": ", input.val());
+        // targets是一个数组，如果数组为空，就是广播
+        if (targetStr === "") {
+            stompClient.send("/app/broadcast", {}, {});
+        } else {
+            if (targetStr.indexOf(",") !== -1) {
+                let targets = targetStr.split(",");
+                stompClient.send("/app/groupChat", {},
+                    JSON.stringify({
+                        'to': targets,
+                        'content': input.val()
+                    }));
+            } else {
+                stompClient.send("/app/chat", {},
+                    JSON.stringify({
+                        'to': targetStr,
+                        'content': input.val()
+                    }));
+            }
+        }
+    }
+
+    function disconnected() {
+        if (!connected) {
+            console.log("不要重复断开连接");
+            return;
+        }
+        if (stompClient != null) {
+            stompClient.send("/app/disconnected", {},
+                JSON.stringify({
+                    'from': username
+                }));
+            stompClient.disconnect();
+            stompClient = null;
+            connected = false;
+            print('系统提示：', '已断开连接');
+        }
+    }
+
+    function testLogin() {
+        // 测试接口可用性
+        $.ajax({
+            url: "http://47.120.32.226/api/login?password=123456&rememberMe=true&username=2027405037",
+            type: "post",
+            success: function (data) {
+                console.log(data);
+            }
+        });
+    }
+
+    function testLogout() {
+        // 测试接口可用性
+        $.ajax({
+            url: "http://47.120.32.226/api/logout",
+            type: "post",
+            success: function (data) {
+                console.log(data);
+            }
+        });
+    }
 
     function connect() {
         if (!connected) {
@@ -81,6 +155,7 @@
         // yourId = JSON.parse(greeting.body).toUsername;
         // 前端登陆了就会有的
         stompClient.connect({}, () => {
+            stompClient.send("/app/connected", {}, {});
             stompClient.subscribe('/topic/broadcast', function (greeting) {
                 console.log("返回内容：" + greeting.body);
                 print(JSON.parse(greeting.body).fromUsername + "的广播: ", JSON.parse(greeting.body).content);
@@ -107,81 +182,7 @@
         });
 
     }
-
-    function send(targetStr) {
-        if (stompClient == null) {
-            print('系统提示：', '请先点击客户端登陆');
-            return false;
-        }
-
-        print(yourId + ": ", input.val());
-        // targets是一个数组，如果数组为空，就是广播
-        if (targetStr === "") {
-            stompClient.send("/app/broadcast", {},
-                JSON.stringify({
-                    'content': input.val()
-                }));
-        } else {
-            if (targetStr.indexOf(",") !== -1) {
-                let targets = targetStr.split(",");
-                stompClient.send("/app/groupChat", {},
-                    JSON.stringify({
-                        'to': targets,
-                        'content': input.val()
-                    }));
-            } else {
-                stompClient.send("/app/chat", {},
-                    JSON.stringify({
-                        'to': targetStr,
-                        'content': input.val()
-                    }));
-            }
-        }
-    }
-
-    function disconnected() {
-        if (!connected) {
-            console.log("不要重复断开连接");
-            return;
-        }
-        if (stompClient != null) {
-            stompClient.disconnect();
-            stompClient = null;
-            connected = false;
-            print('系统提示：', '已断开连接');
-        }
-    }
-
-    function print(m, p) {
-        p = (p === undefined) ? '' : p;
-        div.append($("<code>").text(m + ' ' + p));
-        div.append($("<br>"));
-        div.scrollTop = div.scrollTop + 10000;
-    }
-
-    function testLogin() {
-        // 测试接口可用性
-        $.ajax({
-            url: "http://47.120.32.226/api/login?password=123456&rememberMe=true&username=2027405037",
-            type: "post",
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    }
-
-    function testLogout() {
-        // 测试接口可用性
-        $.ajax({
-            url: "http://47.120.32.226/api/logout",
-            type: "post",
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    }
-
-
+    
     input.focus();
 </script>
 </body>
