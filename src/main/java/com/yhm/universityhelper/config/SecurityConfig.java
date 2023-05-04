@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     public FilterChainExceptionHandler filterChainExceptionHandler() {
         return new FilterChainExceptionHandler();
@@ -118,6 +118,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .headers().frameOptions().sameOrigin().and() // 允许iframe
                 .cors().and().csrf().disable()
                 .formLogin().disable()
                 // 角色控制， ADMIN 和 USER可以访问 /user/**
