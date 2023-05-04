@@ -3,12 +3,13 @@ package com.yhm.universityhelper.service.impl;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yhm.universityhelper.config.AuthChannelInterceptor;
 import com.yhm.universityhelper.dao.ChatMapper;
 import com.yhm.universityhelper.dao.UserMapper;
+import com.yhm.universityhelper.dao.WebsocketOnlineMapper;
 import com.yhm.universityhelper.entity.dto.ChatUser;
 import com.yhm.universityhelper.entity.po.Chat;
 import com.yhm.universityhelper.entity.po.User;
+import com.yhm.universityhelper.entity.po.WebscoketOnline;
 import com.yhm.universityhelper.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +39,24 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Autowired
     private UserMapper userMapper;
     @Autowired
+    private WebsocketOnlineMapper websocketOnlineMapper;
+    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    private static final Set<String> ONLINE_USERS = ConcurrentHashMap.newKeySet();
+
+    @Override
+    public void connected(Authentication authentication) {
+        String username = authentication.getName();
+        ONLINE_USERS.add(username);
+        websocketOnlineMapper.insertOrUpdate(new WebscoketOnline(username, true));
+    }
+    
+    @Override
+    public void disconnected(Authentication authentication) {
+        String username = authentication.getName();
+        ONLINE_USERS.remove(username);
+        websocketOnlineMapper.insertOrUpdate(new WebscoketOnline(username, false));
+    }
     
     @Override
     public void chat(Authentication authentication, JSONObject msg) {
@@ -94,7 +113,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     public void notification(String msg) {
         simpMessagingTemplate.convertAndSend("/topic/notification", msg);
     }
-    
+
     @Override
     public void notificationByUsername(String username, String msg) {
         simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
@@ -106,13 +125,13 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
             Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
         }
     }
-    
+
     @Override
     public void notificationByUserId(Long userId, String msg) {
         final String username = userMapper.selectUsernameByUserId(userId);
         simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
     }
-    
+
     @Override
     public void notificationByUserIds(List<Long> userIds, String msg) {
         final List<String> usernames = userMapper.selectBatchUsernameByBatchUserId(userIds);
@@ -123,12 +142,12 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
 
     @Override
     public Set<String> getOnlineUsers() {
-        return AuthChannelInterceptor.ONLINE_USERS;
+        return ONLINE_USERS;
     }
 
     @Override
     public int getOnlineUsersCount() {
-        return AuthChannelInterceptor.ONLINE_USERS.size();
+        return ONLINE_USERS.size();
     }
 
     @Override

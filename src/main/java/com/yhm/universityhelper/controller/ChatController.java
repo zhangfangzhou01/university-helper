@@ -20,6 +20,16 @@ import java.util.Set;
 public class ChatController {
     @Autowired
     private ChatService chatService;
+    
+    @MessageMapping("/connected")
+    public void connected(Authentication authentication) {
+        chatService.connected(authentication);
+    }
+    
+    @MessageMapping("/disconnected")
+    public void disconnected(Authentication authentication) {
+        chatService.disconnected(authentication);
+    }
 
     @MessageMapping("/chat")
     public void chat(Authentication authentication, JSONObject msg) {

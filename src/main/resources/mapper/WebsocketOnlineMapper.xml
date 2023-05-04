@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhm.universityhelper.dao.WebsocketOnlineMapper">
+    <insert id="insertOrUpdate">
+        insert into uh_websocket_online (username, isOnline, onlineTime)
+        values (#{username}, #{isOnline}, #{onlineTime}) on duplicate key
+        update username = #{username}, isOnline = #{isOnline}, onlineTime = #{onlineTime}
+    </insert>
+</mapper>

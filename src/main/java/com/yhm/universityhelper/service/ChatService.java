@@ -18,6 +18,10 @@ import java.util.Set;
  */
 
 public interface ChatService extends IService<Chat> {
+    
+    void connected(Authentication authentication);
+    
+    void disconnected(Authentication authentication);
 
     void chat(Authentication authentication, JSONObject msg);
 
