@@ -64,7 +64,7 @@
     const input = $('#first input');
     const div = $('#first div');
     let stompClient = null;
-    const sockjsUrl = '/ws';
+    const sockjsUrl = '/api/ws';
     let yourId;
     let connected = false;
 
@@ -162,7 +162,7 @@
     function testLogin() {
         // 测试接口可用性
         $.ajax({
-            url: "http://47.120.32.226:8080/login?password=123456&rememberMe=true&username=2027405037",
+            url: "http://47.120.32.226/api/login?password=123456&rememberMe=true&username=2027405037",
             type: "post",
             success: function (data) {
                 console.log(data);
@@ -173,7 +173,7 @@
     function testLogout() {
         // 测试接口可用性
         $.ajax({
-            url: "http://47.120.32.226:8080/logout",
+            url: "http://47.120.32.226/api/logout",
             type: "post",
             success: function (data) {
                 console.log(data);
