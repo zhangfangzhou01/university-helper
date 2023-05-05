@@ -74,7 +74,7 @@
         div.append($("<br>"));
         div.scrollTop = div.scrollTop + 10000;
     }
-    
+
     function send(targetStr) {
         if (stompClient == null) {
             print('系统提示：', '请先点击客户端登陆');
@@ -84,9 +84,10 @@
         print(username + ": ", input.val());
         // targets是一个数组，如果数组为空，就是广播
         if (targetStr === "") {
-            stompClient.send("/app/broadcast", {}, {
-                'content': input.val()
-            });
+            stompClient.send("/app/broadcast", {},
+                JSON.stringify({
+                    'content': input.val()
+                }));
         } else {
             if (targetStr.indexOf(",") !== -1) {
                 let targets = targetStr.split(",");
@@ -184,7 +185,7 @@
         });
 
     }
-    
+
     input.focus();
 </script>
 </body>
