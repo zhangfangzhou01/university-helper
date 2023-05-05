@@ -84,7 +84,9 @@
         print(username + ": ", input.val());
         // targets是一个数组，如果数组为空，就是广播
         if (targetStr === "") {
-            stompClient.send("/app/broadcast", {}, {});
+            stompClient.send("/app/broadcast", {}, {
+                'content': input.val()
+            });
         } else {
             if (targetStr.indexOf(",") !== -1) {
                 let targets = targetStr.split(",");
