@@ -110,33 +110,33 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     }
 
     @Override
-    public void notification(String msg) {
-        simpMessagingTemplate.convertAndSend("/topic/notification", msg);
+    public void notification(Object obj) {
+        simpMessagingTemplate.convertAndSend("/topic/notification", obj);
     }
 
     @Override
-    public void notificationByUsername(String username, String msg) {
-        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
+    public void notificationByUsername(String username, Object obj) {
+        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", obj);
     }
 
     @Override
-    public void notificationByUsernames(List<String> usernames, String msg) {
+    public void notificationByUsernames(List<String> usernames, Object obj) {
         for (String username : usernames) {
-            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", obj));
         }
     }
 
     @Override
-    public void notificationByUserId(Long userId, String msg) {
+    public void notificationByUserId(Long userId, Object obj) {
         final String username = userMapper.selectUsernameByUserId(userId);
-        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg);
+        simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", obj);
     }
 
     @Override
-    public void notificationByUserIds(List<Long> userIds, String msg) {
+    public void notificationByUserIds(List<Long> userIds, Object obj) {
         final List<String> usernames = userMapper.selectBatchUsernameByBatchUserId(userIds);
         for (String username : usernames) {
-            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", msg));
+            Thread.startVirtualThread(() -> simpMessagingTemplate.convertAndSendToUser(username, "/topic/notification", obj));
         }
     }
 

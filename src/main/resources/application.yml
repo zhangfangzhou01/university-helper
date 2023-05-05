@@ -11,7 +11,7 @@ spring:
     host: localhost
     port: 6379
     expire: 300
-    password: 
+    password:
     database: 0
     lettuce:
       pool:
@@ -66,8 +66,9 @@ spring:
         # 日志监控，使用slf4j 进行日志输出
         wall:
           enabled: true
-          # 允许执行多条SQL
-          multi-statement-allow: true
+          config:
+            # 允许执行多条SQL
+            multi-statement-allow: true
         # 配置日志输出
         log4j2:
           enabled: true
@@ -75,13 +76,10 @@ spring:
           statement-prepare-after-log-enabled: true
           statement-prepare-call-after-log-enabled: true
           statement-close-after-log-enabled: true
-          statement-prepare-after-log-filter: com.alibaba.druid.filter.logging.Slf4jLogFilter
-          statement-prepare-call-after-log-filter: com.alibaba.druid.filter.logging.Slf4jLogFilter
-          statement-close-after-log-filter: com.alibaba.druid.filter.logging.Slf4jLogFilter
-          # 配置日志输出的级别
-          statement-prepare-after-log-level: debug
-          statement-prepare-call-after-log-level: debug
-          statement-close-after-log-level: debug
+        slf4j:
+          enabled: true
+          statement-log-enabled: true
+          statement-executable-sql-log-enable: true
       # 配置WebStatFilter，用于采集web关联监控的数据
       web-stat-filter:
         enabled: true                   # 启动 StatFilter
@@ -93,12 +91,9 @@ spring:
       stat-view-servlet:
         enabled: true                   # 启用StatViewServlet
         url-pattern: /druid/*           # 访问内置监控页面的路径，内置监控页面的首页是/druid/index.html
-        reset-enable: false              # 不允许清空统计数据,重新计算
-        login-username: admin            # 配置监控页面访问密码
-        login-password: 123456
-        allow:         # 允许访问的地址，如果allow没有配置或者为空，则允许所有访问
-        deny:        # 拒绝访问的地址，优先级高于allow
-      connection-init-sqls: set names utf8mb4 collate utf8mb4_general_ci
+        reset-enable: true              # 不允许清空统计数据,重新计算
+        login-username: admin           # 配置监控页面访问用户名
+        login-password: 123456          # 配置监控页面访问密码
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

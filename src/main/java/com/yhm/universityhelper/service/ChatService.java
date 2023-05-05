@@ -29,15 +29,15 @@ public interface ChatService extends IService<Chat> {
 
     void broadcast(Authentication authentication, JSONObject msg);
 
-    void notification(String msg);
+    void notification(Object obj);
     
-    void notificationByUsername(String username, String msg);
+    void notificationByUsername(String username, Object obj);
 
-    void notificationByUsernames(List<String> usernames, String msg);
+    void notificationByUsernames(List<String> usernames, Object obj);
     
-    void notificationByUserId(Long userId, String msg);
+    void notificationByUserId(Long userId, Object obj);
     
-    void notificationByUserIds(List<Long> userIds, String msg);
+    void notificationByUserIds(List<Long> userIds, Object obj);
     
     Set<String> getOnlineUsers();
 
