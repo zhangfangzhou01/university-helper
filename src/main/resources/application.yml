@@ -23,7 +23,7 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver   # mysql8 的连接驱动
-    url: jdbc:mysql://localhost:3306/universityhelper?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true
+    url: jdbc:mysql://localhost:3306/universityhelper?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&rewriteBatchedStatements=true&allowMultiQueries=true
     type: com.alibaba.druid.pool.DruidDataSource  # 指定数据源类型
     # 连接池配置
     druid:

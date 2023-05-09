@@ -3,9 +3,13 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yhm.universityhelper.dao.PostTagMapper">
     <insert id="insertBatch" parameterType="cn.hutool.json.JSONArray">
-        insert ignore into universityhelper.uh_post_tags (tag) values
-        <foreach collection="list" item="item" index="index" separator=",">
+        <foreach collection="list" item="item" index="index" separator=";">
+            <if test="index % 1000 == 0">
+                commit;
+            </if>
+            insert ignore into universityhelper.uh_post_tags (tag) values
             (#{item})
         </foreach>
+        commit;
     </insert>
 </mapper>
