@@ -6,6 +6,8 @@
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.js"></script>
   <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.3.6/axios.min.js"></script>
   <style>
       .box {
           width: 300px;
@@ -58,6 +60,14 @@
   <button onclick="disconnected()">断开连接</button>
   <button onclick="testLogin()">测试登录接口</button>
   <button onclick="testLogout()">测试登出接口</button>
+  <form action="http://localhost/test/upload/task/1" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" multiple="multiple"/>
+    <input type="submit" value="上传文件"/>
+  </form>
+  <input type="text" id="type" value="task"/>
+  <input type="text" id="id" value="1"/>
+  <button onclick="readZip(document.getElementById('type').value, document.getElementById('id').value)">读取zip</button>
+  <div id="file" style="width: 100%;"></div>
 </div>
 
 <script>
@@ -179,11 +189,34 @@
                 console.log(msg.body);
                 print('系统提示：', msg.body);
             });
-
-            // 给后端发一个消息告诉有一个人登录了
-
         });
+    }
 
+    async function readZip(type, id) {
+        let res = await axios.get(`http://localhost/test/download/${type}/${id}`, {
+            responseType: 'blob'
+        })
+        const blob = res.data
+        let dataList = []
+        const jszip = new JSZip()
+        let zip = await jszip.loadAsync(blob)
+        for (let key in zip.files) { // 判断是否是目录
+            if (!zip.files[key].dir) {
+                if (/\.(png|jpg|jpeg|gif)$/.test(zip.files[key].name)) { // 判断是否是图片格式
+                    let base = await zip.file(zip.files[key].name).async('base64')
+                    dataList.push({
+                        fileName: zip.files[key].name,
+                        type: 'img',
+                        content: `data:image/jpg;base64,${base}`
+                    })
+                }
+            }
+        }
+        let html = ''
+        dataList.forEach(item => {
+            html += `<img src="${item.content}" alt="${item.fileName}">`
+        })
+        document.getElementById('file').innerHTML = html
     }
 
     input.focus();

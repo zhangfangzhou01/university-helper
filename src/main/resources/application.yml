@@ -144,3 +144,5 @@ account:
 
 task:
   expire-time: 3600
+  
+imageServerUrl: http://47.113.144.215:8082

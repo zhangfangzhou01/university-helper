@@ -45,7 +45,13 @@ public class ForumController {
                             value = "标签",
                             required = true,
                             dataTypeClass = String.class
-                    )
+                    ),
+                    @DynamicParameter(
+                            name = "images",
+                            value = "图片",
+                            required = false,
+                            dataTypeClass = String.class
+                    ),
             }
     )
     @PostMapping("/insertPost")
@@ -90,7 +96,13 @@ public class ForumController {
                             value = "标签",
                             required = true,
                             dataTypeClass = String.class
-                    )
+                    ),
+                    @DynamicParameter(
+                            name = "images",
+                            value = "图片",
+                            required = false,
+                            dataTypeClass = String.class
+                    ),
             }
     )
     @PostMapping("/updatePost")
