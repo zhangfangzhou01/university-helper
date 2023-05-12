@@ -90,7 +90,6 @@ public class TaskValidator extends CustomValidator {
         Optional.ofNullable(task.getJSONArray("tags"))
                 .map(JSONArray::toString)
                 .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是json数组"))
-                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
                 .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords))
                 .orElseThrow(() -> new ValidateException("必须提供tags"));
@@ -108,6 +107,10 @@ public class TaskValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供transactionAmount"));
 
         // 两种类型都可以给的
+        Optional.ofNullable(task.getJSONArray("images"))
+                .map(JSONArray::toString)
+                .map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
+
         Optional.ofNullable(task.getStr("requireDescription"))
                 .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
@@ -183,12 +186,6 @@ public class TaskValidator extends CustomValidator {
                 .map(exists -> Validator.validateTrue(exists, "用户ID不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户ID"));
 
-        Optional.ofNullable(task.getStr("type"))
-                .map(type -> Validator.validateMatchRegex("(交易|外卖)", type, "任务类型不合法"))
-                .orElseThrow(() -> new ValidateException("必须提供任务类型"));
-
-        Validator.validateTrue(task.getStr("type").equals(BeanUtils.getBean(TaskMapper.class).selectById(task.getLong("taskId")).getType()), "禁止修改任务的类型");
-
         // 任务库内必须存在该任务
         Validator.validateTrue(BeanUtils.getBean(TaskMapper.class).exists(
                         new LambdaQueryWrapper<Task>()
@@ -229,9 +226,13 @@ public class TaskValidator extends CustomValidator {
         Optional.ofNullable(task.getJSONArray("tags"))
                 .map(JSONArray::toString)
                 .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是json数组"))
-                .map(tags -> Validator.validateMatchRegex(".{1,255}", tags, "tags长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
                 .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords));
+
+        Optional.ofNullable(task.getJSONArray("images"))
+                .map(JSONArray::toString)
+                .map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
+//                json数组里的每一项都必须是linux路径
 
         Optional.ofNullable(task.getStr("title"))
                 .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))

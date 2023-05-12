@@ -1,6 +1,8 @@
 package com.yhm.universityhelper.entity.po;
 
+import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,6 +48,9 @@ public class Comment implements Serializable {
 
     @TableField("replayCommentId")
     private Long replayCommentId;
+    
+    @TableField(value = "images", typeHandler = JacksonTypeHandler.class)
+    private JSONArray images;
 
     @Version
     @TableField("version")

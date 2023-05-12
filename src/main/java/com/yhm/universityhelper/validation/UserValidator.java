@@ -32,15 +32,15 @@ public class UserValidator extends CustomValidator {
                 .map(exists -> Validator.validateTrue(exists, "用户名不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
 
-        Optional.ofNullable(user.getStr("avatar"))
-                .map(avatar -> Validator.validateUrl(avatar, "头像地址应为URL"));
-
         Optional.ofNullable(user.getStr("description"))
                 .map(description -> CustomValidator.validateBetween("description", description, 0, 255));
 
         Optional.ofNullable(user.getStr("location"))
                 .map(location -> CustomValidator.validateBetween("location", location, 0, 255));
 
+        Optional.ofNullable(user.getStr("avatar"))
+                .map(avatar -> CustomValidator.validateLinuxPath("avatar", avatar));
+        
         Optional.ofNullable(user.getStr("phone"))
                 .map(phone -> Validator.validateMobile(phone, "手机号不合法"));
 

@@ -47,6 +47,9 @@ public class Task implements Serializable {
     @TableField(value = "tags", typeHandler = JacksonTypeHandler.class)
     private JSONArray tags;
 
+    @TableField(value = "images", typeHandler = JacksonTypeHandler.class)
+    private JSONArray images;
+
     @TableField("releaseTime")
     private LocalDateTime releaseTime;
 
