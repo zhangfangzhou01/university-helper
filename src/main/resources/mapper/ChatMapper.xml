@@ -4,12 +4,8 @@
 <mapper namespace="com.yhm.universityhelper.dao.ChatMapper">
     <insert id="insertBatch" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index" separator=";">
-            <if test="index % 1000 == 0">
-                commit;
-            </if>
             insert ignore into universityhelper.uh_chat(fromUsername,toUsername,content,time,isRead) values
             (#{item.fromUsername},#{item.toUsername},#{item.content},#{item.time},#{item.isRead})
         </foreach>
-        commit;
     </insert>
 </mapper>

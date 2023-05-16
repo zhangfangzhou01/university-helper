@@ -117,6 +117,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             } else if ("images".equals(key)) {
                 JSONArray images = json.getJSONArray(key);
                 ReflectUtils.set(task, key, images);
+            } else if ("transactionAmount".equals(key)) {
+                ReflectUtils.set(task, key, Double.parseDouble(value.toString()));
             } else {
                 ReflectUtils.set(task, key, value);
             }
