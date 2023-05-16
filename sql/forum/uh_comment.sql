@@ -6,6 +6,7 @@ create table uh_comment
     postId          bigint       default 0                     not null,
     releaseTime     timestamp    default '1970-01-02 00:00:00' not null,
     content         varchar(510) default ''                    not null,
+    images          json         default (json_array())        not null,
     likeNum         bigint       default 0                     not null,
     replayCommentId bigint       default 0                     not null,
     version         int          default 1                     not null

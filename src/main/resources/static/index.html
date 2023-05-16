@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Websocket</title>
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-  <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.js"></script>
-  <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+  <script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.min.js"></script>
+  <script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
   <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.3.6/axios.min.js"></script>
   <style>
@@ -60,14 +60,23 @@
   <button onclick="disconnected()">断开连接</button>
   <button onclick="testLogin()">测试登录接口</button>
   <button onclick="testLogout()">测试登出接口</button>
-  <form action="http://localhost/test/upload/task/1" method="post" enctype="multipart/form-data">
+  <iframe  width=0 height=0 id="my-iframe" name="my-iframe"></iframe>
+  <form id="my-form" action="http://127.0.0.1/test/upload/task/1" method="post" enctype="multipart/form-data" target="my-iframe">
+    <label for="type1"></label><input type="text" id="type1" value="task"/>
+    <label for="id1"></label><input type="text" id="id1" value="1"/>
     <input type="file" name="files" multiple="multiple"/>
-    <input type="submit" value="上传文件"/>
+    <input type="button" value="上传文件" onclick="document.getElementById('my-form').action='http://127.0.0.1/test/upload/'+document.getElementById('type1').value+'/'+document.getElementById('id1').value;document.getElementById('my-form').submit()"/>
   </form>
-  <input type="text" id="type" value="task"/>
-  <input type="text" id="id" value="1"/>
+  <label for="type"></label><input type="text" id="type" value="task"/>
+  <label for="id"></label><input type="text" id="id" value="1"/>
   <button onclick="readZip(document.getElementById('type').value, document.getElementById('id').value)">读取zip</button>
   <div id="file" style="width: 100%;"></div>
+<!--  删除图片-->
+  <label for="type2"></label><input type="text" id="type2" value="task"/>
+  <label for="id2"></label><input type="text" id="id2" value="1"/>
+  <label for="fileName"></label><input type="text" id="fileName" value="1"/>
+  <button onclick="deleteFile(document.getElementById('type2').value, document.getElementById('id2').value, document.getElementById('fileName').value)">删除文件</button>
+  <button onclick="deleteDir(document.getElementById('type2').value, document.getElementById('id2').value)">删除文件夹</button>
 </div>
 
 <script>
@@ -136,7 +145,7 @@
     function testLogin() {
         // 测试接口可用性
         $.ajax({
-            url: "http://47.120.32.226/api/login?password=123456&rememberMe=true&username=2027405037",
+            url: "http://127.0.0.1/api/login?password=123456&rememberMe=true&username=2027405037",
             type: "post",
             success: function (data) {
                 console.log(data);
@@ -147,7 +156,7 @@
     function testLogout() {
         // 测试接口可用性
         $.ajax({
-            url: "http://47.120.32.226/api/logout",
+            url: "http://127.0.0.1/api/logout",
             type: "post",
             success: function (data) {
                 console.log(data);
@@ -193,7 +202,7 @@
     }
 
     async function readZip(type, id) {
-        let res = await axios.get(`http://localhost/test/download/${type}/${id}`, {
+        let res = await axios.get(`http://127.0.0.1/test/download/${type}/${id}`, {
             responseType: 'blob'
         })
         const blob = res.data
@@ -212,13 +221,24 @@
                 }
             }
         }
+        console.log(dataList)
         let html = ''
         dataList.forEach(item => {
             html += `<img src="${item.content}" alt="${item.fileName}">`
         })
         document.getElementById('file').innerHTML = html
     }
-
+    
+    async function deleteFile(type, id, fileName) {
+        let result = await axios.get(`http://127.0.0.1/test/delete/${type}/${id}/${fileName}`)
+        console.log(result)
+    }
+    
+    async function deleteDir(type, id) {
+        let result = await axios.get(`http://127.0.0.1/test/delete/${type}/${id}`)
+        console.log(result)
+    }
+    
     input.focus();
 </script>
 </body>

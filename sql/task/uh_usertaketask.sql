@@ -11,3 +11,5 @@ create table uh_usertaketask
 INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId, version) VALUES (8, 11, 17, 1);
 INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId, version) VALUES (9, 11, 19, 1);
 INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId, version) VALUES (10, 10, 18, 1);
+INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId, version) VALUES (11, 11, 77, 1);
+INSERT INTO universityhelper.uh_usertaketask (id, userId, taskId, version) VALUES (12, 11, 81, 1);

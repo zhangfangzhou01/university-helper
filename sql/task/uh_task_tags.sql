@@ -25,4 +25,13 @@ INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (13, '原神
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (14, '开放世界', 1);
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (15, 'helloworld', 1);
 INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (19, '哈哈a', 1);
-INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (26, '辣椒', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (20, '骚逼', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (21, '脑残', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (22, '傻逼', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (24, '辣椒', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (25, 'abc', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (26, 'dqd11', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (27, 'qwerty', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (30, '这是一个tag', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (34, '我是zfz', 1);
+INSERT INTO universityhelper.uh_task_tags (id, tag, version) VALUES (40, '我是zfzhahaha', 1);

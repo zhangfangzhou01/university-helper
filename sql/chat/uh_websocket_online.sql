@@ -11,4 +11,4 @@ create table uh_websocket_online
         unique (username)
 );
 
-INSERT INTO universityhelper.uh_websocket_online (id, username, isOnline, onlineTime) VALUES (1, '2027405037', 1, '2023-05-04 20:02:29');
+INSERT INTO universityhelper.uh_websocket_online (id, username, isOnline, onlineTime) VALUES (1, '2027405037', 1, '2023-05-05 11:57:56');
