@@ -40,9 +40,6 @@ public class Post implements Serializable {
 
     @TableField(value = "tags", typeHandler = JacksonTypeHandler.class)
     private JSONArray tags;
-
-    @TableField(value = "images", typeHandler = JacksonTypeHandler.class)
-    private JSONArray images;
     
     @ApiModelProperty(value = "帖子发布时间")
     @TableField("releaseTime")

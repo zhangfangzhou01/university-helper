@@ -48,9 +48,6 @@ public class Comment implements Serializable {
 
     @TableField("replayCommentId")
     private Long replayCommentId;
-    
-    @TableField(value = "images", typeHandler = JacksonTypeHandler.class)
-    private JSONArray images;
 
     @Version
     @TableField("version")

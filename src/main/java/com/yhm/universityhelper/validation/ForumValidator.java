@@ -20,8 +20,6 @@ public class ForumValidator extends CustomValidator {
 
         Optional.ofNullable(post.getStr("content")).map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间")).map(SensitiveUtils::getAllSensitive).map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords)).orElseThrow(() -> new IllegalArgumentException("必须指定content"));
 
-        Optional.ofNullable(post.getJSONArray("images")).map(JSONArray::toString).map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
-
         Validator.validateNull(post.get("postId"), "postId默认为自增，不需要指定");
         Validator.validateNull(post.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
         Validator.validateNull(post.get("lastModifyTime"), "lastModifyTime默认为当前时间，不需要指定");
@@ -47,8 +45,6 @@ public class ForumValidator extends CustomValidator {
 
         Optional.ofNullable(post.getStr("content")).map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间")).map(SensitiveUtils::getAllSensitive).map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords));
 
-        Optional.ofNullable(post.getJSONArray("images")).map(JSONArray::toString).map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
-
         Validator.validateNull(post.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
         Validator.validateNull(post.get("lastModifyTime"), "lastModifyTime默认为当前时间，不需要指定");
         Validator.validateNull(post.get("likeNum"), "likeNum不能修改，不需要指定");
@@ -62,8 +58,6 @@ public class ForumValidator extends CustomValidator {
         Optional.ofNullable(comment.getLong("postId")).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
 
         Optional.ofNullable(comment.getStr("content")).map(content -> Validator.validateMatchRegex(".{1,65535}", content, "content长度必须在1-65535之间")).map(SensitiveUtils::getAllSensitive).map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "content中包含敏感词：" + sensitiveWords)).orElseThrow(() -> new IllegalArgumentException("必须指定content"));
-
-        Optional.ofNullable(comment.getJSONArray("images")).map(JSONArray::toString).map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
 
         Validator.validateNull(comment.get("commentId"), "commentId默认为自增，不需要指定");
         Validator.validateNull(comment.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");

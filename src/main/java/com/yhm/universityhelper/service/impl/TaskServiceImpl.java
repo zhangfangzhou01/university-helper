@@ -80,9 +80,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                         taskTagMapper.insertBatch(tags);
                     }
                 });
-            } else if ("images".equals(key)) {
-                JSONArray images = json.getJSONArray(key);
-                ReflectUtils.set(task, key, images);
             } else {
                 ReflectUtils.set(task, key, json.get(key));
             }
@@ -114,9 +111,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                         taskTagMapper.insertBatch(tags);
                     }
                 });
-            } else if ("images".equals(key)) {
-                JSONArray images = json.getJSONArray(key);
-                ReflectUtils.set(task, key, images);
             } else if ("transactionAmount".equals(key)) {
                 ReflectUtils.set(task, key, Double.parseDouble(value.toString()));
             } else {

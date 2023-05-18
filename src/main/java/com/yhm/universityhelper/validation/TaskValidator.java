@@ -107,10 +107,6 @@ public class TaskValidator extends CustomValidator {
                 .orElseThrow(() -> new ValidateException("必须提供transactionAmount"));
 
         // 两种类型都可以给的
-        Optional.ofNullable(task.getJSONArray("images"))
-                .map(JSONArray::toString)
-                .map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
-
         Optional.ofNullable(task.getStr("requireDescription"))
                 .map(requireDescription -> Validator.validateMatchRegex(".{1,255}", requireDescription, "requireDescription长度必须在1-255之间"))
                 .map(SensitiveUtils::getAllSensitive)
@@ -228,11 +224,6 @@ public class TaskValidator extends CustomValidator {
                 .map(tags -> Validator.validateMatchRegex(JSON_ARRAY_REGEX, tags, "tags必须是json数组"))
                 .map(SensitiveUtils::getAllSensitive)
                 .map(sensitiveWords -> Validator.validateTrue(sensitiveWords.isEmpty(), "tags中包含敏感词：" + sensitiveWords));
-
-        Optional.ofNullable(task.getJSONArray("images"))
-                .map(JSONArray::toString)
-                .map(images -> Validator.validateMatchRegex(LINUX_PATH_JSON_ARRAY_REGEX, images, "images必须是json数组"));
-//                json数组里的每一项都必须是linux路径
 
         Optional.ofNullable(task.getStr("title"))
                 .map(title -> Validator.validateMatchRegex(".{1,255}", title, "title长度必须在1-255之间"))

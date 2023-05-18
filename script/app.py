@@ -119,7 +119,7 @@ async def upload_image(_type: str, _id: int, files: List[UploadFile] = File(...)
     return {
         'code': 200,
         'msg': 'image upload success',
-        'data': [f'/root/image/{_type}/{_id}/' + i for i in os.listdir(f'/root/image/{_type}/{_id}')]
+        'data': None
     }
 
 
@@ -146,6 +146,9 @@ def delete_image(_type: str, _id: int, filename: str):
     if not os.path.exists(f'/root/image/{_type}/{_id}/{filename}'):
         raise ImageNotExistException(name='image not exist')
     os.remove(f'/root/image/{_type}/{_id}/{filename}')
+    # 如果文件夹已经空了，就删除这个文件夹
+    if len(os.listdir(f'/root/image/{_type}/{_id}')) == 0:
+        os.rmdir(f'/root/image/{_type}/{_id}')
     return {
         'code': 200,
         'msg': 'image delete success',

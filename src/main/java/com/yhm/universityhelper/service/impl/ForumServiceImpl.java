@@ -70,9 +70,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                         postTagMapper.insertBatch(tags);
                     }
                 });
-            } else if ("images".equals(key)) {
-                JSONArray images = json.getJSONArray(key);
-                ReflectUtils.set(post, key, images);
             } else {
                 ReflectUtils.set(post, key, value);
             }
@@ -117,9 +114,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                         postTagMapper.insertBatch(tags);
                     }
                 });
-            } else if ("images".equals(key)) {
-                JSONArray images = json.getJSONArray(key);
-                ReflectUtils.set(post, key, images);
             } else {
                 ReflectUtils.set(post, key, json.get(key));
             }
@@ -245,9 +239,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
                 ReflectUtils.set(comment, key, Long.valueOf(json.get(key).toString()));
             } else if ("replyCommentId".equals(key)) {
                 ReflectUtils.set(comment, key, replyCommentId);
-            } else if ("images".equals(key)) {
-                JSONArray images = json.getJSONArray(key);
-                ReflectUtils.set(comment, key, images);
             } else {
                 ReflectUtils.set(comment, key, json.get(key));
             }

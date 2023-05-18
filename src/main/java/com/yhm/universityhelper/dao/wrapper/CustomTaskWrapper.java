@@ -223,4 +223,8 @@ public class CustomTaskWrapper extends CustomWrapper {
         queryWrapper.eq("leftNumOfPeopleTake", leftNumOfPeopleTake);
         return this;
     }
+    
+    public CustomTaskWrapper fuzzy(String value) {
+        return title(value).requireDescription(value);
+    }
 }
