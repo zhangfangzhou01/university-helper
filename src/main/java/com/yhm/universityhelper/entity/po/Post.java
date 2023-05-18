@@ -62,6 +62,9 @@ public class Post implements Serializable {
 
     @TableField("commentNum")
     private Long commentNum;
+    
+    @TableField("viewNum")
+    private Long viewNum;
 
     @Version
     @TableField("version")

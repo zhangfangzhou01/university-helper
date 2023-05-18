@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    public static final String[] AUTH_WHITELIST = {"/", "/index", "/homepage", "/home", "/login", "/logout", "/register", "/email/login", "/sendEmailCode"};
+    public static final String[] AUTH_WHITELIST = {"/", "/index", "/homepage", "/home", "/login", "/logout", "/user/register", "/email/login", "/sendEmailCode"};
     public static final String[] WEB_WHITELIST = {"/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.ico", "/error", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/doc.html", "/druid/**"};
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
@@ -125,14 +125,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 仅ADMIN可以访问 /admin/**
                 // 两个白名单的URL全部放行
                 .authorizeRequests()
-                .antMatchers("/user/**")
-                .hasAnyRole("USER", "ADMIN")
-                .antMatchers("/admin/**")
-                .hasRole("ADMIN")
                 .antMatchers(AUTH_WHITELIST)
                 .permitAll()
                 .antMatchers(WEB_WHITELIST)
                 .permitAll()
+                .antMatchers("/user/**")
+                .hasAnyRole("USER", "ADMIN")
+                .antMatchers("/admin/**")
+                .hasRole("ADMIN")
                 .anyRequest()
                 .authenticated() // 剩余所有请求者需要身份认证
 

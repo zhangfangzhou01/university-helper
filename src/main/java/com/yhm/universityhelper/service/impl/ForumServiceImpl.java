@@ -301,6 +301,13 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         post.setLikeNum(post.getLikeNum() + 1);
         return postMapper.updateById(post) > 0;
     }
+    
+    @Override
+    public boolean viewPost(Long postId) {
+        Post post = postMapper.selectOne(new LambdaQueryWrapper<Post>().eq(Post::getPostId, postId));
+        post.setViewNum(post.getViewNum() + 1);
+        return postMapper.updateById(post) > 0;
+    }
 
 
     @Override

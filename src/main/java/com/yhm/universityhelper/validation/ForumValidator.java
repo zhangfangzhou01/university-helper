@@ -134,4 +134,10 @@ public class ForumValidator extends CustomValidator {
     public static void selectHistory(Long userId) {
         Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
     }
+    
+    public static void viewPost(Long userId, Long postId) {
+        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
+        
+        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
+    }
 }

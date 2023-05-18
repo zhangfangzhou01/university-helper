@@ -55,6 +55,15 @@ public interface ForumService extends IService<Post> {
 
     // 看自己收到的对自己的评论的回复
     Page<Comment> selectReplyByUserId(Long userId, int current, int size);
+    
+    /*
+    * 观看
+    * */
+    boolean viewPost(Long postId);
+    
+    /*
+    * 点赞
+    * */
 
     boolean likeComment(Long commentId);
 

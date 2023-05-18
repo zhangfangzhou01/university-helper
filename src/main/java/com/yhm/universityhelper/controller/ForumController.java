@@ -259,6 +259,16 @@ public class ForumController {
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return ResponseResult.ok(forumService.selectReplyByUserId(userId, current, size), "获取别人对自己发表的评论的回复成功");
     }
+    
+    @ApiOperation(value = "观看帖子", notes = "观看帖子")
+    @PostMapping("/viewPost")
+    public ResponseResult<Object> viewPost(@RequestParam Long userId, @RequestParam Long postId) {
+        ForumValidator.viewPost(userId, postId);
+        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+        return forumService.viewPost(postId)
+                ? ResponseResult.ok("观看帖子成功")
+                : ResponseResult.fail("观看帖子失败");
+    }
 
     @ApiOperation(value = "点赞帖子", notes = "点赞帖子")
     @PostMapping("/likePost")

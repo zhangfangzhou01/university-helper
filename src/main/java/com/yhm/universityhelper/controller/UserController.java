@@ -117,7 +117,7 @@ public class UserController {
 
     // 注册
     @ApiOperation(value = "注册")
-    @PostMapping("/insert")
+    @PostMapping("/register")
     public ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
         UserValidator.register(username, password);
         return userService.register(username, password)
