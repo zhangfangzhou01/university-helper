@@ -8,6 +8,7 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
 import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.util.JwtUtils;
 import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
@@ -29,6 +30,9 @@ public class UserController {
     @Autowired
     private ChatService chatService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+    
     // 修改个人信息
     @ApiOperation(value = "修改个人信息", notes = "修改个人信息")
     @DynamicParameters(
@@ -110,9 +114,11 @@ public class UserController {
     public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         UserValidator.changePassword(username, oldPassword, newPassword);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
-        return userService.changePassword(username, oldPassword, newPassword)
+        ResponseResult<Object> responseResult = userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
                 : ResponseResult.fail("修改失败");
+        jwtUtils.expire(username);
+        return responseResult;
     }
 
     // 注册
@@ -137,7 +143,9 @@ public class UserController {
                     chatService.notificationByUsernames(usernames, "任务" + taskId + "已被任务发布者删除");
                 })
         );
-        return ResponseResult.ok("删除成功");
+        ResponseResult<Object> responseResult = ResponseResult.ok("删除成功");
+        jwtUtils.expire(username);
+        return responseResult;
     }
 
     // 封禁(解封)用户
@@ -146,9 +154,11 @@ public class UserController {
     public ResponseResult<Object> ban(@RequestParam String username, @RequestParam boolean ban) {
         UserValidator.ban(username, ban);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
-        return userService.ban(username, ban)
+        ResponseResult<Object> responseResult = userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
+        jwtUtils.expire(username);
+        return responseResult;
     }
 
     // 设置用户角色
@@ -157,9 +167,11 @@ public class UserController {
     public ResponseResult<Object> setRole(@RequestParam String username, @RequestParam String role) {
         UserValidator.setRole(username, role);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_NOBODY);
-        return userService.setRole(username, role)
+        ResponseResult<Object> responseResult = userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");
+        jwtUtils.expire(username);
+        return responseResult;
     }
 
     @ApiOperation(value = "关注")
@@ -256,8 +268,10 @@ public class UserController {
     public ResponseResult<Object> changeEmail(@RequestParam String username, @RequestParam String email) {
         UserValidator.changeEmail(username, email);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
-        return userService.changeEmail(username, email)
+        ResponseResult<Object> responseResult = userService.changeEmail(username, email)
                 ? ResponseResult.ok("修改邮箱成功")
                 : ResponseResult.fail("修改邮箱失败");
+        jwtUtils.expire(username);
+        return responseResult;
     }
 }

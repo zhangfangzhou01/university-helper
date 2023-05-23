@@ -105,10 +105,12 @@ async def upload_image(_type: str, _id: int, files: List[UploadFile] = File(...)
         }
     try:
         for file in files:
+            filename = 0
+            filetype = file.filename.split('.')[-1]
             check_if_files_too_many(f'/root/image/{_type}/{_id}')
-            if file.filename.split('.')[-1] not in image_suffix:
+            if filetype not in image_suffix:
                 continue
-            async with aiofiles.open(f'/root/image/{_type}/{_id}/{file.filename}', 'wb') as f:
+            async with aiofiles.open(f'/root/image/{_type}/{_id}/{filename}.{filetype}', 'wb') as f:
                 await f.write(await file.read())
     except Exception as e:
         return {
@@ -148,7 +150,7 @@ def delete_image(_type: str, _id: int, filename: str):
     os.remove(f'/root/image/{_type}/{_id}/{filename}')
     # 如果文件夹已经空了，就删除这个文件夹
     if len(os.listdir(f'/root/image/{_type}/{_id}')) == 0:
-        os.rmdir(f'/root/image/{_type}/{_id}')
+        shutil.rmtree(f'/root/image/{_type}/{_id}')
     return {
         'code': 200,
         'msg': 'image delete success',
