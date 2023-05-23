@@ -74,7 +74,7 @@ public class JwtUtils {
             Date nowDate = new Date();
             if (expireDate.getTime() - nowDate.getTime() < 1000 * refresh) {
                 String newToken = generateToken(claims.getSubject());
-                redisUtils.set("token:" + claims.getSubject(), newToken);
+                redisUtils.set("token:" + claims.getSubject(), newToken, expire);
             }
         }
 
@@ -85,8 +85,7 @@ public class JwtUtils {
         return claims.getExpiration().before(new Date());
     }
 
-    public void expire(String username) {
-        String identifier = IdUtil.fastSimpleUUID();
-        redisUtils.set("identifier:" + username, identifier);
+    public void expireToken(String username) {
+        redisUtils.del("identifier:" + username);
     }
 }

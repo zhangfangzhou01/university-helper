@@ -53,7 +53,7 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
 
         boolean rememberMe = Boolean.parseBoolean(request.getParameter("rememberMe"));
         if (!rememberMe) {
-            jwtUtils.expire(username);
+            jwtUtils.expireToken(username);
         }
         
         Map<String, Object> data = new HashMap<>();

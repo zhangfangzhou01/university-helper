@@ -26,7 +26,7 @@ public class AuthenticationLogout implements LogoutSuccessHandler {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             response.setHeader(jwtUtils.getHeader(), "");
             JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
-            jwtUtils.expire(authentication.getName());
+            jwtUtils.expireToken(authentication.getName());
         } else {
             JsonUtils.writeJson(response, ResponseResult.fail("退出失败"));
         }

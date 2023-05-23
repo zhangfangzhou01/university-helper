@@ -117,7 +117,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
                 : ResponseResult.fail("修改失败");
-        jwtUtils.expire(username);
+        jwtUtils.expireToken(username);
         return responseResult;
     }
 
@@ -144,7 +144,7 @@ public class UserController {
                 })
         );
         ResponseResult<Object> responseResult = ResponseResult.ok("删除成功");
-        jwtUtils.expire(username);
+        jwtUtils.expireToken(username);
         return responseResult;
     }
 
@@ -157,7 +157,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.ban(username, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
-        jwtUtils.expire(username);
+        jwtUtils.expireToken(username);
         return responseResult;
     }
 
@@ -170,7 +170,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.setRole(username, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");
-        jwtUtils.expire(username);
+        jwtUtils.expireToken(username);
         return responseResult;
     }
 
@@ -271,7 +271,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.changeEmail(username, email)
                 ? ResponseResult.ok("修改邮箱成功")
                 : ResponseResult.fail("修改邮箱失败");
-        jwtUtils.expire(username);
+        jwtUtils.expireToken(username);
         return responseResult;
     }
 }
