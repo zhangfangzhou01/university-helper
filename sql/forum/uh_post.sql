@@ -14,5 +14,5 @@ create table uh_post
     viewNum        bigint       default 0                     not null,
     version        int          default 1                     not null
 )
-    comment '论坛表，存储论坛信息';
+    comment '论坛表，存储论坛信息' row_format = DYNAMIC;
 
