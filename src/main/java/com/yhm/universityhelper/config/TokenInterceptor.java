@@ -22,17 +22,17 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Autowired
     private RedisUtils redisUtils;
 
-    public String getToken(String username) {
-        return (String) redisUtils.get("token:" + username);
+    public String getNewToken(String username) {
+        return (String) redisUtils.get("newToken:" + username);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String token = getToken(username);
+        String token = getNewToken(username);
         if (ObjectUtils.isNotEmpty(token)) {
             response.setHeader(jwtUtils.getHeader(), token);
-            redisUtils.delete("token:" + username);
+            redisUtils.delete("newToken:" + username);
         }
         return true;
     }

@@ -52,8 +52,8 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        Claims claim = jwtUtils.getClaimsByToken(jwt);
-        if (ObjectUtils.isEmpty(claim)) {
+        Claims claims = jwtUtils.getClaimsByToken(jwt);
+        if (ObjectUtils.isEmpty(claims)) {
             String uri = request.getServletPath();
             if (ArrayUtil.contains(SecurityConfig.AUTH_WHITELIST, uri) || ArrayUtil.contains(SecurityConfig.WEB_WHITELIST, uri)) {
                 chain.doFilter(request, response);
@@ -62,7 +62,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             throw new JwtException("token已过期");
         }
 
-        String username = claim.getSubject();
+        String username = jwtUtils.getUsernameByToken(claims);
         // 获取用户的权限等信息
 
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
@@ -76,7 +76,6 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
         Thread.startVirtualThread(() -> {
                     String region = IpUtils.getRegion(request);
-                    user.setRegion(region);
                     userService.update(null, new LambdaUpdateWrapper<User>().eq(User::getUserId, user.getUserId()).set(User::getRegion, region));
                     redisUtils.set("user:region:" + user.getUsername(), region, 10);
                 }

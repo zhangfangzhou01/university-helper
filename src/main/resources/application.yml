@@ -126,7 +126,7 @@ authentication:
   jwt:
     header: Authorization
     expire: 604800
-    secret: UniversityHelper
+    secret: 0907797626b745b781a78d7e7df93964
     refresh: 1800
   email:
     request:
