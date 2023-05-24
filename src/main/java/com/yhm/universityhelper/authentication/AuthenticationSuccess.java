@@ -59,7 +59,7 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         data.put("region", redisUtils.get("user:region:" + username));
-        redisUtils.del("user:region:" + username);
+        redisUtils.delete("user:region:" + username);
         ResponseResult<Map<String, Object>> responseResult = ResponseResult.ok(data, "登录成功");
 
         JsonUtils.writeJson(response, responseResult);

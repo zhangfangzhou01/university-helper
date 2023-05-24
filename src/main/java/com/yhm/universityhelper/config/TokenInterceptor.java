@@ -1,0 +1,39 @@
+package com.yhm.universityhelper.config;
+
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.RedisUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * @author Shinki
+ */
+@Configuration
+public class TokenInterceptor implements HandlerInterceptor {
+    @Autowired
+    private JwtUtils jwtUtils;
+    
+    @Autowired
+    private RedisUtils redisUtils;
+
+    public String getToken(String username) {
+        return (String) redisUtils.get("token:" + username);
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String token = getToken(username);
+        if (ObjectUtils.isNotEmpty(token)) {
+            response.setHeader(jwtUtils.getHeader(), token);
+            redisUtils.delete("token:" + username);
+        }
+        return true;
+    }
+}

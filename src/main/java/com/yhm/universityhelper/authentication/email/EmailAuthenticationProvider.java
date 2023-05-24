@@ -50,7 +50,7 @@ public class EmailAuthenticationProvider implements AuthenticationProvider {
 
         boolean result = Objects.equals(codeReceived, codeStored);
         if (result) {
-            redisUtils.del(emailUtils.getEmail(authentication));
+            redisUtils.delete(emailUtils.getEmail(authentication));
         }
 
         LoginUser loginUser = userDetailsService.loadUserByEmail((String)authentication.getPrincipal());

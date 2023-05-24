@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Slf4j
@@ -35,7 +38,11 @@ public class JwtUtils {
         String identifier = (String)redisUtils.get("identifier:" + username);
         if (ObjectUtils.isEmpty(identifier)) {
             identifier = IdUtil.fastSimpleUUID();
-            redisUtils.set("identifier:" + username, identifier);
+            redisUtils.set("identifier:" + username, identifier, expire);
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            if (DeviceUtils.isMobile(request)) {
+                redisUtils.persist("identifier:" + username);
+            }
         }
 
         Date nowDate = new Date();
@@ -86,6 +93,6 @@ public class JwtUtils {
     }
 
     public void expireToken(String username) {
-        redisUtils.del("identifier:" + username);
+        redisUtils.delete("identifier:" + username);
     }
 }
