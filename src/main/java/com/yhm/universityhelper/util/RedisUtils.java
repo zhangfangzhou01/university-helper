@@ -1,8 +1,8 @@
 package com.yhm.universityhelper.util;
 
+import cn.hutool.core.util.RandomUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -19,11 +19,6 @@ public class RedisUtils {
 
     @Autowired
     private RedisTemplate redisTemplate;
-
-    // 默认的过期时间，所有set进redis的数据都会在这个时间后过期
-    // 这样做的目的是防止内存占用一直不能被释放
-    @Value("${spring.redis.expire}")
-    private long defaultExpire;
 
     /**
      * 执行RedisCallback
@@ -61,8 +56,8 @@ public class RedisUtils {
      *
      * @return long
      */
-    public long getRandomExpire() {
-        return (long)(defaultExpire * (0.8 + Math.random() * 0.4));
+    public int getRandomExpire() {
+        return RandomUtil.randomInt(60 * 60, 60 * 60 * 24);
     }
 
     /**
@@ -175,11 +170,11 @@ public class RedisUtils {
      *
      * @param key 键
      */
-    public void del(String key) {
+    public void delete(String key) {
         redisTemplate.unlink(key);
     }
 
-    public void del(Collection<String> keys) {
+    public void delete(Collection<String> keys) {
         redisTemplate.unlink(keys);
     }
 
@@ -428,7 +423,7 @@ public class RedisUtils {
      * @param hashKeys
      * @return 删除成功的 数量
      */
-    public Long delete(String key, String... hashKeys) {
+    public Long hashDelete(String key, String... hashKeys) {
         return redisTemplate.opsForHash().delete(key, hashKeys);
     }
 
