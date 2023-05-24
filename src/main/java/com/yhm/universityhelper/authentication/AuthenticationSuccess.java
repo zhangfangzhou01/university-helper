@@ -42,11 +42,6 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
         jwtUtils.persistToken(username, DeviceUtils.getPlatform(request));
         response.setHeader(jwtUtils.getHeader(), token);
 
-        boolean rememberMe = Boolean.parseBoolean(request.getParameter("rememberMe"));
-        if (!rememberMe) {
-            jwtUtils.expireToken(username);
-        }
-
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         data.put("region", redisUtils.get("user:region:" + username));

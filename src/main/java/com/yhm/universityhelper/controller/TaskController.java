@@ -122,7 +122,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.update(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        rabbitTemplate.convertAndSend(RabbitConfig.NORMAL_EXCHANGE_NAME, RabbitConfig.NORMAL_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
+        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -217,7 +217,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.insert(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        rabbitTemplate.convertAndSend(RabbitConfig.NORMAL_EXCHANGE_NAME, RabbitConfig.NORMAL_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
+        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");

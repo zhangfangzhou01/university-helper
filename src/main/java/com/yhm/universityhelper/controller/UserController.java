@@ -114,11 +114,9 @@ public class UserController {
     public ResponseResult<Object> changePassword(@RequestParam String username, @RequestParam String oldPassword, @RequestParam String newPassword) {
         UserValidator.changePassword(username, oldPassword, newPassword);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
-        ResponseResult<Object> responseResult = userService.changePassword(username, oldPassword, newPassword)
+        return userService.changePassword(username, oldPassword, newPassword)
                 ? ResponseResult.ok("修改成功")
                 : ResponseResult.fail("修改失败");
-        jwtUtils.expireToken(username);
-        return responseResult;
     }
 
     // 注册
@@ -268,10 +266,8 @@ public class UserController {
     public ResponseResult<Object> changeEmail(@RequestParam String username, @RequestParam String email) {
         UserValidator.changeEmail(username, email);
         CustomValidator.auth(username, UserRole.USER_CAN_CHANGE_SELF);
-        ResponseResult<Object> responseResult = userService.changeEmail(username, email)
+        return userService.changeEmail(username, email)
                 ? ResponseResult.ok("修改邮箱成功")
                 : ResponseResult.fail("修改邮箱失败");
-        jwtUtils.expireToken(username);
-        return responseResult;
     }
 }

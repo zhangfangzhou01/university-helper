@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class DlxConsumer {
+public class TaskAutoDeleteConsumer {
     @Autowired
     private TaskMapper taskMapper;
 

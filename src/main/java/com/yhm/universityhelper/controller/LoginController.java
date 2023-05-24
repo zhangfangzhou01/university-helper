@@ -2,6 +2,7 @@ package com.yhm.universityhelper.controller;
 
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
+import com.yhm.universityhelper.util.JwtUtils;
 import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
     @Autowired
     private UserService userService;
-    
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
     // 登录
     @ApiOperation(value = "用户名密码登录")
     @ApiResponses(value = {
@@ -42,7 +46,7 @@ public class LoginController {
             @ApiResponse(code = 1014, message = "Token令牌验证失败")
     })
     @PostMapping("/login")
-    public void login(@RequestParam String username, @RequestParam String password, @RequestParam Boolean rememberMe) {
+    public void login(@RequestParam String username, @RequestParam String password) {
     }
 
     @ApiOperation(value = "邮箱验证码登录")
@@ -83,5 +87,11 @@ public class LoginController {
     @ApiOperation(value = "登出")
     @PostMapping("/logout")
     public void logout() {
+    }
+
+    @ApiOperation(value = "移除Token", notes = "前端如果没有勾rememberme，在关闭之前（注意不是注销），这里指的关闭是浏览器关闭，或者移动设备的APP关闭，调用此接口主动移除后端的Token。（注意：这个接口一定不可以对外暴露，否则会有安全隐患）")
+    @PostMapping("/expireToken")
+    public void expireToken(String username) {
+        jwtUtils.expireToken(username);
     }
 }

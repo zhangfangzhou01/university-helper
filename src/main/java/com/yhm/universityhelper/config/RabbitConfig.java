@@ -1,9 +1,7 @@
 package com.yhm.universityhelper.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+@EnableRabbit
 @Configuration
 public class RabbitConfig {
-    public static final String NORMAL_QUEUE_NAME = "task_auto_delete_queue";
-    public static final String NORMAL_EXCHANGE_NAME = "task_auto_delete_exchange";
-    public static final String NORMAL_ROUTING_KEY = "task_auto_delete_routing_key";
+    public static final String TASK_AUTO_DELETE_QUEUE_NAME = "task_auto_delete_queue";
+    public static final String TASK_AUTO_DELETE_EXCHANGE_NAME = "task_auto_delete_exchange";
+    public static final String TASK_AUTO_DELETE_ROUTING_KEY = "task_auto_delete_routing_key";
     public static final String DLX_QUEUE_NAME = "dlx_queue";
     public static final String DLX_EXCHANGE_NAME = "dlx_exchange";
     public static final String DLX_ROUTING_KEY = "dlx_routing_key";
@@ -60,7 +59,7 @@ public class RabbitConfig {
         args.put("x-dead-letter-exchange", DLX_EXCHANGE_NAME);
         //设置死信 routing_key
         args.put("x-dead-letter-routing-key", DLX_ROUTING_KEY);
-        return new Queue(NORMAL_QUEUE_NAME, true, false, false, args);
+        return new Queue(TASK_AUTO_DELETE_QUEUE_NAME, true, false, false, args);
     }
 
     /**
@@ -68,9 +67,9 @@ public class RabbitConfig {
      */
     @Bean
     DirectExchange taskAutoDeleteExchange() {
-        return new DirectExchange(NORMAL_EXCHANGE_NAME, true, false);
+        return new DirectExchange(TASK_AUTO_DELETE_EXCHANGE_NAME, true, false);
     }
-
+    
     /**
      * 绑定普通队列和与之对应的交换机
      */
@@ -78,6 +77,6 @@ public class RabbitConfig {
     Binding taskAutoDeleteBinding() {
         return BindingBuilder.bind(taskAutoDeleteQueue())
                 .to(taskAutoDeleteExchange())
-                .with(NORMAL_ROUTING_KEY);
+                .with(TASK_AUTO_DELETE_ROUTING_KEY);
     }
 }

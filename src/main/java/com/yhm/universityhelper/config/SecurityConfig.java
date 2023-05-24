@@ -20,8 +20,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -71,14 +69,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PersistentTokenRepository persistentTokenRepository() {
-        JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
-        repository.setDataSource(dataSource);
-//        repository.setCreateTableOnStartup(true);
-        return repository;
-    }
-
-    @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
         return new TokenAuthenticationFilter(authenticationManager());
     }
@@ -117,24 +107,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // 授权
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .headers().frameOptions().sameOrigin().and() // 允许iframe
-                .cors().and().csrf().disable()
-                .formLogin().disable()
+        http.headers().frameOptions().sameOrigin().and() // 允许iframe
+                .cors().and().csrf().disable().formLogin().disable()
                 // 角色控制， ADMIN 和 USER可以访问 /user/**
                 // 仅ADMIN可以访问 /admin/**
                 // 两个白名单的URL全部放行
-                .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST)
-                .permitAll()
-                .antMatchers(WEB_WHITELIST)
-                .permitAll()
-                .antMatchers("/user/**")
-                .hasAnyRole("USER", "ADMIN")
-                .antMatchers("/admin/**")
-                .hasRole("ADMIN")
-                .anyRequest()
-                .authenticated() // 剩余所有请求者需要身份认证
+                .authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll().antMatchers(WEB_WHITELIST).permitAll().antMatchers("/user/**").hasAnyRole("USER", "ADMIN").antMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated() // 剩余所有请求者需要身份认证
 
                 .and().logout()   //开启注销
                 .permitAll()    //允许所有人访问
@@ -144,19 +122,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .deleteCookies("JSESSIONID")    //删除cookie
                 .clearAuthentication(true) //清除认证信息
 
-                .and()
-                .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler)    //权限不足的时候的逻辑处理
+                .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler)    //权限不足的时候的逻辑处理
                 .authenticationEntryPoint(authenticationEntryPoint)  //未登录时的逻辑处理
 
-                .and()
-                .sessionManagement()
-                .maximumSessions(3);  // 单用户最大会话数
+                .and().sessionManagement().maximumSessions(3);  // 单用户最大会话数
 
-        http
-                .addFilterBefore(filterChainExceptionHandler(), TokenAuthenticationFilter.class)
-                .addFilterBefore(tokenAuthenticationFilter(), TokenAuthenticationFilter.class)
-                .addFilterAfter(passwordAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(passwordAuthenticationProvider)
-                .addFilterAfter(emailAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(emailAuthenticationProvider);
+        http.addFilterBefore(filterChainExceptionHandler(), TokenAuthenticationFilter.class).addFilterBefore(tokenAuthenticationFilter(), TokenAuthenticationFilter.class).addFilterAfter(passwordAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(passwordAuthenticationProvider).addFilterAfter(emailAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(emailAuthenticationProvider);
     }
 }
