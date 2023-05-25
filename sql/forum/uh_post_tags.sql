@@ -10,3 +10,4 @@ create table uh_post_tags
         unique (tag)
 );
 
+INSERT INTO universityhelper.uh_post_tags (id, tag, version) VALUES (0, '这是第一条帖子', 1);
