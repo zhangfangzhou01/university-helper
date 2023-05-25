@@ -50,6 +50,9 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Autowired
     private CommentMapper commentMapper;
+    
+    @Autowired
+    private UserMapper userMapper;
 
 
     @Override
@@ -75,6 +78,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
         post.setReleaseTime(LocalDateTime.now());
         post.setLastModifyTime(LocalDateTime.now());
+        post.setUsername(userMapper.selectUsernameByUserId(userId));
 
         boolean result = postMapper.insert(post) > 0;
         if (!result) {
@@ -247,6 +251,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         }
 
         comment.setReleaseTime(LocalDateTime.now());
+        comment.setUsername(userMapper.selectById(comment.getUserId()).getUsername());
 
         boolean result = commentMapper.insert(comment) > 0;
         if (!result) {

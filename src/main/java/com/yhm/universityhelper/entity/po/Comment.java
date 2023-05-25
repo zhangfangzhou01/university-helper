@@ -32,6 +32,9 @@ public class Comment implements Serializable {
     @TableField("userId")
     private Long userId;
 
+    @TableField(exist = false)
+    private String username;
+
     @TableField("postId")
     private Long postId;
 
