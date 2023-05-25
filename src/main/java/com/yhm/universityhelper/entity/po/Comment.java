@@ -32,7 +32,7 @@ public class Comment implements Serializable {
     @TableField("userId")
     private Long userId;
 
-    @TableField(exist = false)
+    @TableField("username")
     private String username;
 
     @TableField("postId")

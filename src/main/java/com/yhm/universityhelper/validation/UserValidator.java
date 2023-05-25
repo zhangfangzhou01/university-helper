@@ -23,7 +23,6 @@ import java.util.Optional;
 public class UserValidator extends CustomValidator {
     public static void register(String username, String password) {
         Optional.ofNullable(username)
-                .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
                 .map(exists -> Validator.validateFalse(exists, "用户名已存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));
@@ -36,7 +35,6 @@ public class UserValidator extends CustomValidator {
 
     public static void changePassword(String username, String oldPassword, String newPassword) {
         Optional.ofNullable(username)
-                .map(u -> Validator.validateNumber(u, "用户名不合法"))
                 .map(u -> BeanUtils.getBean(UserMapper.class).exists(new LambdaQueryWrapper<User>().eq(User::getUsername, u)))
                 .map(exists -> Validator.validateTrue(exists, "用户名不存在"))
                 .orElseThrow(() -> new ValidateException("必须提供用户名"));

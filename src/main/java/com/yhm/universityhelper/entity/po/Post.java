@@ -34,8 +34,8 @@ public class Post implements Serializable {
 
     @TableField("userId")
     private Long userId;
-    
-    @TableField(exist = false)
+
+    @TableField("username")
     private String username;
 
     @TableField("title")

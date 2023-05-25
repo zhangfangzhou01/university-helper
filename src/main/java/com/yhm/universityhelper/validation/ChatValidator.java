@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ChatValidator extends CustomValidator {
-
     public static boolean isBlacklisted(String srcUsername, String destUsername) {
         AtomicReference<List<Object>> srcUserIdLst = new AtomicReference<>();
         AtomicReference<List<Object>> destUserIdLst = new AtomicReference<>();
