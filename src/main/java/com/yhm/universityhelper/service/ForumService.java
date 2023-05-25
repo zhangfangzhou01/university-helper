@@ -10,6 +10,7 @@ import com.yhm.universityhelper.entity.po.Comment;
 import com.yhm.universityhelper.entity.po.Post;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -37,6 +38,8 @@ public interface ForumService extends IService<Post> {
     Page<Post> pageWrapper(JSONObject json);
 
     Page<Post> selectPost(JSONObject json);
+    
+    Long selectPostCount(Long userId);
 
     /*
      * 评论
@@ -46,6 +49,10 @@ public interface ForumService extends IService<Post> {
     boolean deleteComment(Long commentId);
 
     Comment selectComment(Long commentId);
+    
+    Page<Comment> selectFirstClassCommentByPostId(Long postId, int current, int size);
+    
+    Page<Map<Comment, List<Comment>>> selectCommentWithThreeReplyByPostId(Long postId, int current, int size);
 
     // 看自己发表的评论
     Page<Comment> selectCommentByUserId(Long userId, int current, int size);
@@ -55,6 +62,8 @@ public interface ForumService extends IService<Post> {
 
     // 看自己收到的对自己的评论的回复
     Page<Comment> selectReplyByUserId(Long userId, int current, int size);
+    
+    Page<Comment> selectReplyByCommentId(Long commentId, int current, int size);
     
     /*
     * 观看

@@ -18,12 +18,18 @@ public class CustomValidator {
     
     protected static final String CHINESE_REGEX = "[\\u4e00-\\u9fa5]";
     
+    protected static final String NUMBER_REGEX = "\\d+";
+    
+    protected static final String ID_REGEX = "[1-9]\\d*";
+    
     protected static final String WORD_REGEX = "[\\u4e00-\\u9fa5_a-zA-Z0-9]";
     
     protected static final String LETTER_REGEX = "[\\u4e00-\\u9fa5a-zA-Z]";
     protected static final String LINUX_PATH_REGEX = "^\\/([\\u4E00-\\u9FA5A-Za-z0-9_]+\\/?)+$";
     protected static final String WINDOWS_PATH_REGEX = "^[a-zA-z]:\\\\([\\u4E00-\\u9FA5A-Za-z0-9_\\s]+\\\\?)+$\n";
     protected static final String JSON_ARRAY_REGEX = "(\\[\\])|(^\\[(\\\"\\s*[" + LETTER_REGEX + "]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[" + LETTER_REGEX + "]+\\s*\\\"|\\d+))*\\]$)";
+    
+    protected static final String ID_JSON_ARRAY_REGEX = "(\\[\\])|(^\\[(\\\"\\s*[" + ID_REGEX + "]+\\s*\\\"|\\d+)(,\\s*(\\\"\\s*[" + ID_REGEX + "]+\\s*\\\"|\\d+))*\\]$)";
 
     protected static final String JSON_OBJECT_REGEX = "(\\{\\})|(^\\{\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\":\\s*(\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\"|\\d+)(,\\s*\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\":\\s*(\\\"\\s*[" + WORD_REGEX + "]+\\s*\\\"|\\d+))*\\}$)";
 

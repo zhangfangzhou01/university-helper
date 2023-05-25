@@ -30,11 +30,11 @@ public class Blacklist implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "拉黑别人的人的userId")
-    @TableField("blocker")
+    @TableField("blockerId")
     private Long blockerId;
 
     @ApiModelProperty(value = "被拉黑的人的userId")
-    @TableField("blocked")
+    @TableField("blockedId")
     private Long blockedId;
     
     @Version

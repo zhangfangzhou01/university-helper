@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -223,8 +221,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Override
     public boolean insertComment(JSONObject json) {
-        final Long userId = json.getLong("userId");
-        final Long postId = json.getLong("postId");
         Long replyCommentId = json.getLong("replyCommentId");
 
         if (ObjectUtil.isNull(replyCommentId)) {
@@ -233,14 +229,20 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
         Comment comment = new Comment();
         for (String key : json.keySet()) {
-            if ("commentId".equals(key)) {
-                continue;
-            } else if ("userId".equals(key) || "postId".equals(key)) {
-                ReflectUtils.set(comment, key, Long.valueOf(json.get(key).toString()));
-            } else if ("replyCommentId".equals(key)) {
-                ReflectUtils.set(comment, key, replyCommentId);
-            } else {
-                ReflectUtils.set(comment, key, json.get(key));
+            switch (key) {
+                case "commentId":
+                    break;
+                case "userId":
+                case "postId":
+                    ReflectUtils.set(comment, key, Long.valueOf(json.get(key).toString()));
+                    break;
+                case "replyCommentId":
+                    ReflectUtils.set(comment, key, replyCommentId);
+                    break;
+                case null:
+                default:
+                    ReflectUtils.set(comment, key, json.get(key));
+                    break;
             }
         }
 
@@ -255,13 +257,42 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     }
 
     @Override
+    public Long selectPostCount(Long userId) {
+        return postMapper.selectCount(new LambdaQueryWrapper<Post>().eq(Post::getUserId, userId));
+    }
+
+    @Override
     public boolean deleteComment(Long commentId) {
         return commentMapper.delete(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId)) > 0;
     }
 
     @Override
     public Comment selectComment(Long commentId) {
-        return commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId)).get(0);
+        return commentMapper.selectOne(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId));
+    }
+    
+    @Override
+    public Page<Comment> selectFirstClassCommentByPostId(Long postId, int current, int size) {
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).eq(Comment::getReplyCommentId, 0));
+    }
+    
+    @Override
+    public Page<Map<Comment, List<Comment>>> selectCommentWithThreeReplyByPostId(Long postId, int current, int size) {
+        Page<Comment> commentPage = commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).ne(Comment::getReplyCommentId, 0));
+        List<Comment> comments = commentPage.getRecords();
+        List<Map<Comment, List<Comment>>> commentList = new ArrayList<>();
+        for (Comment comment : comments) {
+            Map<Comment, List<Comment>> commentMap = new HashMap<>();
+            List<Comment> replyComments = commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getReplyCommentId, comment.getCommentId()).last("limit 3"));
+            commentMap.put(comment, replyComments);
+            commentList.add(commentMap);
+        }
+        Page<Map<Comment, List<Comment>>> commentMapPage = new Page<>();
+        commentMapPage.setRecords(commentList);
+        commentMapPage.setTotal(commentPage.getTotal());
+        commentMapPage.setCurrent(commentPage.getCurrent());
+        commentMapPage.setSize(commentPage.getSize());
+        return commentMapPage;
     }
 
     @Override
@@ -280,6 +311,11 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     }
 
     @Override
+    public Page<Comment> selectReplyByCommentId(Long commentId, int current, int size) {
+        return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getReplyCommentId, commentId));
+    }
+
+    @Override
     public boolean likeComment(Long commentId) {
         Comment comment = commentMapper.selectOne(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId));
         comment.setLikeNum(comment.getLikeNum() + 1);
@@ -292,7 +328,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         post.setLikeNum(post.getLikeNum() + 1);
         return postMapper.updateById(post) > 0;
     }
-    
+
     @Override
     public boolean viewPost(Long postId) {
         Post post = postMapper.selectOne(new LambdaQueryWrapper<Post>().eq(Post::getPostId, postId));

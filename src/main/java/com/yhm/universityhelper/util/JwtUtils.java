@@ -3,6 +3,7 @@ package com.yhm.universityhelper.util;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.useragent.Platform;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.yhm.universityhelper.dao.UserMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,6 +49,11 @@ public class JwtUtils {
 
     // 解析JWT
     public Claims getClaimsByToken(String headToken) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (ObjectUtils.isNull(authentication) || "anonymous".equals(authentication.getPrincipal())) {
+            return null;
+        }
+
         String headerTokenWithoutPrefix = removePrefix(headToken);
         Claims claims = Jwts.parser()
                 .setSigningKey(secret)
@@ -90,6 +98,11 @@ public class JwtUtils {
 
     public void expireToken(String username) {
         redisUtils.delete("token:" + username);
+    }
+    
+    public void expireToken(Long userId) {
+        final String username = BeanUtils.getBean(UserMapper.class).selectById(userId).getUsername();
+        expireToken(username);
     }
 
     public void saveToken(String username, String token) {

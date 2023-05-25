@@ -8,3 +8,4 @@ create table uh_role
 
 INSERT INTO universityhelper.uh_role (roleId, rolename, version) VALUES (1, 'ROLE_ADMIN', 1);
 INSERT INTO universityhelper.uh_role (roleId, rolename, version) VALUES (2, 'ROLE_USER', 1);
+INSERT INTO universityhelper.uh_role (roleId, rolename, version) VALUES (3, 'ROLE_ANONYMOUS', 1);

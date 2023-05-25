@@ -22,6 +22,16 @@ public class LoginController {
     @Autowired
     private JwtUtils jwtUtils;
 
+    // 注册
+    @ApiOperation(value = "注册")
+    @PostMapping("/register")
+    public ResponseResult<Object> register(@RequestParam String username, @RequestParam String password) {
+        UserValidator.register(username, password);
+        return userService.register(username, password)
+                ? ResponseResult.ok("注册成功")
+                : ResponseResult.fail("注册失败");
+    }
+    
     // 登录
     @ApiOperation(value = "用户名密码登录")
     @ApiResponses(value = {
