@@ -282,22 +282,23 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     }
     
     @Override
-    public Page<Map<Comment, List<Comment>>> selectCommentWithThreeReplyByPostId(Long postId, int current, int size) {
-        Page<Comment> commentPage = commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).ne(Comment::getReplyCommentId, 0));
+    public Page<JSONObject> selectCommentWithThreeReplyByPostId(Long postId, int current, int size) {
+        Page<Comment> commentPage = commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).eq(Comment::getReplyCommentId, 0));
         List<Comment> comments = commentPage.getRecords();
-        List<Map<Comment, List<Comment>>> commentList = new ArrayList<>();
+        List<JSONObject> commentList = new ArrayList<>();
         for (Comment comment : comments) {
-            Map<Comment, List<Comment>> commentMap = new HashMap<>();
-            List<Comment> replyComments = commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getReplyCommentId, comment.getCommentId()).last("limit 3"));
-            commentMap.put(comment, replyComments);
-            commentList.add(commentMap);
+            JSONObject commentJson = new JSONObject();
+            commentJson.set("rootComment", comment);
+            commentJson.set("replyComments", commentMapper.selectList(new LambdaQueryWrapper<Comment>().eq(Comment::getReplyCommentId, comment.getCommentId()).last("limit 3")));
+            commentList.add(commentJson);
         }
-        Page<Map<Comment, List<Comment>>> commentMapPage = new Page<>();
-        commentMapPage.setRecords(commentList);
-        commentMapPage.setTotal(commentPage.getTotal());
-        commentMapPage.setCurrent(commentPage.getCurrent());
-        commentMapPage.setSize(commentPage.getSize());
-        return commentMapPage;
+        Page<JSONObject> page = new Page<>();
+        page.setRecords(commentList);
+        page.setCurrent(commentPage.getCurrent());
+        page.setSize(commentPage.getSize());
+        page.setTotal(commentPage.getTotal());
+        page.setPages(commentPage.getPages());
+        return page;
     }
 
     @Override

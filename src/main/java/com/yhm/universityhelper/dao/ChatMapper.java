@@ -1,9 +1,7 @@
 package com.yhm.universityhelper.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.yhm.universityhelper.config.RedisCache;
 import com.yhm.universityhelper.entity.po.Chat;
-import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -17,7 +15,6 @@ import java.util.List;
  * @since 2023-03-23
  */
 
-@CacheNamespace(implementation = RedisCache.class, flushInterval = 86400000L)
 public interface ChatMapper extends BaseMapper<Chat> {
     @Select("select count(*) from universityhelper.uh_chat where toUsername = #{receiver} and fromUsername = #{sender} and `isRead` = false")
     long selectUnreadCount(String receiver, String sender);

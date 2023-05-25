@@ -27,6 +27,13 @@ public class ForumController {
             name = "InsertPostDto",
             properties = {
                     @DynamicParameter(
+                            name = "userId",
+                            value = "用户id",
+                            required = true,
+                            dataTypeClass = Long.class,
+                            example = "1"
+                    ),
+                    @DynamicParameter(
                             name = "title",
                             value = "标题",
                             required = true,
@@ -70,6 +77,13 @@ public class ForumController {
     @DynamicParameters(
             name = "UpdatePostDto",
             properties = {
+                    @DynamicParameter(
+                            name = "userId",
+                            value = "用户id",
+                            required = true,
+                            dataTypeClass = Long.class,
+                            example = "1"
+                    ),
                     @DynamicParameter(
                             name = "title",
                             value = "标题",
@@ -235,9 +249,9 @@ public class ForumController {
     @ApiOperation(value = "获取帖子下的所有评论（NGO的样式）", notes = "获取帖子下所有层级的评论（NGO的样式，不需要手动获取每个评论下的回复，缺点是返回的数据会平铺，需要前端自行处理）")
     @PostMapping("/selectCommentByPostId")
     public ResponseResult<Object> selectCommentByPostId(@RequestParam Long postId, @RequestParam int current, @RequestParam int size) {
-        return ResponseResult.ok(forumService.selectCommentByPostId(postId, current, size), "获取别人对自己发表的帖子的评论成功");
+        return ResponseResult.ok(forumService.selectCommentByPostId(postId, current, size), "获取帖子下的所有评论成功");
     }
-    
+
     @ApiOperation(value = "获取帖子下的所有一级评论（知乎的样式）", notes = "只获取帖子下的所有一级评论（知乎评论区的样式，不显示回复，点击\"查看全部回复\"按钮会跳转到对应评论的回复页面，缺点是需要手动获取每个评论下的回复，用户体验较差）")
     @PostMapping("/selectFirstClassCommentByPostId")
     public ResponseResult<Object> selectFirstClassCommentByPostId(@RequestParam Long postId, @RequestParam int current, @RequestParam int size) {
@@ -256,11 +270,11 @@ public class ForumController {
         return ResponseResult.ok(forumService.selectReplyByCommentId(commentId, current, size), "获取对某个评论的所有回复成功");
     }
     // 获取对某个评论的所有回复
-    
+
     @ApiOperation(value = "获取用户所有评论下的所有回复", notes = "获取用户所有评论下的所有回复")
     @PostMapping("/selectReplyByUserId")
     public ResponseResult<Object> selectReplyByUserId(@RequestParam Long userId, @RequestParam int current, @RequestParam int size) {
-        return ResponseResult.ok(forumService.selectReplyByUserId(userId, current, size), "获取别人对自己发表的评论的回复成功");
+        return ResponseResult.ok(forumService.selectReplyByUserId(userId, current, size), "获取用户所有评论下的所有回复成功");
     }
 
     @ApiOperation(value = "浏览帖子", notes = "访问这个接口会让帖子的浏览量+1")

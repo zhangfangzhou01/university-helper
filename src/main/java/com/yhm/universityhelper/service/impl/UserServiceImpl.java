@@ -143,9 +143,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         for (Long userId : userIds) {
             User user = userMapper.selectById(userId);
             if (ObjectUtils.isEmpty(user)) {
-                users.put(user.getUsername(), new HashMap<>());
+                users.put(String.valueOf(userId), null);
             } else {
-                users.put(user.getUsername(), user);
+                users.put(String.valueOf(userId), user);
             }
         }
         return users;

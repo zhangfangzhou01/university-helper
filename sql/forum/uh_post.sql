@@ -1,6 +1,6 @@
 create table uh_post
 (
-    postId         bigint                                     not null
+    postId         bigint auto_increment
         primary key,
     userId         bigint       default 0                     not null,
     title          varchar(255) default ''                    not null,
@@ -16,3 +16,4 @@ create table uh_post
 )
     comment '论坛表，存储论坛信息' row_format = DYNAMIC;
 
+INSERT INTO universityhelper.uh_post (postId, userId, title, tags, releaseTime, lastModifyTime, content, likeNum, starNum, commentNum, viewNum, version) VALUES (1, 11, '1', '[]', '1970-01-02 00:00:00', '1970-01-02 00:00:00', '12', 0, 0, 0, 0, 1);

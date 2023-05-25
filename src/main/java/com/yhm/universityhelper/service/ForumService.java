@@ -10,7 +10,6 @@ import com.yhm.universityhelper.entity.po.Comment;
 import com.yhm.universityhelper.entity.po.Post;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -52,7 +51,7 @@ public interface ForumService extends IService<Post> {
     
     Page<Comment> selectFirstClassCommentByPostId(Long postId, int current, int size);
     
-    Page<Map<Comment, List<Comment>>> selectCommentWithThreeReplyByPostId(Long postId, int current, int size);
+    Page<JSONObject> selectCommentWithThreeReplyByPostId(Long postId, int current, int size);
 
     // 看自己发表的评论
     Page<Comment> selectCommentByUserId(Long userId, int current, int size);
