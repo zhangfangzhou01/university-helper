@@ -15,6 +15,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(tokenInterceptor).addPathPatterns("/**").excludePathPatterns(SecurityConfig.WEB_WHITELIST).excludePathPatterns(SecurityConfig.AUTH_WHITELIST);
+        registry.addInterceptor(tokenInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(SecurityConfig.RESOURCE_WHITELIST)
+                .excludePathPatterns(SecurityConfig.PAGE_WHITELIST)
+                .excludePathPatterns(SecurityConfig.LOGIN_WHITELIST);
     }
 }

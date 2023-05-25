@@ -38,4 +38,16 @@ public interface UserMapper extends BaseMapper<User> {
     
     @Select("select userId from universityhelper.uh_user where email = #{email}")
     Long selectUserIdByEmail(String email);
+    
+    List<String> selectFollowedList(Long userId);
+    
+    List<String> selectFollowerList(Long userId);
+    
+    Long selectFollowedCount(Long userId);
+    
+    Long selectFollowerCount(Long userId);
+    
+    List<String> selectBlockedList(Long userId);
+    
+    Long selectBlockedCount(Long userId);
 }

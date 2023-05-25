@@ -311,8 +311,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         return taskMapper.selectPage(page, wrapper);
     }
-
+    
     @Override
+    public Long selectTaskCount(Long userId) {
+        return taskMapper.selectCount(new LambdaQueryWrapper<Task>().eq(Task::getUserId, userId));
+    }
+
+     @Override
     public Page<Task> selectYourTake(JSONObject json) {
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");

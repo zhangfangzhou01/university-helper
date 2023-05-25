@@ -18,51 +18,54 @@ import java.util.Map;
  */
 
 public interface UserService extends IService<User> {
-    boolean update(JSONObject json);
     
-    boolean changeEmail(String username, String email);
-
-    Map<String, Object> select(JSONArray json);
-
-    Map<Long, List<String>> delete(String username);
-
+    // 传用户名的接口
     boolean register(String username, String password);
 
     boolean changePassword(String username, String oldPassword, String newPassword);
 
-    boolean ban(String username, boolean ban);
+    // 传用户id的接口
+    boolean update(JSONObject json);
 
-    boolean setRole(String username, String role);
+    boolean changeEmail(Long userId, String email);
+
+    Map<String, Object> select(JSONArray json);
+
+    Map<Long, List<String>> delete(Long userId);
+
+    boolean ban(Long userId, boolean ban);
+
+    boolean setRole(Long userId, String role);
 
     // 关注
-    boolean follow(String follower, String followed);
+    boolean follow(Long followerId, Long followedId);
 
     // 取消关注
-    boolean unfollow(String follower, String followed);
+    boolean unfollow(Long followerId, Long followedId);
 
     // 获取关注列表
-    List<String> getFollowedList(String username);
+    List<String> selectFollowedList(Long userId);
 
     // 获取粉丝列表
-    List<String> getFollowerList(String username);
+    List<String> selectFollowerList(Long userId);
 
     // 获取关注数
-    Long getFollowedCount(String username);
+    Long selectFollowedCount(Long userId);
 
     // 获取粉丝数
-    Long getFollowerCount(String username);
+    Long selectFollowerCount(Long userId);
 
     // 拉黑
-    boolean block(String blacker, String blacked);
+    boolean block(Long blockerId, Long blockedId);
 
     // 取消拉黑
-    boolean unblock(String blacker, String blacked);
+    boolean unblock(Long blockerId, Long blockedId);
 
     // 获取黑名单
-    List<String> getBlockedList(String username);
+    List<String> selectBlockedList(Long userId);
 
     // 获取黑名单数
-    Long getBlockedCount(String username);
+    Long selectBlockedCount(Long userId);
     
-    void sendEmailCode(String email);
+    void sendEmailCode(String to);
 }

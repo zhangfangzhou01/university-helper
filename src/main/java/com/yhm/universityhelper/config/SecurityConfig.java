@@ -23,14 +23,70 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import javax.sql.DataSource;
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    public static final String[] AUTH_WHITELIST = {"/", "/index", "/homepage", "/home", "/login", "/logout", "/user/register", "/email/login", "/sendEmailCode"};
-    public static final String[] WEB_WHITELIST = {"/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.ico", "/error", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/doc.html", "/druid/**"};
+    public static final String[] PAGE_WHITELIST = {
+            "/",
+            "/index",
+            "/homepage",
+            "/home"
+    };
+    public static final String[] LOGIN_WHITELIST = {
+            "/login",
+            "/logout",
+            "/register",
+            "/email/login",
+            "/sendEmailCode"
+    };
+    public static final String[] FORUM_WHITELIST = {
+            "/forum/selectPost",
+            "/forum/selectPostCount",
+            "/forum/selectComment",
+            "/forum/selectCommentByUserId",
+            "/forum/selectCommentByPostId",
+            "/forum/selectFirstClassCommentByPostId",
+            "/forum/selectCommentWithThreeReplyByPostId",
+            "/forum/selectReplyByCommentId",
+            "/forum/selectReplyByUserId",
+            "/forum/viewPost",
+            "/forum/likePost",
+            "/forum/likeComment",
+            "/forum/selectAllPostTags"
+    };
+    public static final String[] TASK_WHITELIST = {
+            "/task/select",
+            "/task/selectTaskCount",
+            "/task/selectAllTaskTags"
+    };
+    public static final String[] USER_WHITELIST = {
+            "/user/select",
+            "/user/selectFollowedList",
+            "/user/selectFollowerList",
+            "/user/selectFollowedCount",
+            "/user/selectFollowerCount"
+    };
+    public static final String[] CHAT_WHITELIST = {
+            "/onlineUsers",
+            "/onlineUsersCount"
+    };
+    public static final String[] RESOURCE_WHITELIST = {
+            "/static/**",
+            "/templates/**",
+            "/css/**",
+            "/js/**",
+            "/images/**",
+            "/fonts/**",
+            "/favicon.ico",
+            "/error",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/swagger-resources/**",
+            "/v2/api-docs/**",
+            "/doc.html",
+            "/druid/**"
+    };
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
@@ -47,8 +103,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Lazy
     @Autowired
     private EmailAuthenticationProvider emailAuthenticationProvider;
-    @Autowired
-    private DataSource dataSource;
 
     // 用户信息
     @Bean
@@ -112,7 +166,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 角色控制， ADMIN 和 USER可以访问 /user/**
                 // 仅ADMIN可以访问 /admin/**
                 // 两个白名单的URL全部放行
-                .authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll().antMatchers(WEB_WHITELIST).permitAll().antMatchers("/user/**").hasAnyRole("USER", "ADMIN").antMatchers("/admin/**").hasRole("ADMIN").anyRequest().authenticated() // 剩余所有请求者需要身份认证
+                .authorizeRequests()
+                .antMatchers(PAGE_WHITELIST).permitAll()
+                .antMatchers(LOGIN_WHITELIST).permitAll()
+                .antMatchers(FORUM_WHITELIST).permitAll()
+                .antMatchers(TASK_WHITELIST).permitAll()
+                .antMatchers(USER_WHITELIST).permitAll()
+                .antMatchers(CHAT_WHITELIST).permitAll()
+                .antMatchers(RESOURCE_WHITELIST).permitAll()
+                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated() // 剩余所有请求者需要身份认证
+
+                .and().anonymous()
+                .principal("anonymous")
+                .authorities("ROLE_ANONYMOUS")
 
                 .and().logout()   //开启注销
                 .permitAll()    //允许所有人访问

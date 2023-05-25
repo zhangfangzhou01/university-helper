@@ -5,6 +5,7 @@ import com.yhm.universityhelper.util.JwtUtils;
 import com.yhm.universityhelper.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -18,17 +19,22 @@ import javax.servlet.http.HttpServletResponse;
 public class TokenInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtUtils jwtUtils;
-    
+
     @Autowired
     private RedisUtils redisUtils;
 
     public String getNewToken(String username) {
-        return (String) redisUtils.get("newToken:" + username);
+        return (String)redisUtils.get("newToken:" + username);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (ObjectUtils.isNull(authentication) || "anonymous".equals(authentication.getPrincipal())) {
+            return true;
+        }
+        
+        String username = authentication.getName();
         String token = getNewToken(username);
         if (ObjectUtils.isNotEmpty(token)) {
             response.setHeader(jwtUtils.getHeader(), token);

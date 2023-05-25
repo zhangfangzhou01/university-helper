@@ -28,12 +28,6 @@ public class ForumValidator extends CustomValidator {
         Validator.validateNull(post.get("commentNum"), "commentNum默认为0，不需要指定");
     }
 
-    public static void deletePost(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
     public static void updatePost(JSONObject post) {
         Optional.ofNullable(post.getLong("userId")).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
 
@@ -63,75 +57,5 @@ public class ForumValidator extends CustomValidator {
         Validator.validateNull(comment.get("releaseTime"), "releaseTime默认为当前时间，不需要指定");
         Validator.validateNull(comment.get("likeNum"), "likeNum默认为0，不需要指定");
 //        Validator.validateNull(comment.get("replayCommentId"), "replayCommentId默认为0，不需要指定");
-    }
-
-    public static void deleteComment(Long userId, Long commentId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(commentId).orElseThrow(() -> new IllegalArgumentException("必须指定commentId"));
-    }
-
-    public static void selectCommentByUserId(Long userId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-    }
-
-    public static void selectCommentByPostId(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void selectReplyByUserId(Long userId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-    }
-
-    public static void likeComment(Long userId, Long commentId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(commentId).orElseThrow(() -> new IllegalArgumentException("必须指定commentId"));
-    }
-
-    public static void likePost(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void insertStar(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void deleteStar(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void selectStar(Long userId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-    }
-
-    public static void insertHistory(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void deleteHistory(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
-    }
-
-    public static void selectHistory(Long userId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-    }
-    
-    public static void viewPost(Long userId, Long postId) {
-        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("必须指定userId"));
-        
-        Optional.ofNullable(postId).orElseThrow(() -> new IllegalArgumentException("必须指定postId"));
     }
 }

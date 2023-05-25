@@ -60,7 +60,6 @@ public class ForumController {
     @ApiOperation(value = "删除帖子", notes = "删除帖子")
     @PostMapping("/deletePost")
     public ResponseResult<Object> deletePost(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.deletePost(userId, postId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.deletePost(postId)
                 ? ResponseResult.ok("删除帖子成功")
@@ -164,6 +163,11 @@ public class ForumController {
         return ResponseResult.ok(forumService.selectPost(json), "获取帖子列表成功");
     }
 
+    @PostMapping("/selectPostCount")
+    public ResponseResult<Object> selectPostCountByUserId(@RequestParam Long userId) {
+        return ResponseResult.ok(forumService.selectPostCount(userId), "获取帖子数量成功");
+    }
+
     @ApiOperation(value = "发表评论", notes = "发表评论")
     @DynamicParameters(
             name = "InsertCommentDto",
@@ -210,69 +214,74 @@ public class ForumController {
     @ApiOperation(value = "删除评论", notes = "删除评论")
     @PostMapping("/deleteComment")
     public ResponseResult<Object> deleteComment(@RequestParam Long userId, @RequestParam Long commentId) {
-        ForumValidator.deleteComment(userId, commentId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.deleteComment(commentId)
                 ? ResponseResult.ok("删除评论成功")
                 : ResponseResult.fail("删除评论失败");
     }
 
-    @ApiOperation(value = "获取评论", notes = "获取评论")
+    @ApiOperation(value = "根据评论id获取评论", notes = "根据评论id获取评论")
     @PostMapping("/selectComment")
-    public ResponseResult<Object> selectComment(@RequestParam Long userId, @RequestParam Long postId) {
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
-        return ResponseResult.ok(forumService.selectComment(postId), "获取评论成功");
+    public ResponseResult<Object> selectComment(@RequestParam Long commentId) {
+        return ResponseResult.ok(forumService.selectComment(commentId), "获取评论成功");
     }
 
-    @ApiOperation(value = "获取自己发表的评论", notes = "获取自己发表的评论")
+    @ApiOperation(value = "获取用户发表的所有评论", notes = "获取用户发表的所有评论")
     @PostMapping("/selectCommentByUserId")
-    public ResponseResult<Object> selectCommentByUserId(@RequestParam Long userId, int current, int size) {
-        ForumValidator.selectCommentByUserId(userId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> selectCommentByUserId(@RequestParam Long userId, @RequestParam int current, @RequestParam int size) {
         return ResponseResult.ok(forumService.selectCommentByUserId(userId, current, size), "获取自己发表的评论成功");
     }
 
-    @ApiOperation(value = "获取别人对自己发表的帖子的评论", notes = "获取别人对自己发表的帖子的评论")
+    @ApiOperation(value = "获取帖子下的所有评论（NGO的样式）", notes = "获取帖子下所有层级的评论（NGO的样式，不需要手动获取每个评论下的回复，缺点是返回的数据会平铺，需要前端自行处理）")
     @PostMapping("/selectCommentByPostId")
-    public ResponseResult<Object> selectCommentByPostId(@RequestParam Long userId, Long postId, int current, int size) {
-        ForumValidator.selectCommentByPostId(userId, postId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> selectCommentByPostId(@RequestParam Long postId, @RequestParam int current, @RequestParam int size) {
         return ResponseResult.ok(forumService.selectCommentByPostId(postId, current, size), "获取别人对自己发表的帖子的评论成功");
     }
+    
+    @ApiOperation(value = "获取帖子下的所有一级评论（知乎的样式）", notes = "只获取帖子下的所有一级评论（知乎评论区的样式，不显示回复，点击\"查看全部回复\"按钮会跳转到对应评论的回复页面，缺点是需要手动获取每个评论下的回复，用户体验较差）")
+    @PostMapping("/selectFirstClassCommentByPostId")
+    public ResponseResult<Object> selectFirstClassCommentByPostId(@RequestParam Long postId, @RequestParam int current, @RequestParam int size) {
+        return ResponseResult.ok(forumService.selectFirstClassCommentByPostId(postId, current, size), "获取帖子下的所有一级评论成功");
+    }
 
-    @ApiOperation(value = "获取别人对自己发表的评论的回复", notes = "获取别人对自己发表的评论的回复")
+    @ApiOperation(value = "获取帖子下所有一级评论及附带的前三条回复（B站的样式）", notes = "获取帖子下所有一级评论及附带的前三条回复（B站评论区的样式，评论会显示前三条回复，点击\"查看全部回复\"按钮会跳转到对应评论的回复页面）")
+    @PostMapping("/selectCommentWithThreeReplyByPostId")
+    public ResponseResult<Object> selectCommentWithThreeReplyByPostId(@RequestParam Long postId, @RequestParam int current, @RequestParam int size) {
+        return ResponseResult.ok(forumService.selectCommentWithThreeReplyByPostId(postId, current, size), "获取帖子下所有一级评论及附带的前三条回复成功");
+    }
+
+    @ApiOperation(value = "获取对某个评论的所有回复（\"查看全部回复\"的样式）", notes = "获取对某个评论的所有回复（\"查看全部回复\"的样式）")
+    @PostMapping("/selectReplyByCommentId")
+    public ResponseResult<Object> selectReplyByCommentId(@RequestParam Long commentId, @RequestParam int current, @RequestParam int size) {
+        return ResponseResult.ok(forumService.selectReplyByCommentId(commentId, current, size), "获取对某个评论的所有回复成功");
+    }
+    // 获取对某个评论的所有回复
+    
+    @ApiOperation(value = "获取用户所有评论下的所有回复", notes = "获取用户所有评论下的所有回复")
     @PostMapping("/selectReplyByUserId")
-    public ResponseResult<Object> selectReplyByUserId(@RequestParam Long userId, int current, int size) {
-        ForumValidator.selectReplyByUserId(userId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> selectReplyByUserId(@RequestParam Long userId, @RequestParam int current, @RequestParam int size) {
         return ResponseResult.ok(forumService.selectReplyByUserId(userId, current, size), "获取别人对自己发表的评论的回复成功");
     }
-    
-    @ApiOperation(value = "观看帖子", notes = "观看帖子")
+
+    @ApiOperation(value = "浏览帖子", notes = "访问这个接口会让帖子的浏览量+1")
     @PostMapping("/viewPost")
-    public ResponseResult<Object> viewPost(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.viewPost(userId, postId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> viewPost(@RequestParam Long postId) {
         return forumService.viewPost(postId)
                 ? ResponseResult.ok("观看帖子成功")
                 : ResponseResult.fail("观看帖子失败");
     }
 
-    @ApiOperation(value = "点赞帖子", notes = "点赞帖子")
+    @ApiOperation(value = "点赞帖子", notes = "访问这个接口会让帖子的点赞量+1")
     @PostMapping("/likePost")
-    public ResponseResult<Object> likePost(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.likePost(userId, postId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> likePost(@RequestParam Long postId) {
         return forumService.likePost(postId)
                 ? ResponseResult.ok("点赞帖子成功")
                 : ResponseResult.fail("点赞帖子失败");
     }
 
-    @ApiOperation(value = "点赞评论", notes = "点赞评论")
+    @ApiOperation(value = "点赞评论", notes = "访问这个接口会让评论的点赞量+1")
     @PostMapping("/likeComment")
-    public ResponseResult<Object> likeComment(@RequestParam Long userId, @RequestParam Long commentId) {
-        ForumValidator.likeComment(userId, commentId);
-        CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
+    public ResponseResult<Object> likeComment(@RequestParam Long commentId) {
         return forumService.likeComment(commentId)
                 ? ResponseResult.ok("点赞评论成功")
                 : ResponseResult.fail("点赞评论失败");
@@ -281,7 +290,6 @@ public class ForumController {
     @ApiOperation(value = "收藏帖子", notes = "收藏帖子")
     @PostMapping("/insertStar")
     public ResponseResult<Object> insertStar(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.insertStar(userId, postId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.insertStar(userId, postId)
                 ? ResponseResult.ok("收藏帖子成功")
@@ -291,7 +299,6 @@ public class ForumController {
     @ApiOperation(value = "取消收藏帖子", notes = "取消收藏帖子")
     @PostMapping("/deleteStar")
     public ResponseResult<Object> deleteStar(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.deleteStar(userId, postId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.deleteStar(postId)
                 ? ResponseResult.ok("取消收藏帖子成功")
@@ -308,7 +315,6 @@ public class ForumController {
     @ApiOperation(value = "新增历史记录", notes = "新增历史记录")
     @PostMapping("/insertHistory")
     public ResponseResult<Object> insertHistory(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.insertHistory(userId, postId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.insertHistory(userId, postId)
                 ? ResponseResult.ok("新增历史记录成功")
@@ -318,7 +324,6 @@ public class ForumController {
     @ApiOperation(value = "删除历史记录", notes = "删除历史记录")
     @PostMapping("/deleteHistory")
     public ResponseResult<Object> deleteHistory(@RequestParam Long userId, @RequestParam Long postId) {
-        ForumValidator.deleteHistory(userId, postId);
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return forumService.deleteHistory(postId)
                 ? ResponseResult.ok("删除历史记录成功")
@@ -331,11 +336,11 @@ public class ForumController {
         CustomValidator.auth(userId, UserRole.USER_CAN_CHANGE_SELF);
         return ResponseResult.ok(forumService.selectHistory(userId, current, size), "获取历史记录成功");
     }
-    
+
     @ApiOperation(value = "获取所有帖子标签", notes = "获取所有帖子标签")
     @PostMapping("/selectAllPostTags")
     public ResponseResult<Object> selectAllPostTags() {
         return ResponseResult.ok(forumService.selectAllPostTags(), "获取所有帖子标签成功");
     }
-    
+
 }

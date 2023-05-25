@@ -1,8 +1,6 @@
 package com.yhm.universityhelper.entity.po;
 
-import cn.hutool.json.JSONArray;
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,8 +44,8 @@ public class Comment implements Serializable {
     @TableField("likeNum")
     private Long likeNum;
 
-    @TableField("replayCommentId")
-    private Long replayCommentId;
+    @TableField("replyCommentId")
+    private Long replyCommentId;
 
     @Version
     @TableField("version")

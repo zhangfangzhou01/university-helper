@@ -128,7 +128,8 @@ authentication:
     prefix: Bearer
     secret: 0907797626b745b781a78d7e7df93964
     expire: 604800
-    refresh: 1800
+#    refresh: 1800
+    refresh: 1000000
   email:
     request:
       email-name: email

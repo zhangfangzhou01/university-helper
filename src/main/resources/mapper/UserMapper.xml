@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhm.universityhelper.dao.UserMapper">
+    <select id="selectFollowedList" resultType="String">
+        select username
+        from universityhelper.uh_user
+        where userId in (select followedId from universityhelper.uh_follow where followerId = #{userId})
+    </select>
+
+    <select id="selectFollowerList" resultType="String">
+        select username
+        from universityhelper.uh_user
+        where userId in (select followerId from universityhelper.uh_follow where followedId = #{userId})
+    </select>
+
+    <select id="selectFollowerCount" resultType="long">
+        select count(*)
+        from universityhelper.uh_follow
+        where followedId = #{userId}
+    </select>
+
+    <select id="selectFollowedCount" resultType="long">
+        select count(*)
+        from universityhelper.uh_follow
+        where followerId = #{userId}
+    </select>
+
+    <select id="selectBlockedList" resultType="String">
+        select username
+        from universityhelper.uh_user
+        where userId in (select blockedId from universityhelper.uh_blacklist where blockerId = #{userId})
+    </select>
+
+    <select id="selectBlockedCount" resultType="long">
+        select count(*)
+        from universityhelper.uh_blacklist
+        where blockerId = #{userId}
+    </select>
+</mapper>

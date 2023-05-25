@@ -29,6 +29,7 @@ public class Role implements Serializable {
 
     public static final long ADMIN = 1L;
     public static final long USER = 2L;
+    public static final long ANONYMOUS = 3L;
 
     private static final long serialVersionUID = 1L;
 

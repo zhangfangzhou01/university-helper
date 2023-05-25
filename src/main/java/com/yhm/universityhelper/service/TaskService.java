@@ -58,6 +58,8 @@ public interface TaskService extends IService<Task> {
     Page<Task> pageWrapper(JSONObject json);
 
     Page<Task> select(JSONObject json);
+    
+    Long selectTaskCount(Long userId);
 
     /**
      * @param json 获取用户接取的所有任务
