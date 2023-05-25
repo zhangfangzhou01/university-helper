@@ -125,8 +125,9 @@ mybatis-plus:
 authentication:
   jwt:
     header: Authorization
-    expire: 604800
+    prefix: Bearer
     secret: 0907797626b745b781a78d7e7df93964
+    expire: 604800
     refresh: 1800
   email:
     request:

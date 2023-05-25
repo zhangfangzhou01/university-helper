@@ -62,7 +62,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             throw new JwtException("token已过期");
         }
 
-        String username = jwtUtils.getUsernameByToken(claims);
+        String username = jwtUtils.getUsernameByClaims(claims);
         // 获取用户的权限等信息
 
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
