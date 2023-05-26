@@ -20,7 +20,7 @@ import java.util.Map;
 @Component
 public class AuthenticationSuccess implements AuthenticationSuccessHandler {
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     @Autowired
     private UserMapper userMapper;
@@ -37,10 +37,10 @@ public class AuthenticationSuccess implements AuthenticationSuccessHandler {
         }
 
         String username = authentication.getName();
-        String token = jwtUtils.generateToken(username);
-        jwtUtils.saveToken(username, token);
-        jwtUtils.persistToken(username, DeviceUtils.getPlatform(request));
-        response.setHeader(jwtUtils.getHeader(), token);
+        String token = tokenUtils.generateToken(username);
+        tokenUtils.saveToken(username, token);
+        tokenUtils.persistToken(username, DeviceUtils.getPlatform(request));
+        response.setHeader(tokenUtils.getHeader(), token);
 
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);

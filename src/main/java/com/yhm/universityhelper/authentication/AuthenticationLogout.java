@@ -3,7 +3,7 @@ package com.yhm.universityhelper.authentication;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.util.JsonUtils;
-import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -18,15 +18,15 @@ import java.io.IOException;
 @Component
 public class AuthenticationLogout implements LogoutSuccessHandler {
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (ObjectUtils.isNotEmpty(authentication)) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
-            response.setHeader(jwtUtils.getHeader(), "");
+            response.setHeader(tokenUtils.getHeader(), "");
             JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
-            jwtUtils.expireToken(authentication.getName());
+            tokenUtils.expireToken(authentication.getName());
         } else {
             JsonUtils.writeJson(response, ResponseResult.fail("退出失败"));
         }

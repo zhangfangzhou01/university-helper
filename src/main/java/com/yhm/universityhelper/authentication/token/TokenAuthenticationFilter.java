@@ -9,7 +9,7 @@ import com.yhm.universityhelper.entity.po.User;
 import com.yhm.universityhelper.service.UserService;
 import com.yhm.universityhelper.service.impl.UserDetailsServiceImpl;
 import com.yhm.universityhelper.util.IpUtils;
-import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.TokenUtils;
 import com.yhm.universityhelper.util.RedisUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -54,13 +54,13 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String jwt = request.getHeader(jwtUtils.getHeader());
+        String jwt = request.getHeader(tokenUtils.getHeader());
         if (StrUtil.isBlankOrUndefined(jwt)) {
             checkIfAccessingPublicApiOrResource("token为空", request, response, chain);
             return;
         }
 
-        Claims claims = jwtUtils.getClaimsByToken(jwt);
+        Claims claims = tokenUtils.getClaimsByToken(jwt);
         if ("token解析失败".equals(claims.getSubject())) {
             checkIfAccessingPublicApiOrResource("token解析失败", request, response, chain);
             return;
@@ -71,8 +71,8 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        String username = jwtUtils.getUsernameByClaims(claims);
         // 获取用户的权限等信息
+        String username = tokenUtils.getUsernameByClaims(claims);
 
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
         if (ObjectUtils.isEmpty(user)) {

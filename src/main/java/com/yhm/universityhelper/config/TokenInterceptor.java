@@ -1,7 +1,7 @@
 package com.yhm.universityhelper.config;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.TokenUtils;
 import com.yhm.universityhelper.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 @Configuration
 public class TokenInterceptor implements HandlerInterceptor {
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -37,7 +37,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         String username = authentication.getName();
         String token = getNewToken(username);
         if (ObjectUtils.isNotEmpty(token)) {
-            response.setHeader(jwtUtils.getHeader(), token);
+            response.setHeader(tokenUtils.getHeader(), token);
             redisUtils.delete("newToken:" + username);
         }
         return true;

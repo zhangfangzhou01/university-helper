@@ -2,7 +2,7 @@ package com.yhm.universityhelper.controller;
 
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.UserService;
-import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.TokenUtils;
 import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,7 +20,7 @@ public class LoginController {
     private UserService userService;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     // 注册
     @ApiOperation(value = "注册")
@@ -102,6 +102,6 @@ public class LoginController {
     @ApiOperation(value = "移除Token", notes = "前端如果没有勾rememberme，在关闭之前（注意不是注销），这里指的关闭是浏览器关闭，或者移动设备的APP关闭，调用此接口主动移除后端的Token。（注意：这个接口一定不可以对外暴露，否则会有安全隐患）")
     @PostMapping("/expireToken")
     public void expireToken(String username) {
-        jwtUtils.expireToken(username);
+        tokenUtils.expireToken(username);
     }
 }

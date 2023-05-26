@@ -8,7 +8,7 @@ import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
 import com.yhm.universityhelper.service.ChatService;
 import com.yhm.universityhelper.service.UserService;
-import com.yhm.universityhelper.util.JwtUtils;
+import com.yhm.universityhelper.util.TokenUtils;
 import com.yhm.universityhelper.validation.CustomValidator;
 import com.yhm.universityhelper.validation.UserValidator;
 import io.swagger.annotations.Api;
@@ -33,7 +33,7 @@ public class UserController {
     private ChatService chatService;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenUtils tokenUtils;
 
     // 修改个人信息
     @ApiOperation(value = "修改个人信息", notes = "修改个人信息")
@@ -132,7 +132,7 @@ public class UserController {
                 taskIdAndUsernames.forEach((taskId, usernames) -> chatService.notificationByUsernames(usernames, "任务" + taskId + "已被任务发布者删除"))
         );
         ResponseResult<Object> responseResult = ResponseResult.ok("删除成功");
-        jwtUtils.expireToken(userId);
+        tokenUtils.expireToken(userId);
         return responseResult;
     }
 
@@ -145,7 +145,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.ban(userId, ban)
                 ? ResponseResult.ok("操作成功")
                 : ResponseResult.fail("操作失败");
-        jwtUtils.expireToken(userId);
+        tokenUtils.expireToken(userId);
         return responseResult;
     }
 
@@ -158,7 +158,7 @@ public class UserController {
         ResponseResult<Object> responseResult = userService.setRole(userId, role)
                 ? ResponseResult.ok("设置成功")
                 : ResponseResult.fail("设置失败");
-        jwtUtils.expireToken(userId);
+        tokenUtils.expireToken(userId);
         return responseResult;
     }
 
