@@ -1,5 +1,6 @@
 package com.yhm.universityhelper.config;
 
+import cn.hutool.core.util.ArrayUtil;
 import com.yhm.universityhelper.authentication.*;
 import com.yhm.universityhelper.authentication.email.EmailAuthenticationFilter;
 import com.yhm.universityhelper.authentication.email.EmailAuthenticationProvider;
@@ -22,6 +23,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -83,10 +86,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/swagger-ui.html",
             "/webjars/**",
             "/swagger-resources/**",
+            "/swagger-resources",
             "/v2/api-docs/**",
+            "/v2/api-docs",
             "/doc.html",
             "/druid/**"
     };
+    public static String[] PUBLIC_API = ArrayUtil.addAll(PAGE_WHITELIST, LOGIN_WHITELIST, FORUM_WHITELIST, TASK_WHITELIST, USER_WHITELIST, CHAT_WHITELIST);
+    public static String[] PUBLIC_RESOURCE = Arrays.stream(RESOURCE_WHITELIST).map(uri -> uri.replace("**", ".*")).toArray(String[]::new);
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
@@ -167,13 +174,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 仅ADMIN可以访问 /admin/**
                 // 两个白名单的URL全部放行
                 .authorizeRequests()
-                .antMatchers(PAGE_WHITELIST).permitAll()
-                .antMatchers(LOGIN_WHITELIST).permitAll()
-                .antMatchers(FORUM_WHITELIST).permitAll()
-                .antMatchers(TASK_WHITELIST).permitAll()
-                .antMatchers(USER_WHITELIST).permitAll()
-                .antMatchers(CHAT_WHITELIST).permitAll()
-                .antMatchers(RESOURCE_WHITELIST).permitAll()
+                .antMatchers(SecurityConfig.PUBLIC_API).permitAll()
+                .antMatchers(SecurityConfig.RESOURCE_WHITELIST).permitAll()
                 .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated() // 剩余所有请求者需要身份认证
@@ -195,6 +197,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and().sessionManagement().maximumSessions(3);  // 单用户最大会话数
 
-        http.addFilterBefore(filterChainExceptionHandler(), TokenAuthenticationFilter.class).addFilterBefore(tokenAuthenticationFilter(), TokenAuthenticationFilter.class).addFilterAfter(passwordAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(passwordAuthenticationProvider).addFilterAfter(emailAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(emailAuthenticationProvider);
+        http.addFilterBefore(filterChainExceptionHandler(), TokenAuthenticationFilter.class)
+                .addFilterBefore(tokenAuthenticationFilter(), TokenAuthenticationFilter.class)
+                .addFilterAfter(passwordAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(passwordAuthenticationProvider)
+                .addFilterAfter(emailAuthenticationFilter(), TokenAuthenticationFilter.class).authenticationProvider(emailAuthenticationProvider);
+    }
+
+    public static boolean isPublicApi(String uri) {
+        return ArrayUtil.contains(PUBLIC_API, uri);
+    }
+    
+    public static boolean isPublicResource(String uri) {
+        for (String resource : PUBLIC_RESOURCE) {
+            if (uri.matches(resource)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

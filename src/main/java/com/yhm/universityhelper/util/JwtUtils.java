@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,24 +47,24 @@ public class JwtUtils {
 
     // 解析JWT
     public Claims getClaimsByToken(String headToken) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (ObjectUtils.isNull(authentication) || "anonymous".equals(authentication.getPrincipal())) {
+        String headerTokenWithoutPrefix = removePrefix(headToken);
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(headerTokenWithoutPrefix)
+                    .getBody();
+        } catch (Exception e) {
             return null;
         }
 
-        String headerTokenWithoutPrefix = removePrefix(headToken);
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(headerTokenWithoutPrefix)
-                .getBody();
-
-        String redisToken = (String)redisUtils.get("token:" + getUsernameByClaims(claims));
+        String username = getUsernameByClaims(claims);
+        String redisToken = (String)redisUtils.get("token:" + username);
         if (ObjectUtils.isEmpty(redisToken) || !redisToken.equals(headToken)) {
             return null;
         }
 
         // 判断token是否已经将要过期，如果是，则重新生成token，否则，不做处理
-        String username = getUsernameByClaims(claims);
         if (isTokenNeedRefresh("token:" + username)) {
             updateToken(username);
         }

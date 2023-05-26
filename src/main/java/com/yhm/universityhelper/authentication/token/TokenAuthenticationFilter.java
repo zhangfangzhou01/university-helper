@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.authentication.token;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -48,20 +47,18 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwt = request.getHeader(jwtUtils.getHeader());
         if (StrUtil.isBlankOrUndefined(jwt)) {
-            chain.doFilter(request, response);
-            return;
+            String uri = request.getServletPath();
+            if (SecurityConfig.isPublicApi(uri) || SecurityConfig.isPublicResource(uri)) {
+                chain.doFilter(request, response);
+                return;
+            }
+            throw new JwtException("token为空");
         }
 
         Claims claims = jwtUtils.getClaimsByToken(jwt);
         if (ObjectUtils.isEmpty(claims)) {
             String uri = request.getServletPath();
-            if (ArrayUtil.contains(SecurityConfig.PAGE_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.LOGIN_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.FORUM_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.TASK_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.USER_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.CHAT_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.RESOURCE_WHITELIST, uri)) {
+            if (SecurityConfig.isPublicApi(uri) || SecurityConfig.isPublicResource(uri)) {
                 chain.doFilter(request, response);
                 return;
             }
