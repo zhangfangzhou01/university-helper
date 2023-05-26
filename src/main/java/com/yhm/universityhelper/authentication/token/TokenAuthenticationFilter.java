@@ -1,6 +1,5 @@
 package com.yhm.universityhelper.authentication.token;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -43,29 +42,33 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
     public TokenAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
+    
+    private static void checkIfAccessingPublicApiOrResource(String throwMsg, HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String uri = request.getServletPath();
+        if (SecurityConfig.isPublicApi(uri) || SecurityConfig.isPublicResource(uri)) {
+            chain.doFilter(request, response);
+            return;
+        }
+        throw new JwtException(throwMsg);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String jwt = request.getHeader(jwtUtils.getHeader());
         if (StrUtil.isBlankOrUndefined(jwt)) {
-            chain.doFilter(request, response);
+            checkIfAccessingPublicApiOrResource("token为空", request, response, chain);
             return;
         }
 
         Claims claims = jwtUtils.getClaimsByToken(jwt);
-        if (ObjectUtils.isEmpty(claims)) {
-            String uri = request.getServletPath();
-            if (ArrayUtil.contains(SecurityConfig.PAGE_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.LOGIN_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.FORUM_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.TASK_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.USER_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.CHAT_WHITELIST, uri)
-                    || ArrayUtil.contains(SecurityConfig.RESOURCE_WHITELIST, uri)) {
-                chain.doFilter(request, response);
-                return;
-            }
-            throw new JwtException("token已过期");
+        if ("token解析失败".equals(claims.getSubject())) {
+            checkIfAccessingPublicApiOrResource("token解析失败", request, response, chain);
+            return;
+        }
+        
+        if ("token已过期".equals(claims.getSubject())) {
+            checkIfAccessingPublicApiOrResource("token已过期", request, response, chain);
+            return;
         }
 
         String username = jwtUtils.getUsernameByClaims(claims);
