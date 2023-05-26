@@ -62,7 +62,7 @@ public class JwtUtils {
         String username = getUsernameByClaims(claims);
         String redisToken = (String)redisUtils.get("token:" + username);
         if (ObjectUtils.isEmpty(redisToken) || !redisToken.equals(headToken)) {
-            return new DefaultClaims().setSubject("token过期");
+            return new DefaultClaims().setSubject("token已过期");
         }
 
         // 判断token是否已经将要过期，如果是，则重新生成token，否则，不做处理
