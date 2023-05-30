@@ -73,14 +73,15 @@ def check_if_files_too_many(path):
         raise ImageTooManyException(name='image more than 4 error')
 
 
-def zip_files(filenames):
+async def zip_files(filenames):
     s = io.BytesIO()
     zf = zipfile.ZipFile(s, 'w')
     for fpath in filenames:
         if fpath.split('.')[-1] not in image_suffix:
             continue
         _, fname = os.path.split(fpath)
-        zf.write(fpath, fname)
+        async with aiofiles.open(fpath, 'rb') as f:
+            zf.writestr(fname, await f.read())
     zf.close()
     return Response(
         s.getvalue(),
@@ -101,44 +102,44 @@ async def upload_image(_type: str, _id: int, files: List[UploadFile] = File(...)
         return {
             'code': 200,
             'msg': 'no image uploaded',
-            'data': []
+            'data': [f'/root/image/{_type}/{_id}/' + i for i in os.listdir(f'/root/image/{_type}/{_id}') if i.split('.')[-1] in image_suffix]
         }
     try:
         for file in files:
-            filename = 0
+            filename = file.filename
             filetype = file.filename.split('.')[-1]
             check_if_files_too_many(f'/root/image/{_type}/{_id}')
             if filetype not in image_suffix:
                 continue
-            async with aiofiles.open(f'/root/image/{_type}/{_id}/{filename}.{filetype}', 'wb') as f:
+            async with aiofiles.open(f'/root/image/{_type}/{_id}/{filename}', 'wb') as f:
                 await f.write(await file.read())
     except Exception as e:
         return {
             'code': 500,
             'msg': 'image upload fail',
-            'data': None
+            'data': [f'/root/image/{_type}/{_id}/' + i for i in os.listdir(f'/root/image/{_type}/{_id}') if i.split('.')[-1] in image_suffix]
         }
     return {
         'code': 200,
         'msg': 'image upload success',
-        'data': None
+        'data': [f'/root/image/{_type}/{_id}/' + i for i in os.listdir(f'/root/image/{_type}/{_id}') if i.split('.')[-1] in image_suffix]
     }
 
 
 @app.get('/download/{_type}/{_id}')
-def download_image(_type: str, _id: int):
+async def download_image(_type: str, _id: int):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
     filenames = [f'/root/image/{_type}/{_id}/' +
                  i for i in os.listdir(f'/root/image/{_type}/{_id}')]
-    return zip_files(filenames)
+    return await zip_files(filenames)
 
 
 @app.get('/download/{_type}/{_id}/{filename}')
-def download_image(_type: str, _id: int, filename: str):
+async def download_image(_type: str, _id: int, filename: str):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
-    return zip_files([f'/root/image/{_type}/{_id}/{filename}'])
+    return await zip_files([f'/root/image/{_type}/{_id}/{filename}'])
 
 
 @app.get('/delete/{_type}/{_id}/{filename}')

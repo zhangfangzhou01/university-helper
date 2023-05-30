@@ -71,7 +71,7 @@
   <label for="id"></label><input type="text" id="id" value="1"/>
   <button onclick="readZip(document.getElementById('type').value, document.getElementById('id').value)">读取zip</button>
   <div id="file" style="width: 100%;"></div>
-<!--  删除图片-->
+  <!--  删除图片-->
   <label for="type2"></label><input type="text" id="type2" value="task"/>
   <label for="id2"></label><input type="text" id="id2" value="1"/>
   <label for="fileName"></label><input type="text" id="fileName" value="1"/>
@@ -228,17 +228,17 @@
         })
         document.getElementById('file').innerHTML = html
     }
-    
+
     async function deleteFile(type, id, fileName) {
         let result = await axios.get(`http://47.120.32.226/test/delete/${type}/${id}/${fileName}`)
         console.log(result)
     }
-    
+
     async function deleteDir(type, id) {
         let result = await axios.get(`http://47.120.32.226/test/delete/${type}/${id}`)
         console.log(result)
     }
-    
+
     input.focus();
 </script>
 </body>
