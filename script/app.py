@@ -25,6 +25,11 @@ class ImageNotExistException(Exception):
         self.name = name
 
 
+class NonImageException(Exception):
+    def __init__(self, name: str):
+        self.name = name
+
+
 app = FastAPI()
 
 
@@ -67,10 +72,28 @@ async def unicorn_exception_handler(request: Request, exc: ImageNotExistExceptio
     )
 
 
+@app.exception_handler(NonImageException)
+async def unicorn_exception_handler(request: Request, exc: NonImageException):
+    return JSONResponse(
+        status_code=500,
+        content={
+            'code': 1022,
+            'msg': '上传的文件中包含非图片文件',
+            'data': exc.name
+        }
+    )
+
+
 def check_if_files_too_many(path):
     length = len(os.listdir(path))
     if length >= 4:
         raise ImageTooManyException(name='image more than 4 error')
+
+
+def check_if_files_are_image(files):
+    for file in files:
+        if file.filename.split('.')[-1] not in image_suffix:
+            raise ImageTooManyException(name='some files are not image')
 
 
 async def zip_files(filenames):
@@ -92,26 +115,23 @@ async def zip_files(filenames):
     )
 
 
-@app.post('/upload/{_type}/{_id}')
+@ app.post('/upload/{_type}/{_id}')
 async def upload_image(_type: str, _id: int, files: List[UploadFile] = File(...)):
+    check_if_files_are_image(files)
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         os.makedirs(f'/root/image/{_type}/{_id}')
     if (len(files) + len(os.listdir(f'/root/image/{_type}/{_id}'))) > 4:
         raise ImageTooManyException(name='image more than 4 error')
     if files[0].filename == '':
         return {
-            'code': 200,
+            'code': 500,
             'msg': 'no image uploaded',
             'data': [f'/root/image/{_type}/{_id}/' + i for i in os.listdir(f'/root/image/{_type}/{_id}') if i.split('.')[-1] in image_suffix]
         }
     try:
         for file in files:
-            filename = file.filename
-            filetype = file.filename.split('.')[-1]
             check_if_files_too_many(f'/root/image/{_type}/{_id}')
-            if filetype not in image_suffix:
-                continue
-            async with aiofiles.open(f'/root/image/{_type}/{_id}/{filename}', 'wb') as f:
+            async with aiofiles.open(f'/root/image/{_type}/{_id}/{file.filename}', 'wb') as f:
                 await f.write(await file.read())
     except Exception as e:
         return {
@@ -126,7 +146,7 @@ async def upload_image(_type: str, _id: int, files: List[UploadFile] = File(...)
     }
 
 
-@app.get('/download/{_type}/{_id}')
+@ app.get('/download/{_type}/{_id}')
 async def download_image(_type: str, _id: int):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
@@ -135,14 +155,14 @@ async def download_image(_type: str, _id: int):
     return await zip_files(filenames)
 
 
-@app.get('/download/{_type}/{_id}/{filename}')
+@ app.get('/download/{_type}/{_id}/{filename}')
 async def download_image(_type: str, _id: int, filename: str):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
     return await zip_files([f'/root/image/{_type}/{_id}/{filename}'])
 
 
-@app.get('/delete/{_type}/{_id}/{filename}')
+@ app.get('/delete/{_type}/{_id}/{filename}')
 def delete_image(_type: str, _id: int, filename: str):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
@@ -159,7 +179,7 @@ def delete_image(_type: str, _id: int, filename: str):
     }
 
 
-@app.get('/delete/{_type}/{_id}')
+@ app.get('/delete/{_type}/{_id}')
 def delete_image(_type: str, _id: int):
     if not os.path.exists(f'/root/image/{_type}/{_id}'):
         raise DirNotExistException(name='dir not exist')
