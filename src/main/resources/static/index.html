@@ -60,23 +60,37 @@
   <button onclick="disconnected()">断开连接</button>
   <button onclick="testLogin()">测试登录接口</button>
   <button onclick="testLogout()">测试登出接口</button>
-  <iframe  width=0 height=0 id="my-iframe" name="my-iframe"></iframe>
-  <form id="my-form" action="http://47.120.32.226/test/upload/task/1" method="post" enctype="multipart/form-data" target="my-iframe">
+  <iframe width=0 height=0 id="my-iframe" name="my-iframe"></iframe>
+  <form id="my-form" action="http://47.120.32.226/test/upload/task/1" method="post" enctype="multipart/form-data"
+        target="my-iframe">
     <label for="type1"></label><input type="text" id="type1" value="task"/>
     <label for="id1"></label><input type="text" id="id1" value="1"/>
     <input id="file-uploaded" type="file" name="files" multiple="multiple"/>
-    <input type="button" value="上传文件" onclick="document.getElementById('my-form').action='http://47.120.32.226/test/upload/'+document.getElementById('type1').value+'/'+document.getElementById('id1').value;document.getElementById('my-form').submit()"/>
+    <input type="button" value="上传文件"
+           onclick="document.getElementById('my-form').action='http://47.120.32.226/test/upload/'+document.getElementById('type1').value+'/'+document.getElementById('id1').value;document.getElementById('my-form').submit()"/>
   </form>
   <label for="type"></label><input type="text" id="type" value="task"/>
   <label for="id"></label><input type="text" id="id" value="1"/>
-  <button onclick="readZip(document.getElementById('type').value, document.getElementById('id').value)">读取zip</button>
+  <label for="fileName1"></label><input type="text" id="fileName1" value="1"/>
+  <button onclick="readZip(document.getElementById('type').value, document.getElementById('id').value)">读取全部文件
+  </button>
+  <button
+      onclick="readFile(document.getElementById('type').value, document.getElementById('id').value, document.getElementById('fileName1').value)">
+    读取文件
+  </button>
+  <button onclick="readPreview(document.getElementById('type').value, document.getElementById('id').value)">读取预览
+  </button>
   <div id="file" style="width: 100%;"></div>
   <!--  删除图片-->
   <label for="type2"></label><input type="text" id="type2" value="task"/>
   <label for="id2"></label><input type="text" id="id2" value="1"/>
   <label for="fileName"></label><input type="text" id="fileName" value="1"/>
-  <button onclick="deleteFile(document.getElementById('type2').value, document.getElementById('id2').value, document.getElementById('fileName').value)">删除文件</button>
-  <button onclick="deleteDir(document.getElementById('type2').value, document.getElementById('id2').value)">删除文件夹</button>
+  <button
+      onclick="deleteFile(document.getElementById('type2').value, document.getElementById('id2').value, document.getElementById('fileName').value)">
+    删除文件
+  </button>
+  <button onclick="deleteDir(document.getElementById('type2').value, document.getElementById('id2').value)">删除文件夹
+  </button>
 </div>
 
 <script>
@@ -227,6 +241,23 @@
             html += `<img src="${item.content}" alt="${item.fileName}">`
         })
         document.getElementById('file').innerHTML = html
+    }
+
+    async function readFile(type, id, fileName) {
+        let res = await axios.get(`http://47.120.32.226/test/download/${type}/${id}/file/${fileName}`, {
+            responseType: 'blob'
+        })
+        const blob = res.data
+        document.getElementById('file').innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="${fileName}">`
+    }
+
+    async function readPreview(type, id) {
+        let res = await axios.get(`http://47.120.32.226/test/download/${type}/${id}/preview`, {
+            responseType: 'blob'
+        })
+        const blob = res.data
+        const fileName = res.headers['content-disposition'].split('filename=')[1]
+        document.getElementById('file').innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="${fileName}">`
     }
 
     async function deleteFile(type, id, fileName) {
