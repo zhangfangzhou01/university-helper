@@ -38,12 +38,12 @@ public class TokenUtils {
 
     // 生成JWT
     public String generateToken(String username) {
-        return appendPrefix(Jwts.builder()
+        return Jwts.builder()
                 .setHeaderParam("token", "JWT")
                 .setSubject(IdUtil.fastSimpleUUID())
                 .claim("username", username)
                 .signWith(SignatureAlgorithm.HS512, secret)
-                .compact());
+                .compact();
     }
 
     // 解析JWT
@@ -61,7 +61,7 @@ public class TokenUtils {
 
         String username = getUsernameByClaims(claims);
         String redisToken = (String)redisUtils.get("token:" + username);
-        if (ObjectUtils.isEmpty(redisToken) || !redisToken.equals(headToken)) {
+        if (ObjectUtils.isEmpty(redisToken) || !redisToken.equals(removePrefix(headToken))) {
             return new DefaultClaims().setSubject("token已过期");
         }
 
@@ -116,16 +116,7 @@ public class TokenUtils {
 
     public String removePrefix(String token) {
         if (token.startsWith(prefix)) {
-            token = token.substring(prefix.length()).trim();
-        } else {
-            token = null;
-        }
-        return token;
-    }
-
-    public String appendPrefix(String token) {
-        if (!token.startsWith(prefix)) {
-            token = prefix + " " + token;
+            return token.substring(prefix.length()).trim();
         }
         return token;
     }
