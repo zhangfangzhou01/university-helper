@@ -90,7 +90,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v2/api-docs/**",
             "/v2/api-docs",
             "/doc.html",
-            "/druid/**"
+            "/druid/**",
+            "/druid",
     };
     public static String[] PUBLIC_API = ArrayUtil.addAll(PAGE_WHITELIST, LOGIN_WHITELIST, FORUM_WHITELIST, TASK_WHITELIST, USER_WHITELIST, CHAT_WHITELIST);
     public static String[] PUBLIC_RESOURCE = Arrays.stream(RESOURCE_WHITELIST).map(uri -> uri.replace("**", ".*")).toArray(String[]::new);

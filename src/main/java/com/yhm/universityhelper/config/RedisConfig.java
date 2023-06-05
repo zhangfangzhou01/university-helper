@@ -28,7 +28,6 @@ public class RedisConfig {
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
 
         redisTemplate.setKeySerializer(stringRedisSerializer); // key的序列化类型
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer); // value的序列化类型
