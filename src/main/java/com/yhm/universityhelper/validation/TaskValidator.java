@@ -69,15 +69,6 @@ public class TaskValidator extends CustomValidator {
                 .map(type -> Validator.validateMatchRegex("(交易|外卖)", type, "类型必须是交易或外卖"))
                 .orElseThrow(() -> new ValidateException("必须提供type"));
 
-        // 插入时不能给的
-        Validator.validateNull(task.getStr("taskId"), "taskId由系统自动填充");
-        Validator.validateNull(task.getStr("priority"), "priority由系统自动填充");
-        Validator.validateNull(task.getStr("releaseTime"), "releaseTime由系统自动填充");
-        Validator.validateNull(task.getStr("distance"), "distance由系统自动算出");
-        Validator.validateNull(task.getStr("phoneNumberForNow"), "phoneNumberForNow由系统自动填充");
-        Validator.validateNull(task.getStr("leftNumOfPeopleTake"), "leftNumOfPeopleTake由系统算出");
-        Validator.validateNull(task.getStr("score"), "score只有在任务完成的时候才能提供");
-
         if (task.getInt("taskState") == Task.NOT_PUBLISH) {
             return;
         }
@@ -123,17 +114,7 @@ public class TaskValidator extends CustomValidator {
                     .map(maxNumOfPeopleTake -> CustomValidator.validateBetween("最大接单人数", maxNumOfPeopleTake, 1, Integer.MAX_VALUE))
                     .orElseThrow(() -> new ValidateException("必须提供maxNumOfPeopleTake"));
 
-//            // 交易不能给的
-//            Validator.validateNull(task.getStr("takeoutId"), "交易任务不需要提供takeoutId");
-//            Validator.validateNull(task.getStr("orderTime"), "交易任务不需要提供orderTime");
-//            Validator.validateNull(task.getStr("arrivalLocation"), "交易任务不需要提供arrivalLocation");
-//            Validator.validateNull(task.getStr("arrivalTime"), "交易任务不需要提供arrivalTime");
-//            Validator.validateNull(task.getStr("targetLocation"), "交易任务不需要提供targetLocation");
-
         } else if ("外卖".equals(task.getStr("type"))) {
-//            // 外卖不能给的
-//            Validator.validateNull(task.getStr("maxNumOfPeopleTake"), "外卖任务默认只有一个接单人，不需要提供maxNumOfPeopleTake");
-
             // 外卖必须给的
             Optional.ofNullable(task.getStr("takeoutId"))
                     .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"));
@@ -203,17 +184,7 @@ public class TaskValidator extends CustomValidator {
         if (formerTaskState == Task.NOT_TAKE && currentTaskState == Task.NOT_TAKE) {
             throw new ValidateException("禁止修改已经发布的任务");
         }
-
-        // 更新时不能改的
-        Validator.validateNull(task.getStr("isHunter"), "禁止修改任务的isHunter");
-        Validator.validateNull(task.getStr("transactionAmount"), "禁止修改任务的交易金额");
-        Validator.validateNull(task.getStr("priority"), "priority由系统自动填充");
-        Validator.validateNull(task.getStr("releaseTime"), "releaseTime由系统自动填充");
-        Validator.validateNull(task.getStr("distance"), "distance由系统自动算出");
-        Validator.validateNull(task.getStr("phoneNumberForNow"), "phoneNumberForNow由系统自动填充");
-        Validator.validateNull(task.getStr("leftNumOfPeopleTake"), "leftNumOfPeopleTake由系统算出");
-        Validator.validateNull(task.getStr("score"), "score只有在任务完成的时候才能提供");
-
+        
         if (task.getInt("taskState") == Task.NOT_PUBLISH) {
             return;
         }
@@ -239,23 +210,12 @@ public class TaskValidator extends CustomValidator {
                 .map(expectedPeriod -> Validator.validateNumber(expectedPeriod, "expectedPeriod不合法"));
 
         if ("交易".equals(task.getStr("type"))) {
-//            // 交易可以改的
-//            Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
-//                    .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
-//                    .map(Integer::parseInt)
-//                    .map(maxNumOfPeopleTake -> CustomValidator.validateBetween("最大接单人数", maxNumOfPeopleTake, 1, Integer.MAX_VALUE));
-
-            // 交易不能改的
-            Validator.validateNull(task.getStr("takeoutId"), "交易任务不能提供takeoutId");
-            Validator.validateNull(task.getStr("orderTime"), "交易任务不能提供orderTime");
-            Validator.validateNull(task.getStr("arrivalTime"), "交易任务不能提供arrivalTime");
-            Validator.validateNull(task.getStr("arrivalLocation"), "交易任务不能提供arrivalLocation");
-            Validator.validateNull(task.getStr("targetLocation"), "交易任务不能提供targetLocation");
-
+            // 交易可以改的
+            Optional.ofNullable(task.getStr("maxNumOfPeopleTake"))
+                    .map(maxNumOfPeopleTake -> Validator.validateNumber(maxNumOfPeopleTake, "最大接单人数不合法"))
+                    .map(Integer::parseInt)
+                    .map(maxNumOfPeopleTake -> CustomValidator.validateBetween("最大接单人数", maxNumOfPeopleTake, 1, Integer.MAX_VALUE));
         } else if ("外卖".equals(task.getStr("type"))) {
-//            // 外卖不能改的
-//            Validator.validateNull(task.getStr("maxNumOfPeopleTake"), "外卖任务默认只有一个接单人，不需要提供maxNumOfPeopleTake");
-
             // 外卖可以改的
             Optional.ofNullable(task.getStr("takeoutId"))
                     .map(takeoutId -> Validator.validateNumber(takeoutId, "外卖ID不合法"));

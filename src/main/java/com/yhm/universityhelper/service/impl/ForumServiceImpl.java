@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +52,7 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
 
     @Autowired
     private CommentMapper commentMapper;
-    
+
     @Autowired
     private UserMapper userMapper;
 
@@ -61,6 +63,9 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         Post post = new Post();
         for (String key : json.keySet()) {
             Object value = json.get(key);
+            if ("postId".equals(key) || "releaseTime".equals(key) || "lastModifyTime".equals(key) || "likeNum".equals(key) || "starNum".equals(key) || "commentNum".equals(key)) {
+                continue;
+            }
             if ("userId".equals(key)) {
                 ReflectUtils.set(post, "userId", userId);
             } else if ("tags".equals(key)) {
@@ -106,9 +111,10 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         Post post = postMapper.selectById(postId);
 
         for (String key : json.keySet()) {
-            if ("postId".equals(key) || "userId".equals(key)) {
+            if ("postId".equals(key) || "userId".equals(key) || "releaseTime".equals(key) || "lastModifyTime".equals(key) || "likeNum".equals(key) || "starNum".equals(key) || "commentNum".equals(key)) {
                 continue;
-            } else if ("tags".equals(key)) {
+            }
+            if ("tags".equals(key)) {
                 JSONArray tags = json.getJSONArray(key);
                 ReflectUtils.set(post, key, tags);
                 Thread.startVirtualThread(() -> {
@@ -235,6 +241,8 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
         for (String key : json.keySet()) {
             switch (key) {
                 case "commentId":
+                case "releaseTime":
+                case "likeNum":
                     break;
                 case "userId":
                 case "postId":
@@ -275,12 +283,12 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     public Comment selectComment(Long commentId) {
         return commentMapper.selectOne(new LambdaQueryWrapper<Comment>().eq(Comment::getCommentId, commentId));
     }
-    
+
     @Override
     public Page<Comment> selectFirstClassCommentByPostId(Long postId, int current, int size) {
         return commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).eq(Comment::getReplyCommentId, 0));
     }
-    
+
     @Override
     public Page<JSONObject> selectCommentWithThreeReplyByPostId(Long postId, int current, int size) {
         Page<Comment> commentPage = commentMapper.selectPage(new Page<>(current, size), new LambdaQueryWrapper<Comment>().eq(Comment::getPostId, postId).eq(Comment::getReplyCommentId, 0));

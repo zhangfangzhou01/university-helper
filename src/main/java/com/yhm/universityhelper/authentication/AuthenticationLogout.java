@@ -24,7 +24,6 @@ public class AuthenticationLogout implements LogoutSuccessHandler {
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         if (ObjectUtils.isNotEmpty(authentication)) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
-            response.setHeader(tokenUtils.getHeader(), "");
             JsonUtils.writeJson(response, ResponseResult.ok("退出成功"));
             tokenUtils.expireToken(authentication.getName());
         } else {
