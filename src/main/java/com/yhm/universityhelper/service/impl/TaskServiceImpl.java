@@ -65,10 +65,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         // TODO: 前端要针对类型，对某些字段设置为不可修改
         for (String key : json.keySet()) {
-            if ("taskId".equals(key) || "userId".equals(key) || "type".equals(key)) {
+            if ("taskId".equals(key) || "userId".equals(key) || "type".equals(key) || "isHunter".equals(key) || "transactionAmount".equals(key) || "releaseTime".equals(key) || "distance".equals(key) || "phoneNumberForNow".equals(key) || "leftNumOfPeopleTake".equals(key) || "score".equals(key)) {
                 continue;
             }
-
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = json.get(key).toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
@@ -95,9 +94,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public Long insert(JSONObject json) {
         final Long userId = json.getLong("userId");
+        final String type = json.getStr("type");
         Task task = new Task();
         for (String key : json.keySet()) {
             Object value = json.get(key);
+            if ("taskId".equals(key) || "releaseTime".equals(key) || "distance".equals(key) || "phoneNumberForNow".equals(key) || "leftNumOfPeopleTake".equals(key) || "score".equals(key)) {
+                continue;
+            }
+            if ("交易".equals(type) && ("takeoutId".equals(key) || "orderTime".equals(key) || "arrivalLocation".equals(key) || "arrivalTime".equals(key) || "targetLocation".equals(key))) {
+                continue;
+            }
+            if ("外卖".equals(type) && ("maxNumOfPeopleTake".equals(key) || "transactionAmount".equals(key))) {
+                continue;
+            }
             if (StringUtils.containsIgnoreCase(key, "time")) {
                 String time = value.toString().replace(' ', 'T');
                 ReflectUtils.set(task, key, LocalDateTime.parse(time));
