@@ -7,6 +7,7 @@ import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameters;
 import com.yhm.universityhelper.config.RabbitConfig;
 import com.yhm.universityhelper.dao.TaskMapper;
+import com.yhm.universityhelper.entity.dto.TaskMessage;
 import com.yhm.universityhelper.entity.po.Task;
 import com.yhm.universityhelper.entity.po.UserRole;
 import com.yhm.universityhelper.entity.vo.ResponseResult;
@@ -122,7 +123,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.update(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
+        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, new TaskMessage(taskId, formerTaskState, json.getStr("type"), json.getLong("userId")));
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息修改成功")
                 : ResponseResult.fail("任务信息修改失败");
@@ -217,7 +218,7 @@ public class TaskController {
         CustomValidator.auth(json.getLong("userId"), UserRole.USER_CAN_CHANGE_SELF);
         final Long taskId = taskService.insert(json);
         final Integer formerTaskState = taskMapper.selectTaskStateByTaskId(taskId);
-        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, "{'taskId':" + taskId + ",'taskState':" + formerTaskState + ",'type':'" + json.getStr("type") + "','userId':" + json.getLong("userId") + "}");
+        rabbitTemplate.convertAndSend(RabbitConfig.TASK_AUTO_DELETE_EXCHANGE_NAME, RabbitConfig.TASK_AUTO_DELETE_ROUTING_KEY, new TaskMessage(taskId, formerTaskState, json.getStr("type"), json.getLong("userId")));
         return ObjectUtils.isNotNull(taskId) && taskId > 0
                 ? ResponseResult.ok("任务信息创建成功")
                 : ResponseResult.fail("任务信息创建失败");
@@ -303,7 +304,7 @@ public class TaskController {
     public ResponseResult<Page<Task>> select(@RequestBody JSONObject json) {
         return ResponseResult.ok(taskService.select(json), "获取任务信息成功");
     }
-    
+
     @ApiOperation(value = "获取用户发布的任务数量", notes = "获取用户发布的任务数量")
     @PostMapping("/selectTaskCount")
     public ResponseResult<Object> selectTaskCount(@RequestParam Long userId) {

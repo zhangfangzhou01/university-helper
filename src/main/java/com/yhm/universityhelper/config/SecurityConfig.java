@@ -188,7 +188,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().logout()   //开启注销
                 .permitAll()    //允许所有人访问
                 .logoutSuccessHandler(authenticationLogout) //注销逻辑处理
-                .clearAuthentication(true)  //清除认证信息
                 .invalidateHttpSession(true)   //清除session
                 .deleteCookies("JSESSIONID")    //删除cookie
                 .clearAuthentication(true) //清除认证信息
