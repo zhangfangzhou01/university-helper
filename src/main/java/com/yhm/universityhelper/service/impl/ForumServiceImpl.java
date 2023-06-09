@@ -56,7 +56,6 @@ public class ForumServiceImpl extends ServiceImpl<PostMapper, Post> implements F
     @Autowired
     private UserMapper userMapper;
 
-
     @Override
     public boolean insertPost(JSONObject json) {
         final Long userId = json.getLong("userId");
