@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,37 +55,53 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Autowired
     private UserMapper userMapper;
 
-    @Override
-    public Long update(JSONObject json) {
-        Long taskId = json.getLong("taskId");
-        Task task = taskMapper.selectById(taskId);
+    private static final HashMap<String, String> ATTRIBUTE_AND_CLASSNAME = new HashMap<>() {{
+        this.put("taskId", "Long");
+        this.put("userId", "Long");
+        this.put("type", "String");
+        this.put("tags", "JSONArray");
+        this.put("releaseTime", "LocalDateTime");
+        this.put("title", "String");
+        this.put("requireDescription", "String");
+        this.put("maxNumOfPeopleTake", "Integer");
+        this.put("leftNumOfPeopleTake", "Integer");
+        this.put("expectedPeriod", "Integer");
+        this.put("score", "Integer");
+        this.put("taskState", "Integer");
+        this.put("takeoutId", "Integer");
+        this.put("orderTime", "LocalDateTime");
+        this.put("arrivalTime", "LocalDateTime");
+        this.put("arrivalLocation", "String");
+        this.put("targetLocation", "String");
+        this.put("distance", "Integer");
+        this.put("phoneNumForNow", "String");
+        this.put("transactionAmount", "Double");
+        this.put("isHunter", "Integer");
+    }};
 
-        // TODO: 前端要针对类型，对某些字段设置为不可修改
+    private static void setTask(JSONObject json, Task task, TaskTagMapper taskTagMapper) {
         for (String key : json.keySet()) {
-            if ("taskId".equals(key) || "userId".equals(key) || "type".equals(key) || "isHunter".equals(key) || "transactionAmount".equals(key) || "releaseTime".equals(key) || "distance".equals(key) || "phoneNumberForNow".equals(key) || "leftNumOfPeopleTake".equals(key) || "score".equals(key)) {
-                continue;
-            }
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = json.get(key).toString().replace(' ', 'T');
-                ReflectUtils.set(task, key, LocalDateTime.parse(time));
-            } else if ("tags".equals(key)) {
-                JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
-                Thread.startVirtualThread(() -> {
-                    if (!tags.isEmpty()) {
-                        taskTagMapper.insertBatch(tags);
-                    }
-                });
-            } else {
-                ReflectUtils.set(task, key, json.get(key));
+            switch (ATTRIBUTE_AND_CLASSNAME.get(key)) {
+                case "Long" -> ReflectUtils.set(task, key, json.getLong(key));
+                case "String" -> ReflectUtils.set(task, key, json.getStr(key));
+                case "JSONArray" -> {
+                    JSONArray tags = json.getJSONArray(key);
+                    ReflectUtils.set(task, key, tags);
+                    Thread.startVirtualThread(() -> {
+                        if (!tags.isEmpty()) {
+                            taskTagMapper.insertBatch(tags);
+                        }
+                    });
+                }
+                case "LocalDateTime" -> {
+                    String time = json.get(key).toString().replace(' ', 'T');
+                    ReflectUtils.set(task, key, LocalDateTime.parse(time));
+                }
+                case "Integer" -> ReflectUtils.set(task, key, json.getInt(key));
+                case "Double" -> ReflectUtils.set(task, key, json.getDouble(key));
+                default -> ReflectUtils.set(task, key, json.get(key));
             }
         }
-        boolean result = taskMapper.updateById(task) > 0;
-
-        if (!result) {
-            throw new RuntimeException("更新任务失败，事务回滚");
-        }
-        return task.getTaskId();
     }
 
     @Override
@@ -96,36 +109,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         final Long userId = json.getLong("userId");
         final String type = json.getStr("type");
         Task task = new Task();
-        for (String key : json.keySet()) {
-            Object value = json.get(key);
-            if ("taskId".equals(key) || "releaseTime".equals(key) || "distance".equals(key) || "phoneNumberForNow".equals(key) || "leftNumOfPeopleTake".equals(key) || "score".equals(key)) {
-                continue;
-            }
-            if ("交易".equals(type) && ("takeoutId".equals(key) || "orderTime".equals(key) || "arrivalLocation".equals(key) || "arrivalTime".equals(key) || "targetLocation".equals(key))) {
-                continue;
-            }
-            if ("外卖".equals(type) && ("maxNumOfPeopleTake".equals(key) || "transactionAmount".equals(key))) {
-                continue;
-            }
-            if (StringUtils.containsIgnoreCase(key, "time")) {
-                String time = value.toString().replace(' ', 'T');
-                ReflectUtils.set(task, key, LocalDateTime.parse(time));
-            } else if ("userId".equals(key)) {
-                ReflectUtils.set(task, "userId", userId);
-            } else if ("tags".equals(key)) {
-                JSONArray tags = json.getJSONArray(key);
-                ReflectUtils.set(task, key, tags);
-                Thread.startVirtualThread(() -> {
-                    if (!tags.isEmpty()) {
-                        taskTagMapper.insertBatch(tags);
-                    }
-                });
-            } else if ("transactionAmount".equals(key)) {
-                ReflectUtils.set(task, key, Double.parseDouble(value.toString()));
-            } else {
-                ReflectUtils.set(task, key, value);
-            }
-        }
+        setTask(json, task, taskTagMapper);
         // 初始生成时，剩余可接取人数等于最大可接取人数
         task.setReleaseTime(LocalDateTime.now());
         task.setPhoneNumForNow(userMapper.selectById(userId).getPhone());
@@ -134,6 +118,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         if (!result) {
             throw new RuntimeException("发布任务失败，事务回滚");
+        }
+        return task.getTaskId();
+    }
+
+    @Override
+    public Long update(JSONObject json) {
+        Long taskId = json.getLong("taskId");
+        Task task = taskMapper.selectById(taskId);
+
+        // TODO: 前端要针对类型，对某些字段设置为不可修改
+        setTask(json, task, taskTagMapper);
+        boolean result = taskMapper.updateById(task) > 0;
+
+        if (!result) {
+            throw new RuntimeException("更新任务失败，事务回滚");
         }
         return task.getTaskId();
     }
@@ -264,7 +263,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
 
         for (Object obj : sortJson) {
-            JSONObject jsonObject = (JSONObject)obj;
+            JSONObject jsonObject = (JSONObject) obj;
             if (ObjectUtil.isEmpty(jsonObject) || jsonObject.isEmpty()) {
                 continue;
             }
@@ -320,13 +319,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         return taskMapper.selectPage(page, wrapper);
     }
-    
+
     @Override
     public Long selectTaskCount(Long userId) {
         return taskMapper.selectCount(new LambdaQueryWrapper<Task>().eq(Task::getUserId, userId));
     }
 
-     @Override
+    @Override
     public Page<Task> selectYourTake(JSONObject json) {
         final Long userId = json.getLong("userId");
         final JSONObject pageJson = json.getJSONObject("page");
