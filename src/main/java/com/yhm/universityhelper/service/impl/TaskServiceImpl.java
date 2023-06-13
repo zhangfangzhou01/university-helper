@@ -82,7 +82,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     private static void setTask(JSONObject json, Task task, TaskTagMapper taskTagMapper) {
         for (String key : json.keySet()) {
             switch (ATTRIBUTE_AND_CLASSNAME.get(key)) {
-                case "Long" -> ReflectUtils.set(task, key, json.getLong(key));
+                case "Long" -> ReflectUtils.set(task, key, Long.parseLong(json.getStr(key)));
                 case "String" -> ReflectUtils.set(task, key, json.getStr(key));
                 case "JSONArray" -> {
                     JSONArray tags = json.getJSONArray(key);
@@ -97,8 +97,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
                     String time = json.get(key).toString().replace(' ', 'T');
                     ReflectUtils.set(task, key, LocalDateTime.parse(time));
                 }
-                case "Integer" -> ReflectUtils.set(task, key, json.getInt(key));
-                case "Double" -> ReflectUtils.set(task, key, json.getDouble(key));
+                case "Integer" -> ReflectUtils.set(task, key, Integer.parseInt(json.getStr(key)));
+                case "Double" -> ReflectUtils.set(task, key, Double.parseDouble(json.getStr(key)));
                 default -> ReflectUtils.set(task, key, json.get(key));
             }
         }
